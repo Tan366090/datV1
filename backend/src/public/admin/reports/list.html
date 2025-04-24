@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo - Quản lý nhân sự</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Quản lý nhân sự</h2>
+            <ul>
+                <li><a href="../dashboard.html">Dashboard</a></li>
+                <li><a href="../employees/list.html">Nhân viên</a></li>
+                <li><a href="../departments/list.html">Phòng ban</a></li>
+                <li><a href="../positions/list.html">Chức vụ</a></li>
+                <li><a href="../attendance/list.html">Chấm công</a></li>
+                <li><a href="../salary/list.html">Lương</a></li>
+                <li><a href="../leave/list.html">Nghỉ phép</a></li>
+                <li class="active"><a href="list.html">Báo cáo</a></li>
+                <li><a href="../settings.html">Cài đặt</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <div class="header">
+                <h1>Báo cáo</h1>
+                <div class="user-info">
+                    <span id="username">Admin</span>
+                    <a href="../../logout.html" class="logout-btn">Đăng xuất</a>
+                </div>
+            </div>
+
+            <div class="reports-grid">
+                <div class="report-card">
+                    <h3>Báo cáo nhân viên</h3>
+                    <p>Xem thông tin chi tiết về nhân viên</p>
+                    <a href="employee.html" class="btn">Xem báo cáo</a>
+                </div>
+
+                <div class="report-card">
+                    <h3>Báo cáo chấm công</h3>
+                    <p>Thống kê chấm công theo tháng/quý/năm</p>
+                    <a href="attendance.html" class="btn">Xem báo cáo</a>
+                </div>
+
+                <div class="report-card">
+                    <h3>Báo cáo lương</h3>
+                    <p>Thống kê lương theo phòng ban/thời gian</p>
+                    <a href="salary.html" class="btn">Xem báo cáo</a>
+                </div>
+
+                <div class="report-card">
+                    <h3>Báo cáo nghỉ phép</h3>
+                    <p>Thống kê nghỉ phép của nhân viên</p>
+                    <a href="leave.html" class="btn">Xem báo cáo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/admin.js"></script>
+</body>
+</html> 

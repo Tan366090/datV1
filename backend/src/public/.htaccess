@@ -1,0 +1,74 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# Set base directory
+RewriteBase /QLNhanSu/backend/src/public/
+
+# Set default directory index
+DirectoryIndex login_new.html index.html index.php
+
+# Handle directory requests
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Handle file requests
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Custom error documents
+ErrorDocument 404 /QLNhanSu/backend/src/public/404.html
+ErrorDocument 500 /QLNhanSu/backend/src/public/500.html
+
+# Allow access to HTML, JavaScript, and CSS files
+<FilesMatch "\.(html|js|css)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Content Security Policy
+<IfModule mod_headers.c>
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' http://localhost:* http://127.0.0.1:* https://cdn.jsdelivr.net ws://localhost:8080 ws://127.0.0.1:8080; worker-src 'self' blob:; frame-src 'self'; object-src 'none';"
+</IfModule>
+
+# Allow all content types
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+Header set Access-Control-Allow-Credentials "true"
+
+# Handle API requests
+RewriteCond %{REQUEST_URI} ^/QLNhanSu/backend/src/public/api/
+RewriteRule ^api/(.*)$ /QLNhanSu/backend/src/api/$1 [L,QSA]
+
+# Handle dashboard requests
+RewriteRule ^(admin|manager|hr|employee)/dashboard\.html$ $1/dashboard.html [L]
+
+# Check session for dashboard pages
+RewriteCond %{REQUEST_URI} ^/QLNhanSu/backend/src/public/(admin|manager|hr|employee)/dashboard\.html$
+RewriteRule ^(.*)$ middleware/auth.php [L]
+
+# Allow access to all HTML files
+<FilesMatch "\.html$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Allow access to all JavaScript files
+<FilesMatch "\.js$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Allow access to all CSS files
+<FilesMatch "\.css$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>

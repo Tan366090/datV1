@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý nhân sự - Chi tiết đơn nghỉ phép</title>
+    <link rel="stylesheet" href="/assets/css/admin/leaves.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link rel="stylesheet" href="shared/css/common.css">
+    <link rel="stylesheet" href="shared/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2>QLNS</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/admin/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="/admin/employees/list.html"><i class="fas fa-users"></i> Nhân sự</a></li>
+                    <li><a href="/admin/attendance/list.html"><i class="fas fa-calendar-check"></i> Chấm công</a></li>
+                    <li><a href="/admin/salaries/list.html"><i class="fas fa-money-bill"></i> Lương</a></li>
+                    <li><a href="/admin/departments/list.html"><i class="fas fa-building"></i> Phòng ban</a></li>
+                    <li><a href="/admin/positions/list.html"><i class="fas fa-briefcase"></i> Vị trí</a></li>
+                    <li class="active"><a href="/admin/leaves/list.html"><i class="fas fa-calendar-times"></i> Nghỉ phép</a></li>
+                    <li><a href="/admin/trainings/list.html"><i class="fas fa-graduation-cap"></i> Đào tạo</a></li>
+                    <li><a href="/admin/certificates/list.html"><i class="fas fa-certificate"></i> Bằng cấp</a></li>
+                    <li><a href="/admin/documents/list.html"><i class="fas fa-file"></i> Tài liệu</a></li>
+                    <li><a href="/admin/equipments/list.html"><i class="fas fa-laptop"></i> Thiết bị</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header>
+                <div class="header-content">
+                    <h1>Chi tiết đơn nghỉ phép</h1>
+                    <div class="user-info">
+                        <span id="userName">Admin</span>
+                        <button id="logoutBtn" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Leave Details -->
+            <div class="details-container">
+                <!-- Basic Information -->
+                <div class="details-section">
+                    <h2>Thông tin cơ bản</h2>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <label>Mã đơn:</label>
+                            <span id="leaveId">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Nhân viên:</label>
+                            <span id="employeeName">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Phòng ban:</label>
+                            <span id="departmentName">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Loại nghỉ:</label>
+                            <span id="leaveType">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Ngày bắt đầu:</label>
+                            <span id="startDate">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Ngày kết thúc:</label>
+                            <span id="endDate">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Số ngày nghỉ:</label>
+                            <span id="days">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Trạng thái:</label>
+                            <span id="status">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reason -->
+                <div class="details-section">
+                    <h2>Lý do nghỉ</h2>
+                    <div class="reason-content" id="reason">-</div>
+                </div>
+
+                <!-- Attachments -->
+                <div class="details-section">
+                    <h2>Tài liệu đính kèm</h2>
+                    <div class="attachments-list" id="attachments">
+                        <!-- Attachments will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Approval History -->
+                <div class="details-section">
+                    <h2>Lịch sử duyệt</h2>
+                    <div class="history-list" id="history">
+                        <!-- History will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons" id="actionButtons">
+                    <!-- Buttons will be shown based on status -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorText"></span>
+    </div>
+
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <h3>Từ chối đơn nghỉ phép</h3>
+            <p>Vui lòng nhập lý do từ chối:</p>
+            <textarea id="rejectReason" rows="4" placeholder="Nhập lý do từ chối..."></textarea>
+            <div class="modal-actions">
+                <button id="cancelReject" class="btn btn-secondary">Hủy</button>
+                <button id="confirmReject" class="btn btn-danger">Từ chối</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/admin/leaves-view.js"></script>
+        <script src="shared/js/common.js"></script>
+    <script src="shared/js/auth_utils.js"></script>
+    <script src="shared/js/api_service.js"></script>
+</body>
+</html> 

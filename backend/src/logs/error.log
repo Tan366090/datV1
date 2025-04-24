@@ -1,0 +1,241 @@
+{"error":"Cannot set property query of #<IncomingMessage> which has only a getter","level":"error","message":"Error:","method":"GET","params":{},"path":"/","query":{},"service":"qlnhansu-api","stack":"TypeError: Cannot set property query of #<IncomingMessage> which has only a getter\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\xss-clean\\lib\\index.js:8:30\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9\n    at processParams (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:582:12)\n    at next (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:291:5)\n    at internalNext (file:///C:/xampp/htdocs/QLNhanSu_version1/node_modules/helmet/index.mjs:527:6)\n    at xXssProtectionMiddleware (file:///C:/xampp/htdocs/QLNhanSu_version1/node_modules/helmet/index.mjs:307:3)\n    at internalNext (file:///C:/xampp/htdocs/QLNhanSu_version1/node_modules/helmet/index.mjs:525:6)\n    at xPoweredByMiddleware (file:///C:/xampp/htdocs/QLNhanSu_version1/node_modules/helmet/index.mjs:300:3)","timestamp":"2025-04-20 01:13:18"}
+{"error":"Cannot set property query of #<IncomingMessage> which has only a getter","level":"error","message":"Error:","method":"GET","params":{},"path":"/favicon.ico","query":{},"service":"qlnhansu-api","stack":"TypeError: Cannot set property query of #<IncomingMessage> which has only a getter\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\xss-clean\\lib\\index.js:8:30\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9\n    at processParams (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:582:12)\n    at next (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:291:5)\n    at internalNext (file:///C:/xampp/htdocs/QLNhanSu_version1/node_modules/helmet/index.mjs:527:6)\n    at xXssProtectionMiddleware (file:///C:/xampp/htdocs/QLNhanSu_version1/node_modules/helmet/index.mjs:307:3)\n    at internalNext (file:///C:/xampp/htdocs/QLNhanSu_version1/node_modules/helmet/index.mjs:525:6)\n    at xPoweredByMiddleware (file:///C:/xampp/htdocs/QLNhanSu_version1/node_modules/helmet/index.mjs:300:3)","timestamp":"2025-04-20 01:13:18"}
+{"body":{"password":"admin","username":"admin"},"error":"invalid csrf token","level":"error","message":"Error:","method":"POST","params":{},"path":"/api/auth/login","query":{},"service":"qlnhansu-api","stack":"ForbiddenError: invalid csrf token\n    at csrf (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\csurf\\index.js:112:19)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9\n    at processParams (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:582:12)\n    at next (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:291:5)\n    at compression (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\compression\\index.js:243:5)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9","timestamp":"2025-04-20 18:11:36"}
+{"body":{"password":"admin","username":"admin"},"error":"invalid csrf token","level":"error","message":"Error:","method":"POST","params":{},"path":"/api/auth/login","query":{},"service":"qlnhansu-api","stack":"ForbiddenError: invalid csrf token\n    at csrf (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\csurf\\index.js:112:19)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9\n    at processParams (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:582:12)\n    at next (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:291:5)\n    at compression (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\compression\\index.js:243:5)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9","timestamp":"2025-04-20 18:12:09"}
+{"body":{"password":"admin","username":"admin"},"error":"invalid csrf token","level":"error","message":"Error:","method":"POST","params":{},"path":"/api/auth/login","query":{},"service":"qlnhansu-api","stack":"ForbiddenError: invalid csrf token\n    at csrf (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\csurf\\index.js:112:19)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9\n    at processParams (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:582:12)\n    at next (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:291:5)\n    at compression (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\compression\\index.js:243:5)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9","timestamp":"2025-04-20 18:14:14"}
+{"body":{"password":"admin","username":"admin"},"error":"invalid csrf token","level":"error","message":"Error:","method":"POST","params":{},"path":"/api/auth/login","query":{},"service":"qlnhansu-api","stack":"ForbiddenError: invalid csrf token\n    at csrf (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\csurf\\index.js:112:19)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9\n    at processParams (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:582:12)\n    at next (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:291:5)\n    at compression (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\compression\\index.js:243:5)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9","timestamp":"2025-04-20 18:18:49"}
+{"body":{"_csrf":"ka62GSKkxf2DL5GnJFaCFKId","password":"admin","username":"admin"},"error":"invalid csrf token","level":"error","message":"Error:","method":"POST","params":{},"path":"/api/auth/login","query":{},"service":"qlnhansu-api","stack":"ForbiddenError: invalid csrf token\n    at csrf (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\csurf\\index.js:112:19)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9\n    at processParams (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:582:12)\n    at next (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:291:5)\n    at compression (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\compression\\index.js:243:5)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9","timestamp":"2025-04-20 18:20:02"}
+{"body":{"_csrf":"DdwlSkyMV5CS8De_RBHlkLeM","password":"admin","username":"admin"},"error":"invalid csrf token","level":"error","message":"Error:","method":"POST","params":{},"path":"/api/auth/login","query":{},"service":"qlnhansu-api","stack":"ForbiddenError: invalid csrf token\n    at csrf (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\csurf\\index.js:112:19)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9\n    at processParams (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:582:12)\n    at next (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:291:5)\n    at compression (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\compression\\index.js:243:5)\n    at Layer.handleRequest (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\lib\\layer.js:152:17)\n    at trimPrefix (C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:342:13)\n    at C:\\xampp\\htdocs\\QLNhanSu_version1\\node_modules\\router\\index.js:297:9","timestamp":"2025-04-20 18:24:17"}
+{"cookies":{"XSRF-TOKEN":"0O9hDoqAFY-Y12iRpzBtM5Ss","_csrf":"HJdif6r_zsE0wfoeiWQEBtTU"},"headers":{"accept":"*/*","accept-encoding":"gzip, deflate, br, zstd","accept-language":"vi-VN,vi;q=0.9,en-VN;q=0.8,en;q=0.7,fr-FR;q=0.6,fr;q=0.5,en-US;q=0.4","connection":"keep-alive","content-length":"39","content-type":"application/json","cookie":"_csrf=HJdif6r_zsE0wfoeiWQEBtTU; XSRF-TOKEN=0O9hDoqAFY-Y12iRpzBtM5Ss","csrf-token":"0O9hDoqAFY-Y12iRpzBtM5Ss","host":"localhost:3000","origin":"http://localhost:3000","referer":"http://localhost:3000/login.html","sec-ch-ua":"\"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","sec-fetch-dest":"empty","sec-fetch-mode":"cors","sec-fetch-site":"same-origin","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36","x-requested-with":"XMLHttpRequest"},"level":"error","message":"CSRF Token error:","method":"POST","path":"/api/auth/login","service":"qlnhansu-api","timestamp":"2025-04-20 19:21:56"}
+{"cookies":{"XSRF-TOKEN":"prObNAEl5LDdvkm1xDORY3BD"},"headers":{"accept":"*/*","accept-encoding":"gzip, deflate, br, zstd","accept-language":"vi-VN,vi;q=0.9,en-VN;q=0.8,en;q=0.7,fr-FR;q=0.6,fr;q=0.5,en-US;q=0.4","connection":"keep-alive","content-length":"40","content-type":"application/json","cookie":"XSRF-TOKEN=prObNAEl5LDdvkm1xDORY3BD","host":"localhost:3000","origin":"http://localhost:3000","referer":"http://localhost:3000/login.html","sec-ch-ua":"\"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","sec-fetch-dest":"empty","sec-fetch-mode":"cors","sec-fetch-site":"same-origin","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"},"level":"error","message":"CSRF Token error:","method":"POST","path":"/QLNhanSu_version1/api/auth/login.php","service":"qlnhansu-api","timestamp":"2025-04-20 21:47:25"}
+{"cookies":{"XSRF-TOKEN":"prObNAEl5LDdvkm1xDORY3BD"},"headers":{"accept":"*/*","accept-encoding":"gzip, deflate, br, zstd","accept-language":"vi-VN,vi;q=0.9,en-VN;q=0.8,en;q=0.7,fr-FR;q=0.6,fr;q=0.5,en-US;q=0.4","connection":"keep-alive","content-length":"40","content-type":"application/json","cookie":"XSRF-TOKEN=prObNAEl5LDdvkm1xDORY3BD","host":"localhost:3000","origin":"http://localhost:3000","referer":"http://localhost:3000/login.html","sec-ch-ua":"\"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"","sec-ch-ua-mobile":"?1","sec-ch-ua-platform":"\"Android\"","sec-fetch-dest":"empty","sec-fetch-mode":"cors","sec-fetch-site":"same-origin","user-agent":"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36"},"level":"error","message":"CSRF Token error:","method":"POST","path":"/api/auth/login","service":"qlnhansu-api","timestamp":"2025-04-20 21:49:12"}
+[21-Apr-2025 00:39:26 Asia/Ho_Chi_Minh] Authentication Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id' in 'field list'
+[21-Apr-2025 00:39:26 Asia/Ho_Chi_Minh] Login error: Database error occurred
+#0 {main}
+[21-Apr-2025 00:39:30 Asia/Ho_Chi_Minh] Authentication Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id' in 'field list'
+[21-Apr-2025 00:39:30 Asia/Ho_Chi_Minh] Login error: Database error occurred
+#0 {main}
+[21-Apr-2025 00:39:33 Asia/Ho_Chi_Minh] Authentication Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id' in 'field list'
+[21-Apr-2025 00:39:33 Asia/Ho_Chi_Minh] Login error: Database error occurred
+#0 {main}
+[21-Apr-2025 00:49:07 Asia/Ho_Chi_Minh] Authentication Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id' in 'field list'
+[21-Apr-2025 00:49:07 Asia/Ho_Chi_Minh] Login error: Database error occurred
+#0 {main}
+[21-Apr-2025 00:54:42 Asia/Ho_Chi_Minh] Login error: Invalid username or password
+#0 {main}
+[21-Apr-2025 01:04:27 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:08:32 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:08:32 Asia/Ho_Chi_Minh] PHP Fatal error:  Uncaught Exception: Serialization of 'PDO' is not allowed in [no active file]:0
+Stack trace:
+#0 {main}
+  thrown in [no active file] on line 0
+[21-Apr-2025 01:11:32 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:11:32 Asia/Ho_Chi_Minh] PHP Fatal error:  Uncaught Exception: Serialization of 'PDO' is not allowed in [no active file]:0
+Stack trace:
+#0 {main}
+  thrown in [no active file] on line 0
+[21-Apr-2025 01:16:17 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:16:17 Asia/Ho_Chi_Minh] PHP Fatal error:  Uncaught Exception: Serialization of 'PDO' is not allowed in [no active file]:0
+Stack trace:
+#0 {main}
+  thrown in [no active file] on line 0
+[21-Apr-2025 01:18:18 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:21:17 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:22:15 Asia/Ho_Chi_Minh] Successful login for user: john.doe from IP: ::1
+[21-Apr-2025 01:22:31 Asia/Ho_Chi_Minh] Successful login for user: jane.smith from IP: ::1
+[21-Apr-2025 01:22:59 Asia/Ho_Chi_Minh] Successful login for user: bob.wilson from IP: ::1
+[21-Apr-2025 01:23:19 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:41:08 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:41:24 Asia/Ho_Chi_Minh] Successful login for user: john.doe from IP: ::1
+[21-Apr-2025 01:41:56 Asia/Ho_Chi_Minh] Successful login for user: john.doe from IP: ::1
+[21-Apr-2025 01:42:56 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:43:24 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:43:36 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:44:55 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 01:48:10 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 07:51:07 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 07:51:31 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 07:52:53 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 08:00:51 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 08:04:23 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 15:41:51 Asia/Ho_Chi_Minh] Login error: Invalid username or password
+#0 {main}
+[21-Apr-2025 15:42:34 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 15:50:58 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 15:57:55 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 16:01:49 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 16:04:40 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 16:05:59 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 16:08:35 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 17:49:47 Asia/Ho_Chi_Minh] PHP Parse error:  syntax error, unexpected end of file in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 109
+[21-Apr-2025 17:50:17 Asia/Ho_Chi_Minh] PHP Parse error:  syntax error, unexpected end of file in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 109
+[21-Apr-2025 17:53:17 Asia/Ho_Chi_Minh] Login Error: Invalid username or password
+[21-Apr-2025 17:56:18 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 17:56:18 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 17:56:18 Asia/Ho_Chi_Minh] Attempting to authenticate user: admin
+[21-Apr-2025 17:56:18 Asia/Ho_Chi_Minh] Found user in database. Password hash: admin123
+[21-Apr-2025 17:56:18 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 17:56:18 Asia/Ho_Chi_Minh] Password mismatch for user: admin
+[21-Apr-2025 17:56:18 Asia/Ho_Chi_Minh] Authentication failed: Invalid username or password
+[21-Apr-2025 17:56:18 Asia/Ho_Chi_Minh] Login Error: Invalid username or password
+[21-Apr-2025 17:59:21 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 17:59:21 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 17:59:21 Asia/Ho_Chi_Minh] Attempting to authenticate user: admin
+[21-Apr-2025 17:59:21 Asia/Ho_Chi_Minh] Found user in database. Password hash: admin123
+[21-Apr-2025 17:59:21 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 17:59:21 Asia/Ho_Chi_Minh] Password mismatch for user: admin
+[21-Apr-2025 17:59:21 Asia/Ho_Chi_Minh] Authentication failed: Invalid username or password
+[21-Apr-2025 17:59:21 Asia/Ho_Chi_Minh] Login Error: Invalid username or password
+[21-Apr-2025 18:01:53 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:01:53 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:01:53 Asia/Ho_Chi_Minh] Attempting to authenticate user: admin
+[21-Apr-2025 18:01:53 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:01:53 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:01:53 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:01:53 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 58
+[21-Apr-2025 18:01:53 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:01:53 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:05:08 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin@example.com","password":"123456"}
+[21-Apr-2025 18:05:08 Asia/Ho_Chi_Minh] Attempting login for username: admin@example.com
+[21-Apr-2025 18:05:08 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin@example.com
+[21-Apr-2025 18:05:08 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:05:08 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:05:08 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:05:08 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:05:08 Asia/Ho_Chi_Minh] Authentication successful for user: admin@example.com
+[21-Apr-2025 18:05:08 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:15:21 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:15:21 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:15:21 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:15:21 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:15:21 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:15:21 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:15:21 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:15:21 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:15:21 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:16:49 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:16:49 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:16:49 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:16:49 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:16:49 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:16:49 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:16:49 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:16:49 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:16:49 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:17:14 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:17:14 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:17:14 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:17:14 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:17:14 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:17:14 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:17:14 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:17:14 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:17:14 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:17:58 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:17:58 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:17:58 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:17:58 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:17:58 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:17:58 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:17:58 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:17:58 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:17:58 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:25:15 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:25:15 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:25:15 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:25:15 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:25:15 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:25:15 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:25:15 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:25:15 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:25:15 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:25:40 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:25:40 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:25:40 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:25:40 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:25:40 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:25:40 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:25:40 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:25:40 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:25:40 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:27:43 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:27:43 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:27:43 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:27:43 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:27:43 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:27:43 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:27:43 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:27:43 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:27:43 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:28:01 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:28:01 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:28:01 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:28:01 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:28:01 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:28:01 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:28:01 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:28:01 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:28:01 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:52:59 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:52:59 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:52:59 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:52:59 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:52:59 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:52:59 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:52:59 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:52:59 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:52:59 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:54:52 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:54:52 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:54:52 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:54:52 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:54:52 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:54:52 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:54:52 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:54:52 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:54:52 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 18:59:12 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 18:59:12 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 18:59:12 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 18:59:12 Asia/Ho_Chi_Minh] Found user in database. Password hash: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:59:12 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 18:59:12 Asia/Ho_Chi_Minh] Password match successful for user: admin
+[21-Apr-2025 18:59:12 Asia/Ho_Chi_Minh] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\QLNhanSu_version1\api\models\User.php on line 59
+[21-Apr-2025 18:59:12 Asia/Ho_Chi_Minh] Authentication successful for user: admin
+[21-Apr-2025 18:59:12 Asia/Ho_Chi_Minh] Successful login for user: admin from IP: ::1
+[21-Apr-2025 19:06:13 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 19:06:13 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 19:06:13 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 19:06:13 Asia/Ho_Chi_Minh] Found user in database. Password hash: admin123
+[21-Apr-2025 19:06:13 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 19:06:13 Asia/Ho_Chi_Minh] Password mismatch for user: admin
+[21-Apr-2025 19:06:13 Asia/Ho_Chi_Minh] Authentication failed: Invalid username/email or password
+[21-Apr-2025 19:06:13 Asia/Ho_Chi_Minh] Login Error: Invalid username/email or password
+[21-Apr-2025 19:06:26 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 19:06:26 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 19:06:26 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 19:06:26 Asia/Ho_Chi_Minh] Found user in database. Password hash: admin123
+[21-Apr-2025 19:06:26 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 19:06:26 Asia/Ho_Chi_Minh] Password mismatch for user: admin
+[21-Apr-2025 19:06:26 Asia/Ho_Chi_Minh] Authentication failed: Invalid username/email or password
+[21-Apr-2025 19:06:26 Asia/Ho_Chi_Minh] Login Error: Invalid username/email or password
+[21-Apr-2025 19:07:23 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 19:07:23 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 19:07:23 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 19:07:23 Asia/Ho_Chi_Minh] Found user in database. Password hash: admin123
+[21-Apr-2025 19:07:23 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 19:07:23 Asia/Ho_Chi_Minh] Password mismatch for user: admin
+[21-Apr-2025 19:07:23 Asia/Ho_Chi_Minh] Authentication failed: Invalid username/email or password
+[21-Apr-2025 19:07:23 Asia/Ho_Chi_Minh] Login Error: Invalid username/email or password
+[21-Apr-2025 19:09:49 Asia/Ho_Chi_Minh] Received login request with data: {"username":"admin","password":"123456"}
+[21-Apr-2025 19:09:49 Asia/Ho_Chi_Minh] Attempting login for username: admin
+[21-Apr-2025 19:09:49 Asia/Ho_Chi_Minh] Attempting to authenticate user with username/email: admin
+[21-Apr-2025 19:09:49 Asia/Ho_Chi_Minh] Found user in database. Password hash: admin123
+[21-Apr-2025 19:09:49 Asia/Ho_Chi_Minh] Input password MD5: e10adc3949ba59abbe56e057f20f883e
+[21-Apr-2025 19:09:49 Asia/Ho_Chi_Minh] Password mismatch for user: admin
+[21-Apr-2025 19:09:49 Asia/Ho_Chi_Minh] Authentication failed: Invalid username/email or password
+[21-Apr-2025 19:09:49 Asia/Ho_Chi_Minh] Login Error: Invalid username/email or password
+
+
+{"body":{},"error":"ENOENT: no such file or directory, stat 'C:\\xampp\\htdocs\\QLNhanSu_version1\\public\\login.html'","level":"error","message":"Error:","method":"GET","params":{},"path":"/","query":{},"service":"qlnhansu-api","stack":"Error: ENOENT: no such file or directory, stat 'C:\\xampp\\htdocs\\QLNhanSu_version1\\public\\login.html'","timestamp":"2025-04-22 22:03:57"}
+{"body":{},"error":"ENOENT: no such file or directory, stat 'C:\\xampp\\htdocs\\QLNhanSu_version1\\public\\login.html'","level":"error","message":"Error:","method":"GET","params":{},"path":"/","query":{},"service":"qlnhansu-api","stack":"Error: ENOENT: no such file or directory, stat 'C:\\xampp\\htdocs\\QLNhanSu_version1\\public\\login.html'","timestamp":"2025-04-22 22:06:12"}

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Quản lý nghỉ phép</title>
+        <link rel="stylesheet" href="../assets/css/common.css" />
+        <link rel="stylesheet" href="../assets/css/leave.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        />
+        <script src="../assets/js/common.js"></script>
+        <script src="../assets/js/leave.js" defer></script>
+            <link rel="stylesheet" href="shared/css/common.css">
+    <link rel="stylesheet" href="shared/css/style.css">
+</head>
+    <body>
+        <div class="container">
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Quản lý nghỉ phép</h2>
+                        <button
+                            class="btn btn-primary"
+                            onclick="showAddLeaveModal()"
+                        >
+                            <i class="fas fa-plus"></i> Thêm đơn nghỉ phép
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="filters">
+                            <div class="form-group">
+                                <label class="form-label">Nhân viên</label>
+                                <select
+                                    class="form-control"
+                                    id="employeeFilter"
+                                >
+                                    <option value="">Tất cả nhân viên</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Loại nghỉ</label>
+                                <select
+                                    class="form-control"
+                                    id="leaveTypeFilter"
+                                >
+                                    <option value="">Tất cả loại</option>
+                                    <option value="annual">
+                                        Nghỉ phép năm
+                                    </option>
+                                    <option value="sick">Nghỉ ốm</option>
+                                    <option value="unpaid">
+                                        Nghỉ không lương
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Trạng thái</label>
+                                <select class="form-control" id="statusFilter">
+                                    <option value="">Tất cả</option>
+                                    <option value="pending">Chờ duyệt</option>
+                                    <option value="approved">Đã duyệt</option>
+                                    <option value="rejected">Từ chối</option>
+                                </select>
+                            </div>
+                            <button
+                                class="btn btn-primary"
+                                onclick="filterLeaves()"
+                            >
+                                <i class="fas fa-search"></i> Lọc
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã NV</th>
+                                        <th>Họ tên</th>
+                                        <th>Loại nghỉ</th>
+                                        <th>Ngày bắt đầu</th>
+                                        <th>Ngày kết thúc</th>
+                                        <th>Số ngày</th>
+                                        <th>Lý do</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaveList">
+                                    <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal thêm/sửa đơn nghỉ phép -->
+        <div id="leaveModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Thêm đơn nghỉ phép</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="leaveForm">
+                        <div class="form-group">
+                            <label class="form-label">Nhân viên</label>
+                            <select class="form-control" id="employee" required>
+                                <option value="">Chọn nhân viên</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Loại nghỉ</label>
+                            <select
+                                class="form-control"
+                                id="leaveType"
+                                required
+                            >
+                                <option value="">Chọn loại nghỉ</option>
+                                <option value="annual">Nghỉ phép năm</option>
+                                <option value="sick">Nghỉ ốm</option>
+                                <option value="unpaid">Nghỉ không lương</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="form-label">Ngày bắt đầu</label>
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="startDate"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="form-label">Ngày kết thúc</label>
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="endDate"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Lý do</label>
+                            <textarea
+                                class="form-control"
+                                id="reason"
+                                rows="3"
+                                required
+                            ></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">File đính kèm</label>
+                            <input
+                                type="file"
+                                class="form-control"
+                                id="attachment"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                            />
+                            <small class="form-text text-muted"
+                                >Chấp nhận file PDF, JPG, JPEG, PNG</small
+                            >
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        class="btn btn-secondary"
+                        onclick="closeLeaveModal()"
+                    >
+                        Hủy
+                    </button>
+                    <button class="btn btn-primary" onclick="saveLeave()">
+                        Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal xác nhận xóa -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Xác nhận xóa</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa đơn nghỉ phép này?</p>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        class="btn btn-secondary"
+                        onclick="closeDeleteModal()"
+                    >
+                        Hủy
+                    </button>
+                    <button class="btn btn-danger" onclick="confirmDelete()">
+                        Xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let currentLeaveId = null;
+
+            // Hàm tải danh sách nhân viên
+            async function loadEmployees() {
+                try {
+                    const response = await fetch("/api/employees");
+                    const employees = await response.json();
+
+                    const selects = [
+                        document.getElementById("employee"),
+                        document.getElementById("employeeFilter"),
+                    ];
+
+                    selects.forEach((select) => {
+                        select.innerHTML =
+                            '<option value="">Chọn nhân viên</option>';
+                        employees.forEach((emp) => {
+                            const option = document.createElement("option");
+                            option.value = emp.id;
+                            option.textContent = `${emp.employee_id} - ${emp.full_name}`;
+                            select.appendChild(option);
+                        });
+                    });
+                } catch (error) {
+                    console.error("Lỗi khi tải danh sách nhân viên:", error);
+                    showNotification(
+                        "Có lỗi xảy ra khi tải danh sách nhân viên",
+                        "error"
+                    );
+                }
+            }
+
+            // Hàm tải danh sách đơn nghỉ phép
+            async function loadLeaves() {
+                try {
+                    const employee =
+                        document.getElementById("employeeFilter").value;
+                    const type =
+                        document.getElementById("leaveTypeFilter").value;
+                    const status =
+                        document.getElementById("statusFilter").value;
+
+                    let url = "/api/leaves";
+                    if (employee || type || status) {
+                        url += "?";
+                        if (employee) url += `employee=${employee}`;
+                        if (type) url += `&type=${type}`;
+                        if (status) url += `&status=${status}`;
+                    }
+
+                    const response = await fetch(url);
+                    const leaves = await response.json();
+
+                    const tbody = document.getElementById("leaveList");
+                    tbody.innerHTML = "";
+
+                    leaves.forEach((leave) => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                        <td>${leave.employee_id}</td>
+                        <td>${leave.full_name}</td>
+                        <td>${getLeaveTypeName(leave.type)}</td>
+                        <td>${formatDate(leave.start_date)}</td>
+                        <td>${formatDate(leave.end_date)}</td>
+                        <td>${leave.days}</td>
+                        <td>${leave.reason}</td>
+                        <td>
+                            <span class="status-badge ${getStatusClass(
+                                leave.status
+                            )}">
+                                ${getStatusName(leave.status)}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="viewLeave(${
+                                leave.id
+                            })">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="editLeave(${
+                                leave.id
+                            })">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="showDeleteModal(${
+                                leave.id
+                            })">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                        tbody.appendChild(tr);
+                    });
+                } catch (error) {
+                    console.error(
+                        "Lỗi khi tải danh sách đơn nghỉ phép:",
+                        error
+                    );
+                    showNotification(
+                        "Có lỗi xảy ra khi tải danh sách đơn nghỉ phép",
+                        "error"
+                    );
+                }
+            }
+
+            // Hàm lấy tên loại nghỉ phép
+            function getLeaveTypeName(type) {
+                const types = {
+                    annual: "Nghỉ phép năm",
+                    sick: "Nghỉ ốm",
+                    unpaid: "Nghỉ không lương",
+                };
+                return types[type] || type;
+            }
+
+            // Hàm lấy class cho trạng thái
+            function getStatusClass(status) {
+                const classes = {
+                    pending: "warning",
+                    approved: "success",
+                    rejected: "danger",
+                };
+                return classes[status] || "secondary";
+            }
+
+            // Hàm lấy tên trạng thái
+            function getStatusName(status) {
+                const names = {
+                    pending: "Chờ duyệt",
+                    approved: "Đã duyệt",
+                    rejected: "Từ chối",
+                };
+                return names[status] || status;
+            }
+
+            // Hàm hiển thị modal thêm/sửa
+            function showAddLeaveModal() {
+                currentLeaveId = null;
+                document.getElementById("modalTitle").textContent =
+                    "Thêm đơn nghỉ phép";
+                document.getElementById("leaveForm").reset();
+                document.getElementById("leaveModal").style.display = "block";
+            }
+
+            // Hàm đóng modal
+            function closeLeaveModal() {
+                document.getElementById("leaveModal").style.display = "none";
+            }
+
+            // Hàm lưu đơn nghỉ phép
+            async function saveLeave() {
+                const form = document.getElementById("leaveForm");
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append(
+                    "employee_id",
+                    document.getElementById("employee").value
+                );
+                formData.append(
+                    "type",
+                    document.getElementById("leaveType").value
+                );
+                formData.append(
+                    "start_date",
+                    document.getElementById("startDate").value
+                );
+                formData.append(
+                    "end_date",
+                    document.getElementById("endDate").value
+                );
+                formData.append(
+                    "reason",
+                    document.getElementById("reason").value
+                );
+
+                const file = document.getElementById("attachment").files[0];
+                if (file) {
+                    formData.append("attachment", file);
+                }
+
+                try {
+                    const url = currentLeaveId
+                        ? `/api/leaves/${currentLeaveId}`
+                        : "/api/leaves";
+                    const method = currentLeaveId ? "PUT" : "POST";
+
+                    const response = await fetch(url, {
+                        method: method,
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        showNotification(
+                            currentLeaveId
+                                ? "Cập nhật đơn nghỉ phép thành công"
+                                : "Thêm đơn nghỉ phép thành công",
+                            "success"
+                        );
+                        closeLeaveModal();
+                        loadLeaves();
+                    } else {
+                        throw new Error("Lưu đơn nghỉ phép thất bại");
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi lưu đơn nghỉ phép:", error);
+                    showNotification(
+                        "Có lỗi xảy ra khi lưu đơn nghỉ phép",
+                        "error"
+                    );
+                }
+            }
+
+            // Hàm xem chi tiết đơn nghỉ phép
+            function viewLeave(id) {
+                window.location.href = `view_leave.html?id=${id}`;
+            }
+
+            // Hàm sửa đơn nghỉ phép
+            async function editLeave(id) {
+                try {
+                    const response = await fetch(`/api/leaves/${id}`);
+                    const leave = await response.json();
+
+                    currentLeaveId = id;
+                    document.getElementById("modalTitle").textContent =
+                        "Sửa đơn nghỉ phép";
+                    document.getElementById("employee").value =
+                        leave.employee_id;
+                    document.getElementById("leaveType").value = leave.type;
+                    document.getElementById("startDate").value =
+                        leave.start_date;
+                    document.getElementById("endDate").value = leave.end_date;
+                    document.getElementById("reason").value = leave.reason;
+
+                    document.getElementById("leaveModal").style.display =
+                        "block";
+                } catch (error) {
+                    console.error(
+                        "Lỗi khi tải thông tin đơn nghỉ phép:",
+                        error
+                    );
+                    showNotification(
+                        "Có lỗi xảy ra khi tải thông tin đơn nghỉ phép",
+                        "error"
+                    );
+                }
+            }
+
+            // Hàm hiển thị modal xóa
+            function showDeleteModal(id) {
+                currentLeaveId = id;
+                document.getElementById("deleteModal").style.display = "block";
+            }
+
+            // Hàm đóng modal xóa
+            function closeDeleteModal() {
+                document.getElementById("deleteModal").style.display = "none";
+            }
+
+            // Hàm xác nhận xóa
+            async function confirmDelete() {
+                if (!currentLeaveId) return;
+
+                try {
+                    const response = await fetch(
+                        `/api/leaves/${currentLeaveId}`,
+                        {
+                            method: "DELETE",
+                        }
+                    );
+
+                    if (response.ok) {
+                        showNotification(
+                            "Xóa đơn nghỉ phép thành công",
+                            "success"
+                        );
+                        closeDeleteModal();
+                        loadLeaves();
+                    } else {
+                        throw new Error("Xóa đơn nghỉ phép thất bại");
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi xóa đơn nghỉ phép:", error);
+                    showNotification(
+                        "Có lỗi xảy ra khi xóa đơn nghỉ phép",
+                        "error"
+                    );
+                }
+            }
+
+            // Hàm lọc đơn nghỉ phép
+            function filterLeaves() {
+                loadLeaves();
+            }
+
+            // Tải dữ liệu khi trang được tải
+            document.addEventListener("DOMContentLoaded", () => {
+                loadEmployees();
+                loadLeaves();
+            });
+        </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", async () => {
+                const leaves = await fetchData("getLeaves"); // Add 'getLeaves' case in API
+                const tbody = document.getElementById("leaveList");
+                tbody.innerHTML = ""; // Clear existing rows
+
+                leaves.forEach((leave) => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${leave.employee_id}</td>
+                        <td>${leave.full_name}</td>
+                        <td>${leave.type}</td>
+                        <td>${leave.start_date}</td>
+                        <td>${leave.end_date}</td>
+                        <td>${leave.reason}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        </script>
+            <script src="shared/js/common.js"></script>
+    <script src="shared/js/auth_utils.js"></script>
+    <script src="shared/js/api_service.js"></script>
+</body>
+</html>
