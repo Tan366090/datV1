@@ -1,5 +1,5 @@
 Options -Indexes
-DirectoryIndex dashboard.html
+DirectoryIndex dashboard_admin.html
 
 <IfModule mod_headers.c>
     Header set Cache-Control "no-cache, no-store, must-revalidate"
@@ -14,7 +14,7 @@ DirectoryIndex dashboard.html
 RewriteEngine On
 
 # Set base directory
-RewriteBase /QLNhanSu_version1/public/admin/
+RewriteBase /admin/
 
 # Handle directory requests
 RewriteCond %{REQUEST_FILENAME} -d
@@ -26,9 +26,9 @@ RewriteRule ^ - [L]
 
 # Authentication check
 RewriteCond %{HTTP_COOKIE} !PHPSESSID= [NC]
-RewriteCond %{REQUEST_URI} !^/QLNhanSu_version1/public/login\.html$
-RewriteCond %{REQUEST_URI} !^/QLNhanSu_version1/public/api/
-RewriteRule ^(.*)$ /QLNhanSu_version1/public/login.html [L]
+RewriteCond %{REQUEST_URI} !^/login\.html$
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule ^(.*)$ /login.html [L]
 
 # Allow access to HTML files
 <FilesMatch "\.html$">

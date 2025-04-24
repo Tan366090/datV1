@@ -1,0 +1,74 @@
+{"level":"info","message":"API routes đã được cấu hình","timestamp":"2025-04-24T12:49:09.453Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /admin HTTP/1.1\" 301 155 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.133Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /admin/ HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.197Z"}
+{"level":"info","message":"Truy cập trang admin: /admin/css/dashboard.css","timestamp":"2025-04-24T12:49:46.643Z"}
+{"level":"info","message":"Truy cập trang admin: /admin/js/dashboard.js","timestamp":"2025-04-24T12:49:46.645Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /assets/css/notifications.css HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.652Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /assets/css/loading.css HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.657Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /assets/css/style.css HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.667Z"}
+{"level":"warn","message":"404 - Không tìm thấy: GET /shared/images/logo.png","timestamp":"2025-04-24T12:49:46.673Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /shared/images/logo.png HTTP/1.1\" 404 76 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.679Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /assets/js/main.js HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.684Z"}
+{"level":"warn","message":"404 - Không tìm thấy: GET /shared/images/avatar.png","timestamp":"2025-04-24T12:49:46.687Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /shared/images/avatar.png HTTP/1.1\" 404 78 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.690Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /admin/css/dashboard.css HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.698Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /admin/js/dashboard.js HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.700Z"}
+{"level":"warn","message":"404 - Không tìm thấy: GET /assets/js/services/NotificationSounds.js","timestamp":"2025-04-24T12:49:46.714Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /assets/js/services/NotificationSounds.js HTTP/1.1\" 404 94 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.715Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /assets/js/services/LoadingService.js HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.722Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /assets/js/services/NotificationService.js HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.727Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:46 +0000] \"GET /assets/js/services/NetworkErrorHandler.js HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:46.730Z"}
+{"level":"warn","message":"404 - Không tìm thấy: GET /favicon.ico","timestamp":"2025-04-24T12:49:47.246Z"}
+{"level":"info","message":"::1 - - [24/Apr/2025:12:49:47 +0000] \"GET /favicon.ico HTTP/1.1\" 404 65 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\"","timestamp":"2025-04-24T12:49:47.248Z"}
+{"level":"info","message":"API routes đã được cấu hình","timestamp":"2025-04-24 19:52:28"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:12:53:02ms","status":null,"timestamp":"2025-04-24 19:53:02","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:12:53:02ms","status":null,"timestamp":"2025-04-24 19:53:02","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:12:53:02ms","status":null,"timestamp":"2025-04-24 19:53:02","url":"-"}
+{"level":"info","message":"Truy cập trang admin","path":"/admin/css/dashboard.css","timestamp":"2025-04-24 19:53:02"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:12:53:02ms","status":null,"timestamp":"2025-04-24 19:53:02","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-24 20:02:55"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:09ms","status":null,"timestamp":"2025-04-24 20:03:09","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:09ms","status":null,"timestamp":"2025-04-24 20:03:09","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:09ms","status":null,"timestamp":"2025-04-24 20:03:09","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:58ms","status":null,"timestamp":"2025-04-24 20:03:58","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:58ms","status":null,"timestamp":"2025-04-24 20:03:58","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:58ms","status":null,"timestamp":"2025-04-24 20:03:58","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:58ms","status":null,"timestamp":"2025-04-24 20:03:58","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:58ms","status":null,"timestamp":"2025-04-24 20:03:58","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:58ms","status":null,"timestamp":"2025-04-24 20:03:58","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:03:58ms","status":null,"timestamp":"2025-04-24 20:03:58","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-24 20:13:15"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:13:25ms","status":null,"timestamp":"2025-04-24 20:13:25","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-24 20:15:18"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:15:24ms","status":null,"timestamp":"2025-04-24 20:15:24","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:15:24ms","status":null,"timestamp":"2025-04-24 20:15:24","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:15:24ms","status":null,"timestamp":"2025-04-24 20:15:24","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:15:24ms","status":null,"timestamp":"2025-04-24 20:15:24","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:15:24ms","status":null,"timestamp":"2025-04-24 20:15:24","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:15:24ms","status":null,"timestamp":"2025-04-24 20:15:24","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:15:24ms","status":null,"timestamp":"2025-04-24 20:15:24","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:15:24ms","status":null,"timestamp":"2025-04-24 20:15:24","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:15:31ms","status":null,"timestamp":"2025-04-24 20:15:31","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:40ms","status":null,"timestamp":"2025-04-24 20:17:40","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:40ms","status":null,"timestamp":"2025-04-24 20:17:40","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:40ms","status":null,"timestamp":"2025-04-24 20:17:40","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:40ms","status":null,"timestamp":"2025-04-24 20:17:40","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:40ms","status":null,"timestamp":"2025-04-24 20:17:40","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:40ms","status":null,"timestamp":"2025-04-24 20:17:40","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:40ms","status":null,"timestamp":"2025-04-24 20:17:40","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:40ms","status":null,"timestamp":"2025-04-24 20:17:40","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:41ms","status":null,"timestamp":"2025-04-24 20:17:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:41ms","status":null,"timestamp":"2025-04-24 20:17:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:41ms","status":null,"timestamp":"2025-04-24 20:17:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:41ms","status":null,"timestamp":"2025-04-24 20:17:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:41ms","status":null,"timestamp":"2025-04-24 20:17:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:41ms","status":null,"timestamp":"2025-04-24 20:17:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:41ms","status":null,"timestamp":"2025-04-24 20:17:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:41ms","status":null,"timestamp":"2025-04-24 20:17:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:44ms","status":null,"timestamp":"2025-04-24 20:17:44","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:17:44ms","status":null,"timestamp":"2025-04-24 20:17:44","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-24 20:18:45"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:18:49ms","status":null,"timestamp":"2025-04-24 20:18:49","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:18:49ms","status":null,"timestamp":"2025-04-24 20:18:49","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:18:49ms","status":null,"timestamp":"2025-04-24 20:18:49","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[24/Apr/2025:13:18:49ms","status":null,"timestamp":"2025-04-24 20:18:49","url":"-"}

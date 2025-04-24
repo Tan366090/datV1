@@ -1,10 +1,10 @@
 const multer = require('multer');
 const path = require('path');
 
-// Configure storage
+// Cấu hình storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/leave');
+        cb(null, 'uploads/');
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -12,31 +12,24 @@ const storage = multer.diskStorage({
     }
 });
 
-// File filter
+// Cấu hình file filter
 const fileFilter = (req, file, cb) => {
-    // Allowed file types
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-
-    // Check file type
-    if (!allowedTypes.includes(file.mimetype)) {
-        return cb(new Error('Chỉ chấp nhận file PDF, JPG, PNG'), false);
+    // Chỉ cho phép upload file PDF, DOC, DOCX
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file type. Only PDF, DOC and DOCX files are allowed.'), false);
     }
-
-    // Check file size
-    if (file.size > maxSize) {
-        return cb(new Error('Kích thước file tối đa là 5MB'), false);
-    }
-
-    cb(null, true);
 };
 
-// Configure multer
+// Cấu hình upload
 const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB
+        fileSize: 5 * 1024 * 1024 // Giới hạn 5MB
     }
 });
 

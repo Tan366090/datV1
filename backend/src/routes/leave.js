@@ -1,28 +1,78 @@
 const express = require('express');
 const router = express.Router();
-const leaveController = require('../controllers/leaveController');
-const authMiddleware = require('../middleware/authMiddleware');
-const upload = require('../middleware/uploadMiddleware');
 
-// Get remaining leave days
-router.get('/remaining-days', authMiddleware, leaveController.getRemainingDays);
+// GET /api/leaves/remaining-days
+router.get('/remaining-days', (req, res) => {
+    res.json({
+        annual: 12,
+        sick: 5,
+        unpaid: 0
+    });
+});
 
-// Register new leave request
-router.post('/register', authMiddleware, upload.single('attachment'), leaveController.registerLeave);
+// GET /api/leaves
+router.get('/', (req, res) => {
+    res.json([
+        {
+            id: 1,
+            employeeId: 1,
+            startDate: '2024-04-24',
+            endDate: '2024-04-25',
+            type: 'annual',
+            status: 'pending',
+            reason: 'Nghỉ phép năm'
+        }
+    ]);
+});
 
-// Get leave list
-router.get('/list', authMiddleware, leaveController.getLeaveList);
+// GET /api/leaves/:id
+router.get('/:id', (req, res) => {
+    res.json({
+        id: 1,
+        employeeId: 1,
+        startDate: '2024-04-24',
+        endDate: '2024-04-25',
+        type: 'annual',
+        status: 'pending',
+        reason: 'Nghỉ phép năm'
+    });
+});
 
-// Get leave details
-router.get('/:id', authMiddleware, leaveController.getLeaveDetails);
+// POST /api/leaves
+router.post('/', (req, res) => {
+    res.json({
+        id: 2,
+        employeeId: 1,
+        startDate: '2024-04-26',
+        endDate: '2024-04-27',
+        type: 'sick',
+        status: 'pending',
+        reason: 'Nghỉ ốm'
+    });
+});
 
-// Approve leave request
-router.put('/:id/approve', authMiddleware, leaveController.approveLeave);
+// PUT /api/leaves/:id/approve
+router.put('/:id/approve', (req, res) => {
+    res.json({
+        id: 1,
+        status: 'approved'
+    });
+});
 
-// Reject leave request
-router.put('/:id/reject', authMiddleware, leaveController.rejectLeave);
+// PUT /api/leaves/:id/reject
+router.put('/:id/reject', (req, res) => {
+    res.json({
+        id: 1,
+        status: 'rejected'
+    });
+});
 
-// Cancel leave request
-router.put('/:id/cancel', authMiddleware, leaveController.cancelLeave);
+// PUT /api/leaves/:id/cancel
+router.put('/:id/cancel', (req, res) => {
+    res.json({
+        id: 1,
+        status: 'cancelled'
+    });
+});
 
 module.exports = router; 

@@ -1,0 +1,2424 @@
+<!DOCTYPE html>
+<html lang="vi" spellcheck="false">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+        />
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="
+            default-src 'self' http://localhost:* http://127.0.0.1:*;
+            script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+            style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+            img-src 'self' data: https://unpkg.com;
+            font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+            connect-src 'self' http://localhost:* http://127.0.0.1:* https://cdn.jsdelivr.net ws://localhost:8080 ws://127.0.0.1:8080;
+            worker-src 'self' blob:;
+            frame-src 'self';
+            object-src 'none';"
+        />
+        <title>Admin Dashboard - Quản trị hệ thống</title>
+        <link rel="stylesheet" href="css/admin-dashboard.css" />
+        <script src="js/menu-handler.js"></script>
+        <script src="js/dashboard.js"></script>
+
+        <!-- External CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        />
+        <link rel="stylesheet" href="css/ui_utils.css" />
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="css/admin-dashboard.css" />
+
+        <!-- JavaScript -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+        <script
+            type="module"
+            src="/qlnhansu_V2/backend/src/public/admin/assets/js/main.js"
+        ></script>
+
+        <!-- Main Dashboard Scripts -->
+        <script type="module">
+            // Common utilities
+            const CommonUtils = {
+                formatDate: (date) => {
+                    return new Date(date).toLocaleDateString("vi-VN");
+                },
+                formatCurrency: (amount) => {
+                    return new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                    }).format(amount);
+                },
+            };
+
+            // Authentication utilities
+            const AuthUtils = {
+                isAuthenticated: () => {
+                    return localStorage.getItem("token") !== null;
+                },
+                logout: () => {
+                    localStorage.removeItem("token");
+                    window.location.href = "/login_new.html";
+                },
+            };
+
+            // Permission utilities
+            const PermissionUtils = {
+                hasPermission: (permission) => {
+                    const userPermissions = JSON.parse(
+                        localStorage.getItem("permissions") || "[]"
+                    );
+                    return userPermissions.includes(permission);
+                },
+            };
+
+            // Notification utilities
+            const NotificationUtils = {
+                show: (message, type = "info") => {
+                    const container = document.getElementById(
+                        "notificationContainer"
+                    );
+                    const notification = document.createElement("div");
+                    notification.className = `notification ${type}`;
+                    notification.textContent = message;
+                    container.appendChild(notification);
+                    setTimeout(() => notification.remove(), 5000);
+                },
+            };
+
+            // UI utilities
+            const UIUtils = {
+                toggleDarkMode: () => {
+                    document.body.classList.toggle("dark-mode");
+                    localStorage.setItem(
+                        "darkMode",
+                        document.body.classList.contains("dark-mode")
+                    );
+                },
+                toggleSidebar: () => {
+                    document
+                        .querySelector(".sidebar")
+                        .classList.toggle("collapsed");
+                },
+            };
+
+            // API utilities
+            const APIUtils = {
+                async fetchData(endpoint) {
+                    try {
+                        const response = await fetch(
+                            `/qlnhansu_V2/backend/src/public/api/${endpoint}`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${localStorage.getItem(
+                                        "token"
+                                    )}`,
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        );
+                        if (!response.ok) throw new Error("API request failed");
+                        return await response.json();
+                    } catch (error) {
+                        NotificationUtils.show("Lỗi khi tải dữ liệu", "error");
+                        console.error(error);
+                    }
+                },
+            };
+
+            // API Test functionality
+            const APITest = {
+                async testConnection() {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(
+                            () => controller.abort(),
+                            5000
+                        );
+
+                        const response = await fetch(
+                            "/qlnhansu_V2/backend/src/public/api/test/connection",
+                            {
+                                signal: controller.signal,
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        );
+                        clearTimeout(timeoutId);
+
+                        if (!response.ok) {
+                            throw new Error(
+                                `HTTP error! status: ${response.status}`
+                            );
+                        }
+
+                        const data = await response.json();
+                        return data.success;
+                    } catch (error) {
+                        console.error("API Test Error:", error);
+                        return false;
+                    }
+                },
+
+                async testDatabase() {
+                    try {
+                        const response = await fetch(
+                            "/qlnhansu_V2/backend/src/public/api/test/database",
+                            {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        );
+                        if (!response.ok)
+                            throw new Error("Database test failed");
+                        const data = await response.json();
+                        return data.success;
+                    } catch (error) {
+                        console.error("Database Test Error:", error);
+                        return false;
+                    }
+                },
+
+                async testSession() {
+                    try {
+                        const response = await fetch(
+                            "/qlnhansu_V2/backend/src/public/api/test/session",
+                            {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        );
+                        if (!response.ok)
+                            throw new Error("Session test failed");
+                        const data = await response.json();
+                        return data.active;
+                    } catch (error) {
+                        console.error("Session Test Error:", error);
+                        return false;
+                    }
+                },
+
+                async testFilePermissions() {
+                    try {
+                        const response = await fetch(
+                            "/qlnhansu_V2/backend/src/public/api/test/permissions",
+                            {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        );
+                        if (!response.ok)
+                            throw new Error("Permissions test failed");
+                        const data = await response.json();
+                        return data.writable;
+                    } catch (error) {
+                        console.error("Permissions Test Error:", error);
+                        return false;
+                    }
+                },
+
+                async testWithRetry(fn, maxRetries = 3) {
+                    for (let i = 0; i < maxRetries; i++) {
+                        try {
+                            return await fn();
+                        } catch (error) {
+                            if (i === maxRetries - 1) throw error;
+                            await new Promise((resolve) =>
+                                setTimeout(resolve, 1000 * (i + 1))
+                            );
+                        }
+                    }
+                },
+
+                async runAllTests() {
+                    try {
+                        const results = {
+                            connection: await this.testWithRetry(() =>
+                                this.testConnection()
+                            ),
+                            database: await this.testWithRetry(() =>
+                                this.testDatabase()
+                            ),
+                            session: await this.testWithRetry(() =>
+                                this.testSession()
+                            ),
+                            permissions: await this.testWithRetry(() =>
+                                this.testFilePermissions()
+                            ),
+                        };
+
+                        // Display results
+                        const container = document.createElement("div");
+                        container.className = "php-test";
+                        container.innerHTML = `
+                            <h2>System Test Results:</h2>
+                            <p>API Connection: ${
+                                results.connection ? "Success" : "Failed"
+                            }</p>
+                            <p>Database Connection: ${
+                                results.database ? "Success" : "Failed"
+                            }</p>
+                            <p>Session: ${
+                                results.session ? "Active" : "Inactive"
+                            }</p>
+                            <p>File Permissions: ${
+                                results.permissions ? "Writable" : "Read-only"
+                            }</p>
+                        `;
+
+                        document.body.insertBefore(
+                            container,
+                            document.body.firstChild
+                        );
+                    } catch (error) {
+                        console.error("Failed to run tests:", error);
+                        NotificationUtils.show(
+                            "Failed to run system tests",
+                            "error"
+                        );
+                    }
+                },
+            };
+
+            // Database utilities
+            const DatabaseUtils = {
+                async fetchEmployees() {
+                    try {
+                        const response = await fetch(
+                            "/qlnhansu_V2/backend/src/public/api/employees",
+                            {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        );
+                        if (!response.ok)
+                            throw new Error("Failed to fetch employees");
+                        return await response.json();
+                    } catch (error) {
+                        console.error("Error fetching employees:", error);
+                        NotificationUtils.show(
+                            "Lỗi khi tải danh sách nhân viên",
+                            "error"
+                        );
+                        return [];
+                    }
+                },
+
+                async fetchAttendance() {
+                    try {
+                        const response = await fetch(
+                            "/qlnhansu_V2/backend/src/public/api/attendance",
+                            {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        );
+                        if (!response.ok)
+                            throw new Error("Failed to fetch attendance");
+                        return await response.json();
+                    } catch (error) {
+                        console.error("Error fetching attendance:", error);
+                        NotificationUtils.show(
+                            "Lỗi khi tải dữ liệu chấm công",
+                            "error"
+                        );
+                        return [];
+                    }
+                },
+
+                async fetchDepartments() {
+                    try {
+                        const response = await fetch(
+                            "/qlnhansu_V2/backend/src/public/api/departments",
+                            {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        );
+                        if (!response.ok)
+                            throw new Error("Failed to fetch departments");
+                        return await response.json();
+                    } catch (error) {
+                        console.error("Error fetching departments:", error);
+                        NotificationUtils.show(
+                            "Lỗi khi tải danh sách phòng ban",
+                            "error"
+                        );
+                        return [];
+                    }
+                },
+
+                async fetchSalaries() {
+                    try {
+                        const response = await fetch(
+                            "/qlnhansu_V2/backend/src/public/api/salaries",
+                            {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        );
+                        if (!response.ok)
+                            throw new Error("Failed to fetch salaries");
+                        return await response.json();
+                    } catch (error) {
+                        console.error("Error fetching salaries:", error);
+                        NotificationUtils.show(
+                            "Lỗi khi tải dữ liệu lương",
+                            "error"
+                        );
+                        return [];
+                    }
+                },
+            };
+
+            // Dashboard functionality
+            class Dashboard {
+                constructor() {
+                    this.isLoading = false;
+                    this.charts = {};
+                    this.data = {
+                        employees: [],
+                        attendance: [],
+                        departments: [],
+                        salaries: [],
+                    };
+                    this.initCharts();
+                    this.loadData();
+                    this.setupEventListeners();
+                }
+
+                async loadData() {
+                    if (this.isLoading) return;
+
+                    this.isLoading = true;
+                    document.getElementById("loadingOverlay").style.display =
+                        "flex";
+
+                    try {
+                        const [employees, attendance, departments, salaries] =
+                            await Promise.all([
+                                DatabaseUtils.fetchEmployees(),
+                                DatabaseUtils.fetchAttendance(),
+                                DatabaseUtils.fetchDepartments(),
+                                DatabaseUtils.fetchSalaries(),
+                            ]);
+
+                        this.data = {
+                            employees,
+                            attendance,
+                            departments,
+                            salaries,
+                        };
+                        await this.updateMetrics();
+                        await this.updateCharts();
+                        await this.updateRecentEmployees();
+                    } catch (error) {
+                        console.error("Error loading dashboard data:", error);
+                        NotificationUtils.show(
+                            "Lỗi khi tải dữ liệu dashboard",
+                            "error"
+                        );
+                    } finally {
+                        this.isLoading = false;
+                        document.getElementById(
+                            "loadingOverlay"
+                        ).style.display = "none";
+                    }
+                }
+
+                async updateMetrics() {
+                    const { employees, attendance, salaries } = this.data;
+
+                    // Update employee metrics
+                    document.getElementById("totalEmployees").textContent =
+                        employees.length;
+                    document.getElementById("activeEmployees").textContent =
+                        employees.filter(
+                            (emp) => emp.status === "active"
+                        ).length;
+                    document.getElementById("inactiveEmployees").textContent =
+                        employees.filter(
+                            (emp) => emp.status === "inactive"
+                        ).length;
+
+                    // Update attendance metrics
+                    const today = new Date().toISOString().split("T")[0];
+                    const todayAttendance = attendance.filter(
+                        (a) => a.date === today
+                    );
+                    const attendanceRate =
+                        (todayAttendance.length / employees.length) * 100;
+                    document.getElementById(
+                        "todayAttendance"
+                    ).textContent = `${Math.round(attendanceRate)}%`;
+
+                    // Update salary metrics
+                    const totalSalary = salaries.reduce(
+                        (sum, salary) => sum + salary.amount,
+                        0
+                    );
+                    document.getElementById("totalSalary").textContent =
+                        CommonUtils.formatCurrency(totalSalary);
+
+                    // Update pending leaves
+                    const pendingLeaves = employees.filter(
+                        (emp) => emp.leave_status === "pending"
+                    ).length;
+                    document.getElementById("pendingLeaves").textContent =
+                        pendingLeaves;
+                }
+
+                async updateCharts() {
+                    const { attendance, departments } = this.data;
+
+                    // Update attendance chart
+                    const attendanceData =
+                        this.processAttendanceData(attendance);
+                    this.charts.attendance.data.labels = attendanceData.labels;
+                    this.charts.attendance.data.datasets[0].data =
+                        attendanceData.values;
+                    this.charts.attendance.update();
+
+                    // Update department chart
+                    const departmentData =
+                        this.processDepartmentData(departments);
+                    this.charts.department.data.labels = departmentData.labels;
+                    this.charts.department.data.datasets[0].data =
+                        departmentData.values;
+                    this.charts.department.update();
+                }
+
+                processAttendanceData(attendance) {
+                    // Group attendance by date and calculate rates
+                    const attendanceByDate = {};
+                    attendance.forEach((a) => {
+                        if (!attendanceByDate[a.date]) {
+                            attendanceByDate[a.date] = { present: 0, total: 0 };
+                        }
+                        attendanceByDate[a.date].total++;
+                        if (a.status === "present") {
+                            attendanceByDate[a.date].present++;
+                        }
+                    });
+
+                    const labels = Object.keys(attendanceByDate).sort();
+                    const values = labels.map((date) => {
+                        const { present, total } = attendanceByDate[date];
+                        return (present / total) * 100;
+                    });
+
+                    return { labels, values };
+                }
+
+                processDepartmentData(departments) {
+                    return {
+                        labels: departments.map((d) => d.name),
+                        values: departments.map((d) => d.employee_count),
+                    };
+                }
+
+                async updateRecentEmployees() {
+                    const { employees } = this.data;
+                    const recentEmployees = employees
+                        .sort(
+                            (a, b) =>
+                                new Date(b.join_date) - new Date(a.join_date)
+                        )
+                        .slice(0, 10);
+
+                    const tbody = document.getElementById("recentEmployees");
+                    tbody.innerHTML = recentEmployees
+                        .map(
+                            (emp) => `
+                        <tr>
+                            <td>${emp.employee_id}</td>
+                            <td>${emp.full_name}</td>
+                            <td>${emp.position}</td>
+                            <td>${emp.department}</td>
+                            <td>${CommonUtils.formatDate(emp.join_date)}</td>
+                            <td>${CommonUtils.formatDate(emp.birth_date)}</td>
+                            <td>${emp.phone}</td>
+                            <td>${emp.email}</td>
+                            <td>${emp.address}</td>
+                            <td>${emp.status}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="window.location.href='employees/edit.html?id=${
+                                    emp.id
+                                }'">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `
+                        )
+                        .join("");
+                }
+
+                cleanup() {
+                    // Cleanup charts
+                    Object.values(this.charts).forEach((chart) =>
+                        chart.destroy()
+                    );
+                    this.charts = {};
+
+                    // Remove event listeners
+                    document
+                        .getElementById("darkModeToggle")
+                        .removeEventListener("click", this.toggleDarkMode);
+                    document
+                        .getElementById("logoutBtn")
+                        .removeEventListener("click", this.handleLogout);
+                    document
+                        .getElementById("menuToggle")
+                        .removeEventListener("click", this.toggleSidebar);
+                    document
+                        .getElementById("attendancePeriod")
+                        .removeEventListener(
+                            "change",
+                            this.handleAttendancePeriodChange
+                        );
+                }
+
+                initCharts() {
+                    // Initialize attendance chart
+                    const attendanceCtx = document
+                        .getElementById("attendanceChart")
+                        .getContext("2d");
+                    this.attendanceChart = new Chart(attendanceCtx, {
+                        type: "line",
+                        data: {
+                            labels: [],
+                            datasets: [
+                                {
+                                    label: "Tỷ lệ chấm công",
+                                    data: [],
+                                    borderColor: "#4CAF50",
+                                    tension: 0.1,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                        },
+                    });
+
+                    // Initialize department chart
+                    const departmentCtx = document
+                        .getElementById("departmentChart")
+                        .getContext("2d");
+                    this.departmentChart = new Chart(departmentCtx, {
+                        type: "pie",
+                        data: {
+                            labels: [],
+                            datasets: [
+                                {
+                                    data: [],
+                                    backgroundColor: [
+                                        "#FF6384",
+                                        "#36A2EB",
+                                        "#FFCE56",
+                                        "#4BC0C0",
+                                        "#9966FF",
+                                    ],
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                        },
+                    });
+                }
+
+                setupEventListeners() {
+                    // Dark mode toggle
+                    document
+                        .getElementById("darkModeToggle")
+                        .addEventListener("click", () => {
+                            UIUtils.toggleDarkMode();
+                        });
+
+                    // Logout button
+                    document
+                        .getElementById("logoutBtn")
+                        .addEventListener("click", () => {
+                            AuthUtils.logout();
+                        });
+
+                    // Menu toggle
+                    document
+                        .getElementById("menuToggle")
+                        .addEventListener("click", () => {
+                            UIUtils.toggleSidebar();
+                        });
+
+                    // Attendance period change
+                    document
+                        .getElementById("attendancePeriod")
+                        .addEventListener("change", async (e) => {
+                            await this.updateAttendanceChart(e.target.value);
+                        });
+                }
+
+                async updateAttendanceChart(period) {
+                    try {
+                        const data = await APIUtils.fetchData(
+                            `attendance/trend?period=${period}`
+                        );
+                        this.attendanceChart.data.labels = data.labels;
+                        this.attendanceChart.data.datasets[0].data =
+                            data.values;
+                        this.attendanceChart.update();
+                    } catch (error) {
+                        console.error(
+                            "Error updating attendance chart:",
+                            error
+                        );
+                    }
+                }
+            }
+
+            // Tab functionality
+            class TabManager {
+                constructor() {
+                    this.currentTab = null;
+                    this.tabs = new Set();
+                    this.setupEventListeners();
+                    this.initializeDefaultTab();
+                }
+
+                setupEventListeners() {
+                    // Add event listeners for tab switching
+                    document
+                        .querySelectorAll(".nav-link[data-tab]")
+                        .forEach((link) => {
+                            link.addEventListener("click", (e) => {
+                                e.preventDefault();
+                                const tabId = link.getAttribute("data-tab");
+                                this.switchTab(tabId);
+                            });
+                        });
+                }
+
+                initializeDefaultTab() {
+                    const defaultTab =
+                        document.querySelector(".nav-link.active");
+                    if (defaultTab) {
+                        const tabId = defaultTab.getAttribute("data-tab");
+                        if (tabId) {
+                            this.currentTab = tabId;
+                            this.tabs.add(tabId);
+                        }
+                    }
+                }
+
+                switchTab(tabId) {
+                    if (!tabId || !document.getElementById(tabId)) {
+                        console.error(`Invalid tab ID: ${tabId}`);
+                        return;
+                    }
+
+                    this.tabs.add(tabId);
+
+                    document.querySelectorAll(".tab-pane").forEach((pane) => {
+                        pane.classList.remove("show", "active");
+                    });
+
+                    document.querySelectorAll(".nav-link").forEach((link) => {
+                        link.classList.remove("active");
+                    });
+
+                    const targetPane = document.getElementById(tabId);
+                    const targetLink = document.querySelector(
+                        `[data-tab="${tabId}"]`
+                    );
+
+                    if (targetPane && targetLink) {
+                        targetPane.classList.add("show", "active");
+                        targetLink.classList.add("active");
+                        this.currentTab = tabId;
+                    }
+                }
+            }
+
+            // Initialize dashboard when DOM is loaded
+            document.addEventListener("DOMContentLoaded", () => {
+                const dashboard = new Dashboard();
+                const tabManager = new TabManager();
+
+                // Run system tests
+                APITest.runAllTests().catch((error) => {
+                    console.error("Failed to run system tests:", error);
+                });
+
+                // Check for dark mode preference
+                if (localStorage.getItem("darkMode") === "true") {
+                    document.body.classList.add("dark-mode");
+                }
+
+                // Cleanup on page unload
+                window.addEventListener("unload", () => {
+                    dashboard.cleanup();
+                });
+
+                // Handle submenu toggle on mobile
+                const submenuToggles = document.querySelectorAll(
+                    ".nav-item.has-submenu > .nav-link"
+                );
+                submenuToggles.forEach((toggle) => {
+                    toggle.addEventListener("click", (e) => {
+                        if (window.innerWidth <= 768) {
+                            e.preventDefault();
+                            const parent = toggle.parentElement;
+                            parent.classList.toggle("active");
+
+                            // Close other open submenus
+                            document
+                                .querySelectorAll(".nav-item.has-submenu")
+                                .forEach((item) => {
+                                    if (
+                                        item !== parent &&
+                                        item.classList.contains("active")
+                                    ) {
+                                        item.classList.remove("active");
+                                    }
+                                });
+                        }
+                    });
+                });
+
+                // Handle menu toggle
+                const menuToggle = document.getElementById("menuToggle");
+                const sidebar = document.querySelector(".sidebar");
+                const sidebarOverlay =
+                    document.getElementById("sidebarOverlay");
+
+                menuToggle.addEventListener("click", () => {
+                    sidebar.classList.toggle("active");
+                    sidebarOverlay.classList.toggle("active");
+                });
+
+                // Close sidebar when clicking overlay
+                sidebarOverlay.addEventListener("click", () => {
+                    sidebar.classList.remove("active");
+                    sidebarOverlay.classList.remove("active");
+                });
+
+                // Handle window resize
+                window.addEventListener("resize", () => {
+                    if (window.innerWidth > 768) {
+                        sidebar.classList.remove("active");
+                        sidebarOverlay.classList.remove("active");
+                    }
+                });
+            });
+        </script>
+        <style>
+            /* Header Optimization */
+            .header {
+                margin-top: 20px;
+                margin-left: 10px;
+                margin-right: 10px;
+                padding: 0.5rem 1rem;
+                background-color: #4158D0;
+                background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 60px;
+                position: fixed;
+                top: 0;
+                right: 0;
+                left: 250px; /* Để tránh bị che bởi sidebar */
+                z-index: 999;
+                transition: all 0.3s ease;
+            }
+
+            .header-left h1 {
+                font-size: 1.5rem;
+                margin: 0;
+                color: #333;
+            }
+
+            .header-controls {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .header-controls .form-control {
+                width: 200px;
+                height: 36px;
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
+            }
+
+            .header-controls .dropdown .btn {
+                padding: 0.375rem 0.75rem;
+                height: 36px;
+                font-size: 0.875rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .header-controls .dropdown .btn i {
+                font-size: 1.25rem;
+            }
+
+            .header-controls .dropdown-menu {
+                min-width: 150px;
+                padding: 0.5rem;
+            }
+
+            .header-controls .dropdown-item {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .header-controls .dropdown-item i {
+                width: 16px;
+                text-align: center;
+            }
+
+            @media (max-width: 768px) {
+                .header {
+                    left: 0;
+                }
+
+                .header-left h1 {
+                    font-size: 1.25rem;
+                }
+
+                .header-controls .form-control {
+                    width: 150px;
+                }
+            }
+
+            /* Menu Styling */
+            .sidebar {
+                background-color: #1a1a1a;
+                background-image: linear-gradient(43deg, #1a1a1a 0%, #2d2d2d 46%, #3d3d3d 100%);
+                color: #fff;
+                padding: 1rem;
+                height: 100vh;
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 250px;
+                transition: all 0.3s ease;
+                overflow-y: auto;
+                z-index: 1000;
+            }
+
+            /* Thêm scrollbar tùy chỉnh cho sidebar */
+            .sidebar::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .sidebar::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .sidebar::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 3px;
+            }
+
+            .sidebar::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            /* Điều chỉnh main content để không bị che bởi sidebar */
+            .main-content {
+                margin-left: 250px;
+                padding: 1rem;
+                min-height: 100vh;
+                padding-top: 80px; /* Thêm padding top để tránh bị che bởi header */
+            }
+
+            /* Responsive cho mobile */
+            @media (max-width: 768px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                }
+
+                .sidebar.active {
+                    transform: translateX(0);
+                }
+
+                .main-content {
+                    margin-left: 0;
+                    padding-top: 80px;
+                }
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                padding: 0.5rem 1rem;
+                color: #fff;
+                text-decoration: none;
+                font-size: 0.85rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                transition: all 0.3s ease;
+            }
+
+            .nav-link i {
+                margin-right: 0.75rem;
+                font-size: 1rem;
+                width: 20px;
+                text-align: center;
+                color: #fff;
+                flex-shrink: 0;
+            }
+
+            .nav-link span {
+                flex: 1;
+                color: #fff;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .nav-link:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                width: 100%;
+            }
+
+            .nav-link.active {
+                background-color: rgba(255, 255, 255, 0.15);
+            }
+
+            .submenu {
+                background-color: rgba(0, 0, 0, 0.2);
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transform-origin: top;
+                transform: scaleY(0);
+            }
+
+            .nav-item.open .submenu {
+                max-height: 500px;
+                opacity: 1;
+                visibility: visible;
+                transform: scaleY(1);
+            }
+
+            .nav-item.has-submenu > .nav-link {
+                position: relative;
+            }
+
+            .nav-item.has-submenu > .nav-link .fa-chevron-right {
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: absolute;
+                right: 1rem;
+            }
+
+            .nav-item.has-submenu.open > .nav-link .fa-chevron-right {
+                transform: rotate(90deg);
+            }
+
+            /* Thêm hiệu ứng hover cho menu chính */
+            .nav-item.has-submenu:hover > .submenu {
+                max-height: 500px;
+                opacity: 1;
+                visibility: visible;
+                transform: scaleY(1);
+            }
+
+            .nav-item.has-submenu:hover > .nav-link .fa-chevron-right {
+                transform: rotate(90deg);
+            }
+
+            /* Đảm bảo submenu không bị ẩn khi hover vào nó */
+            .submenu:hover {
+                max-height: 500px;
+                opacity: 1;
+                visibility: visible;
+                transform: scaleY(1);
+            }
+
+            /* Menu Search */
+            .menu-search {
+                margin-bottom: 1rem;
+            }
+
+            .menu-search input {
+                width: 100%;
+                padding: 0.5rem;
+                background-color: rgba(255, 255, 255, 0.1);
+                border: none;
+                border-radius: 4px;
+                color: #fff;
+                font-size: 0.85rem;
+            }
+
+            .menu-search input::placeholder {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            /* Recent Menu */
+            .recent-menu {
+                margin-top: 1rem;
+                padding-top: 1rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .recent-menu h3 {
+                font-size: 0.9rem;
+                color: rgba(255, 255, 255, 0.7);
+                margin-bottom: 0.5rem;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Add notification container -->
+        <div class="notification-container" id="notificationContainer"></div>
+
+        <!-- Add loading overlay -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none">
+            <div class="text-center">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Đang tải...</div>
+            </div>
+        </div>
+
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <img src="./male.png" alt="User Avatar" />
+                    <h2>VNPT</h2>
+                </div>
+
+                <!-- Menu Search -->
+                <div class="menu-search">
+                    <input type="text" placeholder="Tìm kiếm menu..." />
+                </div>
+
+                <nav>
+                    <ul class="nav-menu">
+                        <li class="nav-item" data-menu-id="dashboard">
+                            <a href="dashboard.php" class="nav-link active">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard</span>
+                                <i class="fas fa-star favorite"></i>
+                            </a>
+                        </li>
+                        <li
+                            class="nav-item has-submenu"
+                            data-menu-id="employees"
+                        >
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-users"></i>
+                                <span>Nhân viên</span>
+                                <i class="fas fa-chevron-right"></i>
+                                <i class="fas fa-star favorite"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="employees/list.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Danh sách nhân viên</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="employees/add.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-plus"></i>
+                                        <span>Thêm nhân viên</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="employees/edit.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-edit"></i>
+                                        <span>Chỉnh sửa hồ sơ</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="employees/contract.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-file-contract"></i>
+                                        <span>Hợp đồng</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="employees/view.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-eye"></i>
+                                        <span>Xem hồ sơ</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-clock"></i>
+                                <span>Chấm công</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="attendance/history.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-history"></i>
+                                        <span>Lịch sử chấm công</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="attendance/check.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-check"></i>
+                                        <span>Chấm công</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="attendance/list.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Danh sách chấm công</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="attendance/config.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                        <span>Cấu hình chấm công</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="attendance/reports.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span>Báo cáo chấm công</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Lương</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a href="salary/list.html" class="nav-link">
+                                        <i class="fas fa-list"></i>
+                                        <span>Bảng lương</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="salary/reports.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span>Báo cáo lương</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="salary/config.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                        <span>Cấu hình lương</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="salary/calculate.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-calculator"></i>
+                                        <span>Tính lương</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="salary/payslip.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-file-invoice"></i>
+                                        <span>Phiếu lương</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="salary/history.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-history"></i>
+                                        <span>Lịch sử điều chỉnh</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Nghỉ phép</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="leave/register.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-plus"></i>
+                                        <span>Đăng ký nghỉ phép</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="leave/list.html" class="nav-link">
+                                        <i class="fas fa-list"></i>
+                                        <span>Danh sách nghỉ phép</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="leave/config.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                        <span>Cấu hình nghỉ phép</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="leave/reports.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span>Báo cáo nghỉ phép</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Hiệu suất & KPI</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="performance/employee.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Đánh giá hiệu suất</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="performance/kpi.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-bullseye"></i>
+                                        <span>Cấu hình KPI</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="performance/reports.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span>Báo cáo hiệu suất</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="performance/evaluation.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-star"></i>
+                                        <span>Đánh giá nhân viên</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-building"></i>
+                                <span>Phòng ban</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="departments/list.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Danh sách phòng ban</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-certificate"></i>
+                                <span>Bằng cấp</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="certificates/list.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Danh sách bằng cấp</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="certificates/add.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-plus"></i>
+                                        <span>Thêm bằng cấp</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="certificates/edit.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-edit"></i>
+                                        <span>Chỉnh sửa bằng cấp</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="certificates/Degree.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <span>Quản lý bằng cấp</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Tài liệu</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="documents/list.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Danh sách tài liệu</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="documents/upload.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-upload"></i>
+                                        <span>Upload tài liệu</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="documents/document.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-file"></i>
+                                        <span>Quản lý tài liệu</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="documents/view_document.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-eye"></i>
+                                        <span>Xem tài liệu</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-tools"></i>
+                                <span>Thiết bị</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="equipment/list.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Danh sách thiết bị</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="equipment/assign.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-share"></i>
+                                        <span>Cấp phát thiết bị</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="reports/list.html" class="nav-link">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Báo cáo</span>
+                            </a>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Hiệu suất & KPI</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="reports/employee.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Đánh giá hiệu suất</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Tuyển dụng</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="recruitment/positions.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-briefcase"></i>
+                                        <span>Vị trí tuyển dụng</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="recruitment/candidates.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-users"></i>
+                                        <span>Quản lý ứng viên</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="recruitment/interviews.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-comments"></i>
+                                        <span>Lịch phỏng vấn</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="recruitment/onboarding.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-user-check"></i>
+                                        <span>Onboarding</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-gift"></i>
+                                <span>Phúc lợi</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="benefits/insurance.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span>Bảo hiểm</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="benefits/policies.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-file-contract"></i>
+                                        <span>Chính sách phúc lợi</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-project-diagram"></i>
+                                <span>Dự án</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="projects/list.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Danh sách dự án</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="projects/tasks.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-tasks"></i>
+                                        <span>Quản lý công việc</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="projects/resources.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-cubes"></i>
+                                        <span>Quản lý tài nguyên</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-cogs"></i>
+                                <span>Cài đặt</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="settings/security.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span>Bảo mật</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="settings/integrations.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-plug"></i>
+                                        <span>Tích hợp</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="settings/backup.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-database"></i>
+                                        <span>Sao lưu</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Đào tạo</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a
+                                        href="training/courses.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Quản lý khóa đào tạo</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="training/register.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-plus"></i>
+                                        <span>Đăng ký đào tạo</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="training/list.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-list"></i>
+                                        <span>Danh sách đăng ký</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="training/evaluation.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-star"></i>
+                                        <span>Đánh giá kết quả</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="training/reports.html"
+                                        class="nav-link"
+                                    >
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span>Báo cáo đào tạo</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Đăng xuất</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- Recent Menu -->
+                <div class="recent-menu">
+                    <h3>Menu gần đây</h3>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Improved Header -->
+                <header class="header">
+                    <div class="header-left">
+                        <h1>Admin Dashboard</h1>
+                    </div>
+                    <div class="header-right">
+                        <div class="header-controls">
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Search..."
+                            />
+                            <div class="dropdown">
+                                <button
+                                    class="btn btn-secondary dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                >
+                                    <i class="fas fa-user-circle"></i> Admin
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#"
+                                            >Profile</a
+                                        >
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#"
+                                            >Settings</a
+                                        >
+                                    </li>
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="#"
+                                            id="logoutBtn"
+                                            >Logout</a
+                                        >
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Priority Metrics Grid -->
+                <section class="metrics-grid">
+                    <div class="row g-3">
+                        <!-- Priority 1 Metrics -->
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="metric-card priority-1 h-100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="totalEmployees">
+                                        0
+                                    </div>
+                                    <div class="stat-label">Tổng nhân viên</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="metric-card priority-1 h-100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-bullseye"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="kpiCompletion">
+                                        0%
+                                    </div>
+                                    <div class="stat-label">Hoàn thành KPI</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="metric-card priority-1 h-100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="newCandidates">
+                                        0
+                                    </div>
+                                    <div class="stat-label">Ứng viên mới</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="metric-card priority-1 h-100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-project-diagram"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="activeProjects">
+                                        0
+                                    </div>
+                                    <div class="stat-label">
+                                        Dự án đang chạy
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="metric-card priority-1 h-100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div
+                                        class="stat-value"
+                                        id="activeEmployees"
+                                    >
+                                        0
+                                    </div>
+                                    <div class="stat-label">
+                                        Nhân viên đang hoạt động
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="metric-card priority-1 h-100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div
+                                        class="stat-value"
+                                        id="todayAttendance"
+                                    >
+                                        0%
+                                    </div>
+                                    <div class="stat-label">
+                                        Tỷ lệ chấm công hôm nay
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Priority 2 Metrics -->
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="metric-card priority-2 h-100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="pendingLeaves">
+                                        0
+                                    </div>
+                                    <div class="stat-label">
+                                        Đơn xin nghỉ phép chờ duyệt
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="metric-card priority-2 h-100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="totalSalary">
+                                        0
+                                    </div>
+                                    <div class="stat-label">
+                                        Tổng quỹ lương tháng
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="metric-card priority-2 h-100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-user-times"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div
+                                        class="stat-value"
+                                        id="inactiveEmployees"
+                                    >
+                                        0
+                                    </div>
+                                    <div class="stat-label">
+                                        Nhân viên không hoạt động
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="data-tabs">
+                    <div class="tab-content" id="recentTabsContent">
+                        <div
+                            class="tab-pane fade show active"
+                            id="employees"
+                            role="tabpanel"
+                        >
+                            <div class="data-section">
+                                <div class="section-header">
+                                    <h3 class="section-title">Nhân viên mới</h3>
+                                    <div class="action-buttons">
+                                        <button
+                                            class="btn btn-primary"
+                                            onclick="window.location.href='./employees/list.html'"
+                                        >
+                                            Xem tất cả
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã NV</th>
+                                                <th>Họ tên</th>
+                                                <th>Chức vụ</th>
+                                                <th>Phòng ban</th>
+                                                <th>Ngày vào làm</th>
+                                                <th>Ngày sinh</th>
+                                                <th>SĐT</th>
+                                                <th>Email</th>
+                                                <th>Địa chỉ</th>
+                                                <th>Trạng thái</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recentEmployees">
+                                            <!-- Data will be loaded dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="tab-pane fade"
+                            id="activities"
+                            role="tabpanel"
+                        >
+                            <div class="data-section">
+                                <div class="section-header">
+                                    <h3 class="section-title">
+                                        Hoạt động gần đây
+                                    </h3>
+                                    <div class="activity-filter">
+                                        <select
+                                            id="activityType"
+                                            class="form-select"
+                                        >
+                                            <option value="all">
+                                                Tất cả hoạt động
+                                            </option>
+                                            <option value="login">
+                                                Đăng nhập
+                                            </option>
+                                            <option value="edit">
+                                                Chỉnh sửa
+                                            </option>
+                                            <option value="view">
+                                                Xem thông tin
+                                            </option>
+                                            <option value="delete">Xóa</option>
+                                        </select>
+                                        <input
+                                            type="date"
+                                            id="activityDate"
+                                            class="form-control"
+                                        />
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="Tìm kiếm người dùng..."
+                                        />
+                                    </div>
+                                </div>
+                                <div id="recentActivities">
+                                    <!-- Data will be loaded dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Charts Section -->
+                <section class="charts-section">
+                    <div class="row g-3">
+                        <div class="col-12 col-lg-8">
+                            <div class="data-section main-chart h-100">
+                                <div class="section-header">
+                                    <h3 class="section-title">
+                                        Xu hướng chấm công
+                                    </h3>
+                                    <div class="chart-controls">
+                                        <select
+                                            class="form-select"
+                                            id="attendancePeriod"
+                                        >
+                                            <option value="week">Tuần</option>
+                                            <option value="month">Tháng</option>
+                                            <option value="quarter">Quý</option>
+                                        </select>
+                                        <button
+                                            class="btn"
+                                            onclick="ExportUtils.exportChart('attendanceChart')"
+                                        >
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="attendanceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-4">
+                            <div class="data-section h-100">
+                                <div class="section-header">
+                                    <h3 class="section-title">
+                                        Phân bố nhân viên theo phòng ban
+                                    </h3>
+                                    <div class="chart-controls">
+                                        <button
+                                            class="btn"
+                                            onclick="ExportUtils.exportChart('departmentChart')"
+                                        >
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="departmentChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tabs Section -->
+
+                <!-- Collapsible Sections -->
+                <section class="additional-sections">
+                    <div class="accordion" id="additionalSectionsAccordion">
+                        <!-- AI Predictions Section -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="aiSectionHeader">
+                                <button
+                                    class="accordion-button"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#aiSection"
+                                >
+                                    Dự đoán và Phân tích
+                                </button>
+                            </h2>
+                            <div
+                                id="aiSection"
+                                class="accordion-collapse collapse show"
+                            >
+                                <div class="accordion-body">
+                                    <div class="data-section">
+                                        <div class="section-header">
+                                            <h3 class="section-title">
+                                                Dự đoán và Phân tích
+                                            </h3>
+                                        </div>
+                                        <div class="ai-prediction-card">
+                                            <h4>Dự đoán xu hướng nhân sự</h4>
+                                            <div id="hrTrends"></div>
+                                        </div>
+                                        <div class="ai-prediction-card">
+                                            <h4>Phân tích tâm lý nhân viên</h4>
+                                            <div id="sentimentAnalysis"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gamification Section -->
+                        <div class="accordion-item">
+                            <h2
+                                class="accordion-header"
+                                id="gamificationSectionHeader"
+                            >
+                                <button
+                                    class="accordion-button collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#gamificationSection"
+                                >
+                                    Gamification
+                                </button>
+                            </h2>
+                            <div
+                                id="gamificationSection"
+                                class="accordion-collapse collapse"
+                            >
+                                <div class="accordion-body">
+                                    <div class="data-section">
+                                        <div class="section-header">
+                                            <h3 class="section-title">
+                                                Gamification
+                                            </h3>
+                                        </div>
+                                        <div class="leaderboard">
+                                            <h4>Bảng xếp hạng</h4>
+                                            <div id="employeeRankings"></div>
+                                        </div>
+                                        <div class="achievements">
+                                            <h4>Thành tích</h4>
+                                            <div
+                                                id="employeeAchievements"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Thêm section mới cho AI & Analytics -->
+                <section class="ai-analytics-section">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="data-section">
+                                <div class="section-header">
+                                    <h3 class="section-title">
+                                        Dự đoán xu hướng nhân sự
+                                    </h3>
+                                </div>
+                                <div class="ai-prediction-card">
+                                    <div class="prediction-chart">
+                                        <canvas id="hrTrendsChart"></canvas>
+                                    </div>
+                                    <div class="prediction-insights">
+                                        <h4>Phân tích</h4>
+                                        <ul id="hrTrendsInsights"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="data-section">
+                                <div class="section-header">
+                                    <h3 class="section-title">
+                                        Phân tích tâm lý nhân viên
+                                    </h3>
+                                </div>
+                                <div class="sentiment-analysis-card">
+                                    <div class="sentiment-chart">
+                                        <canvas id="sentimentChart"></canvas>
+                                    </div>
+                                    <div class="sentiment-insights">
+                                        <h4>Đề xuất</h4>
+                                        <ul id="sentimentInsights"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Thêm section mới cho Gamification -->
+                <section class="gamification-section">
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="data-section">
+                                <div class="section-header">
+                                    <h3 class="section-title">Bảng xếp hạng</h3>
+                                </div>
+                                <div class="leaderboard">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Hạng</th>
+                                                <th>Nhân viên</th>
+                                                <th>Điểm</th>
+                                                <th>Thành tích</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="leaderboardTable">
+                                            <!-- Data will be dynamically loaded -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="data-section">
+                                <div class="section-header">
+                                    <h3 class="section-title">
+                                        Thành tích gần đây
+                                    </h3>
+                                </div>
+                                <div id="recentAchievements">
+                                    <!-- Data will be dynamically loaded -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Thêm section mới cho Mobile App -->
+                <section class="mobile-app-section">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="data-section">
+                                <div class="section-header">
+                                    <h3 class="section-title">
+                                        Ứng dụng di động
+                                    </h3>
+                                </div>
+                                <div class="mobile-app-stats">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="stat-card">
+                                                <i
+                                                    class="fas fa-mobile-alt"
+                                                ></i>
+                                                <h4>Lượt tải</h4>
+                                                <p id="appDownloads">0</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="stat-card">
+                                                <i
+                                                    class="fas fa-user-check"
+                                                ></i>
+                                                <h4>Người dùng hoạt động</h4>
+                                                <p id="activeUsers">0</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="stat-card">
+                                                <i class="fas fa-bell"></i>
+                                                <h4>Thông báo đã gửi</h4>
+                                                <p id="notificationsSent">0</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="footer">
+                    <p>&copy; 2023 VNPT. All rights reserved.</p>
+                </footer>
+            </main>
+        </div>
+
+        <script>
+            function logout() {
+                window.location.href =
+                    "/QLNhanSu_version1/public/login_new.html";
+            }
+
+            // Menu and Submenu Handling
+            document.addEventListener("DOMContentLoaded", function () {
+                const menuItems = document.querySelectorAll(
+                    ".nav-item.has-submenu"
+                );
+
+                menuItems.forEach((item) => {
+                    const link = item.querySelector(".nav-link");
+                    const submenu = item.querySelector(".submenu");
+                    const chevron = item.querySelector(".fa-chevron-right");
+
+                    // Handle click events
+                    link.addEventListener("click", function (e) {
+                        e.preventDefault();
+
+                        // Close other open submenus
+                        menuItems.forEach((otherItem) => {
+                            if (otherItem !== item) {
+                                otherItem.classList.remove("open");
+                                const otherChevron =
+                                    otherItem.querySelector(
+                                        ".fa-chevron-right"
+                                    );
+                                if (otherChevron) {
+                                    otherChevron.style.transform =
+                                        "rotate(0deg)";
+                                }
+                            }
+                        });
+
+                        // Toggle current submenu
+                        item.classList.toggle("open");
+                        if (chevron) {
+                            chevron.style.transform = item.classList.contains(
+                                "open"
+                            )
+                                ? "rotate(90deg)"
+                                : "rotate(0deg)";
+                        }
+                    });
+
+                    // Handle hover events for desktop
+                    if (window.innerWidth > 768) {
+                        item.addEventListener("mouseenter", function () {
+                            item.classList.add("open");
+                            if (chevron) {
+                                chevron.style.transform = "rotate(90deg)";
+                            }
+                        });
+
+                        item.addEventListener("mouseleave", function () {
+                            item.classList.remove("open");
+                            if (chevron) {
+                                chevron.style.transform = "rotate(0deg)";
+                            }
+                        });
+                    }
+                });
+
+                // Handle window resize
+                window.addEventListener("resize", function () {
+                    const isMobile = window.innerWidth <= 768;
+                    menuItems.forEach((item) => {
+                        const chevron = item.querySelector(".fa-chevron-right");
+                        if (isMobile) {
+                            item.classList.remove("open");
+                            if (chevron) {
+                                chevron.style.transform = "rotate(0deg)";
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
