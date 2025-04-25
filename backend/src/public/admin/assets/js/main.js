@@ -36,22 +36,64 @@ const ApiService = {
     }
 };
 
-// UI Utilities
-const UIUtils = {
-    showLoading() {
-        const loader = document.getElementById('loadingOverlay');
-        if (loader) {
-            loader.style.display = 'flex';
+// Common utilities
+export const CommonUtils = {
+    formatDate: (date) => {
+        return new Date(date).toLocaleDateString("vi-VN");
+    },
+    formatCurrency: (amount) => {
+        return new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+        }).format(amount);
+    },
+    formatNumber: (number) => {
+        return new Intl.NumberFormat("vi-VN").format(number);
+    },
+    formatPercent: (number) => {
+        return new Intl.NumberFormat("vi-VN", {
+            style: "percent",
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(number);
+    }
+};
+
+// Notification utilities
+export const NotificationUtils = {
+    show: (message, type = "info") => {
+        const container = document.getElementById("notificationContainer");
+        if (!container) return;
+
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        container.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+    }
+};
+
+// UI utilities
+export const UIUtils = {
+    toggleDarkMode: () => {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+    },
+    toggleSidebar: () => {
+        document.querySelector(".sidebar").classList.toggle("collapsed");
+    },
+    showLoading: () => {
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        if (loadingOverlay) {
+            loadingOverlay.style.display = "flex";
         }
     },
-
-    hideLoading() {
-        const loader = document.getElementById('loadingOverlay');
-        if (loader) {
-            loader.style.display = 'none';
+    hideLoading: () => {
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        if (loadingOverlay) {
+            loadingOverlay.style.display = "none";
         }
     },
-
     showNotification(message, type = 'info') {
         const container = document.getElementById('notificationContainer');
         if (!container) return;

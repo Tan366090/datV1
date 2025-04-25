@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 24, 2025 at 07:25 AM
+-- Generation Time: Apr 25, 2025 at 05:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -116,6 +116,23 @@ CREATE TABLE `audit_logs` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `benefits`
+--
+
+CREATE TABLE `benefits` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `type` varchar(50) NOT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `bonuses`
 --
 
@@ -146,6 +163,62 @@ INSERT INTO `bonuses` (`bonus_id`, `user_id`, `bonus_type`, `amount`, `days_off`
 (8, 8, 'performance', 600000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
 (9, 9, 'performance', 500000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
 (10, 10, 'performance', 500000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `candidates`
+--
+
+CREATE TABLE `candidates` (
+  `id` int(11) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `position_id` int(11) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `resume_url` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `certificates`
+--
+
+CREATE TABLE `certificates` (
+  `id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `issuing_organization` varchar(255) NOT NULL,
+  `issue_date` date NOT NULL,
+  `expiry_date` date DEFAULT NULL,
+  `credential_id` varchar(100) DEFAULT NULL,
+  `file_url` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `contracts`
+--
+
+CREATE TABLE `contracts` (
+  `id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `contract_type` varchar(50) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `salary` decimal(10,2) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -237,6 +310,22 @@ INSERT INTO `documents` (`id`, `title`, `description`, `file_url`, `document_typ
 (3, 'Financial Procedures', 'Financial management procedures', '/documents/finance.pdf', 'procedure', 3, 3, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
 (4, 'Marketing Strategy', 'Company marketing strategy', '/documents/marketing.pdf', 'strategy', 4, 4, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
 (5, 'Operations Manual', 'Operations procedures manual', '/documents/operations.pdf', 'manual', 5, 5, '2025-04-21 14:57:56', '2025-04-21 14:57:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `document_versions`
+--
+
+CREATE TABLE `document_versions` (
+  `id` int(11) NOT NULL,
+  `document_id` int(11) NOT NULL,
+  `version_number` varchar(20) NOT NULL,
+  `file_url` varchar(255) NOT NULL,
+  `changes_description` text DEFAULT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -358,6 +447,24 @@ INSERT INTO `employee_trainings` (`id`, `employee_id`, `training_id`, `status`, 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `equipment`
+--
+
+CREATE TABLE `equipment` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `serial_number` varchar(100) DEFAULT NULL,
+  `purchase_date` date DEFAULT NULL,
+  `purchase_cost` decimal(10,2) DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `equipment_assignments`
 --
 
@@ -388,6 +495,24 @@ INSERT INTO `equipment_assignments` (`id`, `equipment_name`, `employee_id`, `ass
 (8, 'MacBook Pro', 8, '2023-01-01', NULL, 'assigned', 'Development machine', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
 (9, 'Laptop Dell Latitude', 9, '2023-01-01', NULL, 'assigned', 'Finance work laptop', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
 (10, 'MacBook Air', 10, '2023-01-01', NULL, 'assigned', 'Marketing work laptop', '2025-04-21 14:57:56', '2025-04-21 14:57:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `evaluations`
+--
+
+CREATE TABLE `evaluations` (
+  `id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `evaluator_id` int(11) NOT NULL,
+  `evaluation_date` date NOT NULL,
+  `performance_score` int(11) DEFAULT NULL,
+  `comments` text DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -446,6 +571,82 @@ INSERT INTO `holidays` (`id`, `name`, `date`, `description`, `is_recurring`, `cr
 (2, 'Tet Holiday', '2024-02-10', 'Lunar New Year', 1, '2025-04-19 23:06:24', '2025-04-19 23:06:24'),
 (3, 'Reunification Day', '2024-04-30', 'National Holiday', 1, '2025-04-19 23:06:24', '2025-04-19 23:06:24'),
 (4, 'Labor Day', '2024-05-01', 'International Workers Day', 1, '2025-04-19 23:06:24', '2025-04-19 23:06:24');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `insurance`
+--
+
+CREATE TABLE `insurance` (
+  `id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `insurance_type` varchar(50) NOT NULL,
+  `policy_number` varchar(100) DEFAULT NULL,
+  `provider` varchar(255) DEFAULT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `premium` decimal(10,2) DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `interviews`
+--
+
+CREATE TABLE `interviews` (
+  `id` int(11) NOT NULL,
+  `candidate_id` int(11) NOT NULL,
+  `interviewer_id` int(11) NOT NULL,
+  `interview_date` datetime NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `job_positions`
+--
+
+CREATE TABLE `job_positions` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `department_id` int(11) NOT NULL,
+  `description` text DEFAULT NULL,
+  `requirements` text DEFAULT NULL,
+  `salary_range_min` decimal(10,2) DEFAULT NULL,
+  `salary_range_max` decimal(10,2) DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `kpi`
+--
+
+CREATE TABLE `kpi` (
+  `id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `metric_name` varchar(255) NOT NULL,
+  `target_value` decimal(10,2) DEFAULT NULL,
+  `actual_value` decimal(10,2) DEFAULT NULL,
+  `period_start` date NOT NULL,
+  `period_end` date NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -526,6 +727,23 @@ INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `is_re
 (8, 8, 'Training Reminder', 'Software development training tomorrow', 'training', 0, '2025-04-21 14:57:56'),
 (9, 9, 'Document Review', 'Please review Q1 financial reports', 'document', 0, '2025-04-21 14:57:56'),
 (10, 10, 'Meeting Reminder', 'Marketing team meeting at 2 PM', 'meeting', 0, '2025-04-21 14:57:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onboarding`
+--
+
+CREATE TABLE `onboarding` (
+  `id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -689,6 +907,23 @@ INSERT INTO `permissions` (`id`, `name`, `code`, `description`, `created_at`) VA
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `policies`
+--
+
+CREATE TABLE `policies` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `category` varchar(50) NOT NULL,
+  `effective_date` date NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `positions`
 --
 
@@ -721,6 +956,60 @@ INSERT INTO `positions` (`id`, `name`, `description`, `department_id`, `created_
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `projects`
+--
+
+CREATE TABLE `projects` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `manager_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `project_resources`
+--
+
+CREATE TABLE `project_resources` (
+  `id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `resource_type` varchar(50) NOT NULL,
+  `resource_id` int(11) NOT NULL,
+  `allocation_percentage` int(11) DEFAULT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `project_tasks`
+--
+
+CREATE TABLE `project_tasks` (
+  `id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `assigned_to` int(11) DEFAULT NULL,
+  `due_date` date DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `rate_limits`
 --
 
@@ -732,6 +1021,23 @@ CREATE TABLE `rate_limits` (
   `window_start` datetime NOT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `recruitment`
+--
+
+CREATE TABLE `recruitment` (
+  `id` int(11) NOT NULL,
+  `position_id` int(11) NOT NULL,
+  `department_id` int(11) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `requirements` text DEFAULT NULL,
+  `responsibilities` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -949,6 +1255,56 @@ CREATE TABLE `trainings` (
 INSERT INTO `trainings` (`id`, `name`, `description`, `start_date`, `end_date`, `location`, `trainer`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'New HR Policies', 'Training on updated HR policies and procedures', '2024-04-10', '2024-04-11', 'Training Room A', 'External Trainer', 'planned', '2025-04-15 13:53:46', '2025-04-15 13:53:46'),
 (2, 'IT Security', 'Basic IT security training', '2024-04-15', '2024-04-16', 'Online', 'Internal IT Team', 'planned', '2025-04-15 13:53:46', '2025-04-15 13:53:46');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `training_courses`
+--
+
+CREATE TABLE `training_courses` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `duration` int(11) DEFAULT NULL,
+  `cost` decimal(10,2) DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `training_evaluations`
+--
+
+CREATE TABLE `training_evaluations` (
+  `id` int(11) NOT NULL,
+  `registration_id` int(11) NOT NULL,
+  `evaluator_id` int(11) NOT NULL,
+  `evaluation_date` date NOT NULL,
+  `score` int(11) DEFAULT NULL,
+  `comments` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `training_registrations`
+--
+
+CREATE TABLE `training_registrations` (
+  `id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  `registration_date` date NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -1197,12 +1553,39 @@ ALTER TABLE `audit_logs`
   ADD KEY `idx_audit_logs_target` (`target_entity`,`target_entity_id`);
 
 --
+-- Indexes for table `benefits`
+--
+ALTER TABLE `benefits`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `bonuses`
 --
 ALTER TABLE `bonuses`
   ADD PRIMARY KEY (`bonus_id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `added_by_user_id` (`added_by_user_id`);
+
+--
+-- Indexes for table `candidates`
+--
+ALTER TABLE `candidates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `position_id` (`position_id`);
+
+--
+-- Indexes for table `certificates`
+--
+ALTER TABLE `certificates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_id` (`employee_id`);
+
+--
+-- Indexes for table `contracts`
+--
+ALTER TABLE `contracts`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_id` (`employee_id`);
 
 --
 -- Indexes for table `degrees`
@@ -1225,6 +1608,14 @@ ALTER TABLE `documents`
   ADD PRIMARY KEY (`id`),
   ADD KEY `uploaded_by` (`uploaded_by`),
   ADD KEY `department_id` (`department_id`);
+
+--
+-- Indexes for table `document_versions`
+--
+ALTER TABLE `document_versions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `document_id` (`document_id`),
+  ADD KEY `created_by` (`created_by`);
 
 --
 -- Indexes for table `email_verification_tokens`
@@ -1261,11 +1652,25 @@ ALTER TABLE `employee_trainings`
   ADD KEY `training_id` (`training_id`);
 
 --
+-- Indexes for table `equipment`
+--
+ALTER TABLE `equipment`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `equipment_assignments`
 --
 ALTER TABLE `equipment_assignments`
   ADD PRIMARY KEY (`id`),
   ADD KEY `employee_id` (`employee_id`);
+
+--
+-- Indexes for table `evaluations`
+--
+ALTER TABLE `evaluations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_id` (`employee_id`),
+  ADD KEY `evaluator_id` (`evaluator_id`);
 
 --
 -- Indexes for table `family_members`
@@ -1279,6 +1684,34 @@ ALTER TABLE `family_members`
 --
 ALTER TABLE `holidays`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `insurance`
+--
+ALTER TABLE `insurance`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_id` (`employee_id`);
+
+--
+-- Indexes for table `interviews`
+--
+ALTER TABLE `interviews`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `interviewer_id` (`interviewer_id`);
+
+--
+-- Indexes for table `job_positions`
+--
+ALTER TABLE `job_positions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `department_id` (`department_id`);
+
+--
+-- Indexes for table `kpi`
+--
+ALTER TABLE `kpi`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_id` (`employee_id`);
 
 --
 -- Indexes for table `leaves`
@@ -1302,6 +1735,13 @@ ALTER TABLE `login_attempts`
 ALTER TABLE `notifications`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `onboarding`
+--
+ALTER TABLE `onboarding`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_id` (`employee_id`);
 
 --
 -- Indexes for table `password_reset_tokens`
@@ -1343,6 +1783,12 @@ ALTER TABLE `permissions`
   ADD UNIQUE KEY `unique_code` (`code`);
 
 --
+-- Indexes for table `policies`
+--
+ALTER TABLE `policies`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `positions`
 --
 ALTER TABLE `positions`
@@ -1350,11 +1796,41 @@ ALTER TABLE `positions`
   ADD KEY `department_id` (`department_id`);
 
 --
+-- Indexes for table `projects`
+--
+ALTER TABLE `projects`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `manager_id` (`manager_id`);
+
+--
+-- Indexes for table `project_resources`
+--
+ALTER TABLE `project_resources`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `project_id` (`project_id`);
+
+--
+-- Indexes for table `project_tasks`
+--
+ALTER TABLE `project_tasks`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `project_id` (`project_id`),
+  ADD KEY `assigned_to` (`assigned_to`);
+
+--
 -- Indexes for table `rate_limits`
 --
 ALTER TABLE `rate_limits`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_ip_endpoint` (`ip_address`,`endpoint`);
+
+--
+-- Indexes for table `recruitment`
+--
+ALTER TABLE `recruitment`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `position_id` (`position_id`),
+  ADD KEY `department_id` (`department_id`);
 
 --
 -- Indexes for table `roles`
@@ -1398,6 +1874,28 @@ ALTER TABLE `trainings`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `training_courses`
+--
+ALTER TABLE `training_courses`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `training_evaluations`
+--
+ALTER TABLE `training_evaluations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `registration_id` (`registration_id`),
+  ADD KEY `evaluator_id` (`evaluator_id`);
+
+--
+-- Indexes for table `training_registrations`
+--
+ALTER TABLE `training_registrations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_id` (`employee_id`),
+  ADD KEY `course_id` (`course_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -1432,10 +1930,40 @@ ALTER TABLE `attendance`
   MODIFY `attendance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
+-- AUTO_INCREMENT for table `benefits`
+--
+ALTER TABLE `benefits`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `candidates`
+--
+ALTER TABLE `candidates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `certificates`
+--
+ALTER TABLE `certificates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `contracts`
+--
+ALTER TABLE `contracts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `departments`
 --
 ALTER TABLE `departments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `document_versions`
+--
+ALTER TABLE `document_versions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -1444,10 +1972,52 @@ ALTER TABLE `employees`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `equipment`
+--
+ALTER TABLE `equipment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `evaluations`
+--
+ALTER TABLE `evaluations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `insurance`
+--
+ALTER TABLE `insurance`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `interviews`
+--
+ALTER TABLE `interviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `job_positions`
+--
+ALTER TABLE `job_positions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `kpi`
+--
+ALTER TABLE `kpi`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `leaves`
 --
 ALTER TABLE `leaves`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `onboarding`
+--
+ALTER TABLE `onboarding`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `payroll`
@@ -1468,16 +2038,64 @@ ALTER TABLE `permissions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
+-- AUTO_INCREMENT for table `policies`
+--
+ALTER TABLE `policies`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `positions`
 --
 ALTER TABLE `positions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `projects`
+--
+ALTER TABLE `projects`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `project_resources`
+--
+ALTER TABLE `project_resources`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `project_tasks`
+--
+ALTER TABLE `project_tasks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `recruitment`
+--
+ALTER TABLE `recruitment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `training_courses`
+--
+ALTER TABLE `training_courses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `training_evaluations`
+--
+ALTER TABLE `training_evaluations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `training_registrations`
+--
+ALTER TABLE `training_registrations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -1497,10 +2115,35 @@ ALTER TABLE `bonuses`
   ADD CONSTRAINT `fk_bonuses_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
+-- Constraints for table `candidates`
+--
+ALTER TABLE `candidates`
+  ADD CONSTRAINT `candidates_ibfk_1` FOREIGN KEY (`position_id`) REFERENCES `positions` (`id`);
+
+--
+-- Constraints for table `certificates`
+--
+ALTER TABLE `certificates`
+  ADD CONSTRAINT `certificates_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
+
+--
+-- Constraints for table `contracts`
+--
+ALTER TABLE `contracts`
+  ADD CONSTRAINT `contracts_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
+
+--
 -- Constraints for table `departments`
 --
 ALTER TABLE `departments`
   ADD CONSTRAINT `fk_departments_manager` FOREIGN KEY (`manager_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `document_versions`
+--
+ALTER TABLE `document_versions`
+  ADD CONSTRAINT `document_versions_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`),
+  ADD CONSTRAINT `document_versions_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `employees` (`id`);
 
 --
 -- Constraints for table `employees`
@@ -1517,6 +2160,37 @@ ALTER TABLE `equipment_assignments`
   ADD CONSTRAINT `fk_equipment_assignments_employee` FOREIGN KEY (`employee_id`) REFERENCES `users` (`user_id`);
 
 --
+-- Constraints for table `evaluations`
+--
+ALTER TABLE `evaluations`
+  ADD CONSTRAINT `evaluations_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`),
+  ADD CONSTRAINT `evaluations_ibfk_2` FOREIGN KEY (`evaluator_id`) REFERENCES `employees` (`id`);
+
+--
+-- Constraints for table `insurance`
+--
+ALTER TABLE `insurance`
+  ADD CONSTRAINT `insurance_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
+
+--
+-- Constraints for table `interviews`
+--
+ALTER TABLE `interviews`
+  ADD CONSTRAINT `interviews_ibfk_1` FOREIGN KEY (`interviewer_id`) REFERENCES `employees` (`id`);
+
+--
+-- Constraints for table `job_positions`
+--
+ALTER TABLE `job_positions`
+  ADD CONSTRAINT `job_positions_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
+
+--
+-- Constraints for table `kpi`
+--
+ALTER TABLE `kpi`
+  ADD CONSTRAINT `kpi_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
+
+--
 -- Constraints for table `leaves`
 --
 ALTER TABLE `leaves`
@@ -1528,6 +2202,12 @@ ALTER TABLE `leaves`
 --
 ALTER TABLE `notifications`
   ADD CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `onboarding`
+--
+ALTER TABLE `onboarding`
+  ADD CONSTRAINT `onboarding_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
 
 --
 -- Constraints for table `payroll`
@@ -1549,6 +2229,32 @@ ALTER TABLE `positions`
   ADD CONSTRAINT `fk_positions_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `projects`
+--
+ALTER TABLE `projects`
+  ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`manager_id`) REFERENCES `employees` (`id`);
+
+--
+-- Constraints for table `project_resources`
+--
+ALTER TABLE `project_resources`
+  ADD CONSTRAINT `project_resources_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`);
+
+--
+-- Constraints for table `project_tasks`
+--
+ALTER TABLE `project_tasks`
+  ADD CONSTRAINT `project_tasks_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  ADD CONSTRAINT `project_tasks_ibfk_2` FOREIGN KEY (`assigned_to`) REFERENCES `employees` (`id`);
+
+--
+-- Constraints for table `recruitment`
+--
+ALTER TABLE `recruitment`
+  ADD CONSTRAINT `recruitment_ibfk_1` FOREIGN KEY (`position_id`) REFERENCES `positions` (`id`),
+  ADD CONSTRAINT `recruitment_ibfk_2` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
+
+--
 -- Constraints for table `role_permissions`
 --
 ALTER TABLE `role_permissions`
@@ -1567,6 +2273,20 @@ ALTER TABLE `salary_history`
 ALTER TABLE `tasks`
   ADD CONSTRAINT `fk_tasks_assigned_by` FOREIGN KEY (`assigned_by`) REFERENCES `users` (`user_id`),
   ADD CONSTRAINT `fk_tasks_assigned_to` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `training_evaluations`
+--
+ALTER TABLE `training_evaluations`
+  ADD CONSTRAINT `training_evaluations_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `training_registrations` (`id`),
+  ADD CONSTRAINT `training_evaluations_ibfk_2` FOREIGN KEY (`evaluator_id`) REFERENCES `employees` (`id`);
+
+--
+-- Constraints for table `training_registrations`
+--
+ALTER TABLE `training_registrations`
+  ADD CONSTRAINT `training_registrations_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`),
+  ADD CONSTRAINT `training_registrations_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `training_courses` (`id`);
 
 --
 -- Constraints for table `user_profiles`

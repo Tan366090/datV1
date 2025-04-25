@@ -8,6 +8,7 @@ const compression = require('compression');
 const winston = require('winston');
 const chalk = require('chalk');
 const figlet = require('figlet');
+const mysql = require('mysql2');
 
 // Cấu hình logger
 const logger = winston.createLogger({
@@ -127,6 +128,142 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'backend/src/public/admin/dashboard_admin_V1.html'));
 });
 
+// Cấu hình kết nối MySQL
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'qlnhansu'
+});
+
+// Kết nối đến MySQL
+db.connect((err) => {
+    if (err) {
+        logger.error('Lỗi kết nối MySQL:', { error: err });
+        console.error(chalk.red('Error connecting to MySQL:', err));
+        return;
+    }
+    logger.info('Đã kết nối thành công đến MySQL');
+    console.log(chalk.green('Connected to MySQL database'));
+});
+
+// API Endpoints
+app.get('/api/employees', async (req, res) => {
+    try {
+        const [rows] = await db.promise().query(`
+            SELECT e.*, d.name as department_name, p.name as position_name, u.email, u.full_name
+            FROM employees e
+            LEFT JOIN departments d ON e.department_id = d.id
+            LEFT JOIN positions p ON e.position_id = p.id
+            LEFT JOIN users u ON e.user_id = u.id
+        `);
+        res.json(rows);
+    } catch (error) {
+        logger.error('Error fetching employees:', error);
+        res.status(500).json({ error: 'Error fetching employees' });
+    }
+});
+
+app.get('/api/departments', async (req, res) => {
+    try {
+        const [rows] = await db.promise().query(`
+            SELECT d.*, COUNT(e.id) as employee_count
+            FROM departments d
+            LEFT JOIN employees e ON d.id = e.department_id
+            GROUP BY d.id
+        `);
+        res.json(rows);
+    } catch (error) {
+        logger.error('Error fetching departments:', error);
+        res.status(500).json({ error: 'Error fetching departments' });
+    }
+});
+
+app.get('/api/positions', async (req, res) => {
+    try {
+        const [rows] = await db.promise().query('SELECT * FROM positions');
+        res.json(rows);
+    } catch (error) {
+        logger.error('Error fetching positions:', error);
+        res.status(500).json({ error: 'Error fetching positions' });
+    }
+});
+
+app.get('/api/performances', async (req, res) => {
+    try {
+        const [rows] = await db.promise().query(`
+            SELECT p.*, e.employee_code, u.full_name
+            FROM performances p
+            LEFT JOIN employees e ON p.employee_id = e.id
+            LEFT JOIN users u ON e.user_id = u.id
+        `);
+        res.json(rows);
+    } catch (error) {
+        logger.error('Error fetching performances:', error);
+        res.status(500).json({ error: 'Error fetching performances' });
+    }
+});
+
+app.get('/api/payroll', async (req, res) => {
+    try {
+        const [rows] = await db.promise().query(`
+            SELECT p.*, e.employee_code, u.full_name
+            FROM payroll p
+            LEFT JOIN employees e ON p.employee_id = e.id
+            LEFT JOIN users u ON e.user_id = u.id
+        `);
+        res.json(rows);
+    } catch (error) {
+        logger.error('Error fetching payroll:', error);
+        res.status(500).json({ error: 'Error fetching payroll' });
+    }
+});
+
+app.get('/api/leaves', async (req, res) => {
+    try {
+        const [rows] = await db.promise().query(`
+            SELECT l.*, e.employee_code, u.full_name
+            FROM leaves l
+            LEFT JOIN employees e ON l.employee_id = e.id
+            LEFT JOIN users u ON e.user_id = u.id
+        `);
+        res.json(rows);
+    } catch (error) {
+        logger.error('Error fetching leaves:', error);
+        res.status(500).json({ error: 'Error fetching leaves' });
+    }
+});
+
+app.get('/api/trainings', async (req, res) => {
+    try {
+        const [rows] = await db.promise().query(`
+            SELECT t.*, e.employee_code, u.full_name
+            FROM trainings t
+            LEFT JOIN employees e ON t.employee_id = e.id
+            LEFT JOIN users u ON e.user_id = u.id
+        `);
+        res.json(rows);
+    } catch (error) {
+        logger.error('Error fetching trainings:', error);
+        res.status(500).json({ error: 'Error fetching trainings' });
+    }
+});
+
+app.get('/api/tasks', async (req, res) => {
+    try {
+        const [rows] = await db.promise().query(`
+            SELECT t.*, e.employee_code, u.full_name
+            FROM tasks t
+            LEFT JOIN employees e ON t.employee_id = e.id
+            LEFT JOIN users u ON e.user_id = u.id
+        `);
+        res.json(rows);
+    } catch (error) {
+        logger.error('Error fetching tasks:', error);
+        res.status(500).json({ error: 'Error fetching tasks' });
+    }
+});
+
 // Hiển thị banner
 console.log(
     chalk.blue('┌───────────────────────────────────────────────────────────────┐\n') +
@@ -141,6 +278,7 @@ const PORT = process.env.PORT || 3000;
 // Khởi động server
 const server = app.listen(PORT, () => {
     logger.info(`Server đang chạy tại port ${PORT}`);
+    console.log(chalk.green(`Server running on port ${PORT}`));
 });
 
 // Xử lý tắt server
@@ -156,9 +294,11 @@ process.on('uncaughtException', (err) => {
         error: err.message,
         stack: err.stack
     });
+    console.error(chalk.red('Uncaught Exception:', err));
     process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
     logger.error('Promise bị từ chối', { reason });
+    console.error(chalk.red('Unhandled Rejection:', reason));
 }); 

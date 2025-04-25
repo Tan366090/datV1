@@ -1,33 +1,42 @@
 <?php
 namespace App\Middleware;
 
-use App\Config\SessionManager;
+use App\Services\JwtService;
 
 class AuthMiddleware {
-    private $sessionManager;
+    private $jwtService;
 
     public function __construct() {
-        $this->sessionManager = SessionManager::getInstance();
+        $this->jwtService = new JwtService();
     }
 
     public function handle() {
-        // Initialize session
-        if (!$this->sessionManager->init()) {
+        $token = $this->getBearerToken();
+        
+        if (!$token) {
             return false;
         }
 
-        // Check if user is authenticated
-        if (!$this->sessionManager->isAuthenticated()) {
+        try {
+            $decoded = $this->jwtService->validateToken($token);
+            return $decoded;
+        } catch (\Exception $e) {
             return false;
         }
+    }
 
-        // Check session timeout
-        if (!$this->sessionManager->checkSessionTimeout()) {
-            $this->sessionManager->destroy();
-            return false;
+    private function getBearerToken() {
+        $headers = getallheaders();
+        
+        if (!isset($headers['Authorization'])) {
+            return null;
         }
 
-        return true;
+        if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 
     public function requireRole($requiredRole) {
