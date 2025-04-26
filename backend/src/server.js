@@ -10,6 +10,9 @@ const chalk = require('chalk');
 const figlet = require('figlet');
 const mysql = require('mysql2');
 const rateLimit = require('express-rate-limit');
+const WebSocket = require('ws');
+const Redis = require('ioredis');
+const jwt = require('jsonwebtoken');
 
 // Cấu hình logger
 const logger = winston.createLogger({
@@ -100,53 +103,213 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Cấu hình rate limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 phút
-    max: 100 // giới hạn 100 request mỗi IP trong 15 phút
+    max: 100, // giới hạn 100 request mỗi IP trong 15 phút
+    message: 'Quá nhiều request từ IP này, vui lòng thử lại sau 15 phút'
 });
 
-// Áp dụng rate limiting cho tất cả các request
 app.use(limiter);
 
-// Logging HTTP requests
-app.use(morgan('combined', {
-    stream: {
-        write: (message) => {
-            const [method, url, status, responseTime] = message.split(' ');
-            logger.info('HTTP Request', {
-                method,
-                url,
-                status: parseInt(status),
-                responseTime: `${responseTime}ms`
-            });
-        }
-    }
-}));
+// Cấu hình WebSocket
+const wss = new WebSocket.Server({ port: 8080 });
 
-// Configure Content Security Policy with more permissive settings
-app.use((req, res, next) => {
-    res.setHeader(
-        'Content-Security-Policy',
-        "default-src 'self' http://localhost:* http://127.0.0.1:*; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-        "img-src 'self' data: https://unpkg.com; " +
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
-        "connect-src 'self' http://localhost:* http://127.0.0.1:* https://cdn.jsdelivr.net ws://localhost:8080 ws://127.0.0.1:8080; " +
-        "worker-src 'self' blob:; " +
-        "frame-src 'self'; " +
-        "object-src 'none';"
-    );
-    next();
+wss.on('connection', (ws) => {
+    logger.info('New WebSocket connection established');
+    
+    ws.on('message', (message) => {
+        try {
+            const data = JSON.parse(message);
+            handleWebSocketMessage(ws, data);
+        } catch (error) {
+            logger.error('WebSocket message error:', error);
+        }
+    });
+
+    ws.on('close', () => {
+        logger.info('WebSocket connection closed');
+    });
 });
 
-// Serve static files from the public directory
+// Xử lý WebSocket message
+function handleWebSocketMessage(ws, data) {
+    switch (data.type) {
+        case 'notification':
+            broadcastNotification(data.message);
+            break;
+        case 'dashboard_update':
+            broadcastDashboardUpdate(data.data);
+            break;
+        case 'chat':
+            handleChatMessage(ws, data);
+            break;
+        case 'equipment_update':
+            broadcastEquipmentUpdate(data.data);
+            break;
+        case 'performance_update':
+            broadcastPerformanceUpdate(data.data);
+            break;
+        case 'recruitment_update':
+            broadcastRecruitmentUpdate(data.data);
+            break;
+        default:
+            logger.warn('Unknown WebSocket message type:', data.type);
+    }
+}
+
+// Broadcast notification
+function broadcastNotification(message) {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                type: 'notification',
+                message: message
+            }));
+        }
+    });
+}
+
+// Broadcast dashboard update
+function broadcastDashboardUpdate(data) {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                type: 'dashboard_update',
+                data: data
+            }));
+        }
+    });
+}
+
+// Broadcast equipment update
+function broadcastEquipmentUpdate(data) {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                type: 'equipment_update',
+                data: data
+            }));
+        }
+    });
+}
+
+// Broadcast performance update
+function broadcastPerformanceUpdate(data) {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                type: 'performance_update',
+                data: data
+            }));
+        }
+    });
+}
+
+// Broadcast recruitment update
+function broadcastRecruitmentUpdate(data) {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                type: 'recruitment_update',
+                data: data
+            }));
+        }
+    });
+}
+
+// Xử lý chat message
+function handleChatMessage(ws, data) {
+    wss.clients.forEach(client => {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                type: 'chat',
+                message: data.message,
+                sender: data.sender
+            }));
+        }
+    });
+}
+
+// Cấu hình Redis cho caching
+const redis = new Redis({
+    host: 'localhost',
+    port: 6379,
+    retryStrategy: (times) => {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+    }
+});
+
+// Middleware caching
+const cacheMiddleware = async (req, res, next) => {
+    if (req.method !== 'GET') return next();
+
+    const key = `cache:${req.originalUrl}`;
+    try {
+        const cachedData = await redis.get(key);
+        if (cachedData) {
+            return res.json(JSON.parse(cachedData));
+        }
+        next();
+    } catch (error) {
+        logger.error('Redis error:', error);
+        next();
+    }
+};
+
+app.use(cacheMiddleware);
+
+// Middleware xử lý lỗi
+const errorHandler = (err, req, res, next) => {
+    logger.error('Error:', err);
+    res.status(500).json({
+        error: 'Internal Server Error',
+        message: err.message
+    });
+};
+
+app.use(errorHandler);
+
+// Middleware xác thực
+const authMiddleware = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+};
+
+// Middleware kiểm tra quyền
+const checkPermission = (requiredPermission) => {
+    return (req, res, next) => {
+        if (!req.user.permissions.includes(requiredPermission)) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+        next();
+    };
+};
+
+// Cấu hình routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/users', authMiddleware, require('./routes/users'));
+app.use('/api/employees', authMiddleware, checkPermission('view_employees'), require('./routes/employees'));
+app.use('/api/departments', authMiddleware, checkPermission('view_departments'), require('./routes/departments'));
+app.use('/api/salary', authMiddleware, checkPermission('view_salary'), require('./routes/salary'));
+app.use('/api/attendance', authMiddleware, checkPermission('view_attendance'), require('./routes/attendance'));
+app.use('/api/equipment', authMiddleware, checkPermission('view_equipment'), require('./routes/equipment'));
+app.use('/api/performance', authMiddleware, checkPermission('view_performance'), require('./routes/performance'));
+app.use('/api/recruitment', authMiddleware, checkPermission('view_recruitment'), require('./routes/recruitment'));
+
+// Cấu hình static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Route for all paths - directly serve dashboard_admin_V1.html
-app.get('*', (req, res) => {
-    const filePath = path.join(__dirname, 'public/admin/dashboard_admin_V1.html');
-    console.log('Serving dashboard_admin_V1.html for path:', req.path);
-    res.sendFile(filePath);
-});
+// Cấu hình view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Cấu hình kết nối MySQL
 const db = mysql.createConnection({
@@ -296,17 +459,21 @@ console.log(
 // Start the server
 app.listen(port, '0.0.0.0', () => {
     logger.info(`Server đang chạy tại port ${port}`);
-    console.log(chalk.green(`Server running on port ${port}`));
+    console.log(chalk.green(figlet.textSync('QLNS Server', {
+        font: 'Standard',
+        horizontalLayout: 'default',
+        verticalLayout: 'default'
+    })));
     console.log('Server started successfully');
     console.log('Static files are served from:', path.join(__dirname, 'public'));
     console.log('Current working directory:', process.cwd());
 });
 
-// Xử lý tắt server
+// Graceful shutdown
 process.on('SIGTERM', () => {
-    logger.info('Server đang tắt...');
+    logger.info('SIGTERM received. Shutting down gracefully');
     app.close(() => {
-        process.exit(0);
+        logger.info('Process terminated');
     });
 });
 

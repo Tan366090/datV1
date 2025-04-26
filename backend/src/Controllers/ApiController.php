@@ -1,0 +1,201 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\User;
+use App\Models\Department;
+use App\Models\Project;
+use App\Models\Document;
+use App\Models\AuditLog;
+use App\Models\Evaluation;
+use App\Models\Achievement;
+use App\Models\Session;
+use App\Models\Notification;
+use App\Libraries\Export;
+use App\Libraries\AI;
+
+class ApiController extends BaseController
+{
+    protected $user;
+    protected $export;
+    protected $ai;
+
+    public function __construct()
+    {
+        $this->user = auth()->user();
+        $this->export = new Export();
+        $this->ai = new AI();
+    }
+
+    // Global Search
+    public function search()
+    {
+        $query = $this->request->getGet('q');
+        if (empty($query)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Search query is required']);
+        }
+
+        $results = [
+            'employees' => $this->searchEmployees($query),
+            'departments' => $this->searchDepartments($query),
+            'projects' => $this->searchProjects($query),
+            'documents' => $this->searchDocuments($query)
+        ];
+
+        return $this->response->setJSON(['success' => true, 'data' => $results]);
+    }
+
+    // User Profile
+    public function userProfile()
+    {
+        $profile = User::with(['profile', 'department', 'role'])
+            ->find($this->user->id);
+
+        return $this->response->setJSON(['success' => true, 'data' => $profile]);
+    }
+
+    // User Settings
+    public function userSettings()
+    {
+        if ($this->request->getMethod() === 'get') {
+            $settings = $this->user->profile;
+            return $this->response->setJSON(['success' => true, 'data' => $settings]);
+        }
+
+        $data = $this->request->getPost();
+        $this->user->profile->fill($data);
+        $this->user->profile->save();
+
+        return $this->response->setJSON(['success' => true, 'message' => 'Settings updated successfully']);
+    }
+
+    // Export Data
+    public function export($type)
+    {
+        switch ($type) {
+            case 'employees':
+                $data = $this->export->employees();
+                break;
+            case 'departments':
+                $data = $this->export->departments();
+                break;
+            case 'projects':
+                $data = $this->export->projects();
+                break;
+            default:
+                return $this->response->setJSON(['success' => false, 'message' => 'Invalid export type']);
+        }
+
+        return $this->export->download($data, $type);
+    }
+
+    // AI Analysis
+    public function hrTrends()
+    {
+        $data = $this->ai->getHRTrends();
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    public function sentiment()
+    {
+        $data = $this->ai->getSentiment();
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    // Gamification
+    public function leaderboard()
+    {
+        $timeRange = $this->request->getGet('timeRange', 'month');
+        $data = Achievement::getLeaderboard($timeRange);
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    public function achievements()
+    {
+        $data = Achievement::getUserAchievements($this->user->id);
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    public function progress()
+    {
+        $data = Achievement::getUserProgress($this->user->id);
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    // Mobile Stats
+    public function mobileStats()
+    {
+        $timeRange = $this->request->getGet('timeRange', 'month');
+        $data = Session::getStats($timeRange);
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    public function mobileVersions()
+    {
+        $data = Session::getVersionStats();
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    // Activities
+    public function activities()
+    {
+        $filter = $this->request->getGet('filter');
+        $data = AuditLog::getActivities($filter);
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    // Notifications
+    public function notifications()
+    {
+        $data = Notification::getUserNotifications($this->user->id);
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    public function markNotificationAsRead($id)
+    {
+        $notification = Notification::find($id);
+        if (!$notification || $notification->user_id != $this->user->id) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Notification not found']);
+        }
+
+        $notification->markAsRead();
+        return $this->response->setJSON(['success' => true, 'message' => 'Notification marked as read']);
+    }
+
+    public function deleteNotification($id)
+    {
+        $notification = Notification::find($id);
+        if (!$notification || $notification->user_id != $this->user->id) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Notification not found']);
+        }
+
+        $notification->delete();
+        return $this->response->setJSON(['success' => true, 'message' => 'Notification deleted']);
+    }
+
+    // Helper methods for search
+    private function searchEmployees($query)
+    {
+        return User::where('name', 'like', "%{$query}%")
+            ->orWhere('email', 'like', "%{$query}%")
+            ->get();
+    }
+
+    private function searchDepartments($query)
+    {
+        return Department::where('name', 'like', "%{$query}%")
+            ->get();
+    }
+
+    private function searchProjects($query)
+    {
+        return Project::where('name', 'like', "%{$query}%")
+            ->get();
+    }
+
+    private function searchDocuments($query)
+    {
+        return Document::where('title', 'like', "%{$query}%")
+            ->get();
+    }
+} 

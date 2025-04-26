@@ -237,4 +237,162 @@ $(document).ready(function() {
     // Initial load
     loadEmployees();
     loadPerformanceReviews();
+});
+
+class PerformanceOptimizer {
+    constructor() {
+        this.cache = new Map();
+        this.debounceTimers = new Map();
+        this.throttleTimers = new Map();
+        this.intersectionObservers = new Map();
+    }
+
+    // Cache management
+    setCache(key, value, ttl = 300000) { // 5 minutes default
+        this.cache.set(key, {
+            value,
+            expiry: Date.now() + ttl
+        });
+    }
+
+    getCache(key) {
+        const item = this.cache.get(key);
+        if (!item) return null;
+        
+        if (Date.now() > item.expiry) {
+            this.cache.delete(key);
+            return null;
+        }
+        
+        return item.value;
+    }
+
+    clearCache() {
+        this.cache.clear();
+    }
+
+    // Debounce function calls
+    debounce(func, wait = 300) {
+        return (...args) => {
+            const key = func.toString();
+            clearTimeout(this.debounceTimers.get(key));
+            this.debounceTimers.set(key, setTimeout(() => {
+                func(...args);
+                this.debounceTimers.delete(key);
+            }, wait));
+        };
+    }
+
+    // Throttle function calls
+    throttle(func, limit = 300) {
+        return (...args) => {
+            const key = func.toString();
+            if (!this.throttleTimers.has(key)) {
+                func(...args);
+                this.throttleTimers.set(key, setTimeout(() => {
+                    this.throttleTimers.delete(key);
+                }, limit));
+            }
+        };
+    }
+
+    // Lazy loading with Intersection Observer
+    setupLazyLoading(selector, callback) {
+        const elements = document.querySelectorAll(selector);
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    callback(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            rootMargin: '50px 0px',
+            threshold: 0.1
+        });
+
+        elements.forEach(element => observer.observe(element));
+        this.intersectionObservers.set(selector, observer);
+    }
+
+    // Image optimization
+    optimizeImages() {
+        const images = document.querySelectorAll('img[data-src]');
+        images.forEach(img => {
+            if (img.complete) {
+                this.loadImage(img);
+            } else {
+                img.addEventListener('load', () => this.loadImage(img));
+            }
+        });
+    }
+
+    loadImage(img) {
+        const src = img.getAttribute('data-src');
+        if (src) {
+            img.src = src;
+            img.removeAttribute('data-src');
+        }
+    }
+
+    // Resource preloading
+    preloadResources() {
+        const resources = [
+            '/admin/css/dashboard.css',
+            '/admin/js/chart.js',
+            '/admin/js/table.js'
+        ];
+
+        resources.forEach(resource => {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = resource.endsWith('.css') ? 'style' : 'script';
+            link.href = resource;
+            document.head.appendChild(link);
+        });
+    }
+
+    // Memory management
+    cleanup() {
+        // Clear all timers
+        this.debounceTimers.forEach(timer => clearTimeout(timer));
+        this.throttleTimers.forEach(timer => clearTimeout(timer));
+        this.debounceTimers.clear();
+        this.throttleTimers.clear();
+
+        // Disconnect all observers
+        this.intersectionObservers.forEach(observer => observer.disconnect());
+        this.intersectionObservers.clear();
+
+        // Clear cache
+        this.clearCache();
+    }
+}
+
+// Initialize performance optimizer
+const optimizer = new PerformanceOptimizer();
+
+// Export optimized functions
+export const debounce = optimizer.debounce.bind(optimizer);
+export const throttle = optimizer.throttle.bind(optimizer);
+export const setCache = optimizer.setCache.bind(optimizer);
+export const getCache = optimizer.getCache.bind(optimizer);
+
+// Initialize optimizations
+document.addEventListener('DOMContentLoaded', () => {
+    // Setup lazy loading for images
+    optimizer.setupLazyLoading('img[data-src]', (img) => {
+        optimizer.loadImage(img);
+    });
+
+    // Optimize existing images
+    optimizer.optimizeImages();
+
+    // Preload critical resources
+    optimizer.preloadResources();
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    optimizer.cleanup();
 }); 

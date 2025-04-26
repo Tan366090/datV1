@@ -1,5 +1,3 @@
-import { CommonUtils, NotificationUtils, UIUtils } from '../assets/js/main.js';
-
 // Authentication utilities
 const AuthUtils = {
     isAuthenticated: () => {
@@ -254,6 +252,7 @@ class Dashboard {
             trainings: [],
             tasks: []
         };
+        this.setupMenuSearch();
         this.initCharts();
         this.loadData();
         this.setupEventListeners();
@@ -529,6 +528,126 @@ class Dashboard {
         } catch (error) {
             console.error("Error updating attendance chart:", error);
         }
+    }
+
+    setupMenuSearch() {
+        const searchInput = document.querySelector('.menu-search input');
+        const menuItems = document.querySelectorAll('.nav-item');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        // Create no results message element
+        const noResultsMsg = document.createElement('div');
+        noResultsMsg.className = 'no-results-message';
+        noResultsMsg.style.display = 'none';
+        noResultsMsg.textContent = 'Không tìm thấy kết quả';
+        navMenu.parentNode.insertBefore(noResultsMsg, navMenu.nextSibling);
+        
+        // Function to get highlight color based on dark mode
+        const getHighlightColor = () => {
+            // Check data-theme attribute on <html>
+            return document.documentElement.getAttribute('data-theme') === 'dark'
+                ? 'orange' // light green for dark mode
+                : '#e6f7ff'; // light blue for light mode
+        };
+        
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            let hasMatches = false;
+            
+            // Reset all styles
+            menuItems.forEach(item => {
+                item.style.display = '';
+                item.style.backgroundColor = '';
+                item.style.color = '';
+                item.classList.remove('open');
+                const submenu = item.querySelector('.submenu');
+                if (submenu) {
+                    submenu.style.display = '';
+                }
+            });
+            
+            // Reset highlight
+            const allSpans = document.querySelectorAll('.nav-link span');
+            allSpans.forEach(span => {
+                span.innerHTML = span.textContent;
+            });
+            
+            if (searchTerm === '') {
+                noResultsMsg.style.display = 'none';
+                return;
+            }
+            
+            menuItems.forEach(item => {
+                const menuText = item.querySelector('.nav-link span').textContent.toLowerCase();
+                const submenu = item.querySelector('.submenu');
+                const menuLink = item.querySelector('.nav-link');
+                let found = false;
+                let matchingSubmenuItems = [];
+                
+                // Check parent menu
+                if (menuText.includes(searchTerm)) {
+                    found = true;
+                }
+                // Check submenu
+                if (submenu) {
+                    const submenuItems = submenu.querySelectorAll('.nav-link span');
+                    submenuItems.forEach(subItem => {
+                        if (subItem.textContent.toLowerCase().includes(searchTerm)) {
+                            found = true;
+                            matchingSubmenuItems.push(subItem);
+                        }
+                    });
+                }
+                
+                if (found) {
+                    hasMatches = true;
+                    item.style.display = '';
+                    item.style.backgroundColor = getHighlightColor();
+                    if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                        item.style.color = '#006400';
+                    } else {
+                        item.style.color = '';
+                    }
+                    // Highlight parent menu
+                    if (menuText.includes(searchTerm)) {
+                        const span = menuLink.querySelector('span');
+                        const text = span.textContent;
+                        const index = text.toLowerCase().indexOf(searchTerm);
+                        if (index !== -1) {
+                            span.innerHTML = text.substring(0, index) +
+                                '<mark>' + text.substring(index, index + searchTerm.length) + '</mark>' +
+                                text.substring(index + searchTerm.length);
+                        }
+                    }
+                    // Always show submenu if found
+                    if (submenu) {
+                        submenu.style.display = 'block'; // Always show submenu when searching
+                        item.classList.add('open');      // Keep submenu open
+                        item.classList.add('active');
+                        // Highlight all matching submenu items
+                        matchingSubmenuItems.forEach(subItem => {
+                            const text = subItem.textContent;
+                            const index = text.toLowerCase().indexOf(searchTerm);
+                            if (index !== -1) {
+                                subItem.innerHTML = text.substring(0, index) +
+                                    '<mark>' + text.substring(index, index + searchTerm.length) + '</mark>' +
+                                    text.substring(index + searchTerm.length);
+                            }
+                        });
+                    }
+                } else {
+                    item.style.display = 'none';
+                    item.style.color = '';
+                    const submenu = item.querySelector('.submenu');
+                    if (submenu) {
+                        submenu.style.display = '';
+                    }
+                }
+            });
+            
+            // Show/hide no results message
+            noResultsMsg.style.display = hasMatches ? 'none' : 'block';
+        });
     }
 
     cleanup() {
