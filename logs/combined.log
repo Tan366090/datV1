@@ -549,3 +549,5 @@
 {"level":"info","message":"HTTP Request","method":"::1","responseTime":"[26/Apr/2025:04:21:25ms","status":null,"timestamp":"2025-04-26 11:21:25","url":"-"}
 {"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-26 12:08:37"}
 {"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-26 12:08:37"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-26 19:13:39"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-26 19:13:39"}
