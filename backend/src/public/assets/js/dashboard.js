@@ -77,8 +77,7 @@ if (!AuthUtils.isLoggedIn()) {
 
 document.addEventListener("DOMContentLoaded", async () => {
     const mainContent = document.querySelector(".main-content");
-    const navLinks = document.querySelectorAll(".nav-link, .submenu-link");
-    const navItems = document.querySelectorAll(".nav-item.has-submenu");
+    const navLinks = document.querySelectorAll(".nav-link");
 
     // Function to load content dynamically into the main-content area
     async function loadContent(url) {
@@ -92,19 +91,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Error loading content:", error);
             mainContent.innerHTML = `<div class="error">Error loading content: ${error.message}</div>`;
         }
-    }
-
-    // Function to handle submenu toggling
-    function toggleSubmenu(item) {
-        // Close all other submenus
-        navItems.forEach((navItem) => {
-            if (navItem !== item) {
-                navItem.classList.remove("active");
-            }
-        });
-
-        // Toggle the clicked submenu
-        item.classList.toggle("active");
     }
 
     // Function to initialize the dashboard data
@@ -141,7 +127,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }).format(amount);
     }
 
-    // Add click event listeners to menu and submenu links
+    // Add click event listeners to menu links
     navLinks.forEach((link) => {
         link.addEventListener("click", function (event) {
             event.preventDefault(); // Prevent default link behavior
@@ -151,15 +137,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Highlight the active link
             navLinks.forEach((link) => link.classList.remove("active"));
             this.classList.add("active");
-        });
-    });
-
-    // Add click event listeners to toggle submenu visibility
-    navItems.forEach((item) => {
-        const link = item.querySelector(".nav-link");
-        link.addEventListener("click", function (event) {
-            event.preventDefault(); // Prevent default link behavior
-            toggleSubmenu(item); // Toggle the submenu
         });
     });
 
@@ -347,3 +324,35 @@ setInterval(async () => {
         loadRecentActivities()
     ]);
 }, 5 * 60 * 1000);
+
+// Initialize dashboard functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize other dashboard features
+    initializeCharts();
+    initializeNotifications();
+    initializeThemeToggle();
+    initializeResponsiveMenu();
+});
+
+// Function to initialize responsive menu
+function initializeResponsiveMenu() {
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            if (overlay) {
+                overlay.classList.toggle('active');
+            }
+        });
+
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        }
+    }
+}

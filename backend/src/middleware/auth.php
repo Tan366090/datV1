@@ -113,7 +113,13 @@ class AuthMiddleware {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        self::$user = $this->getCurrentUser();
+        // Bypass authentication for development
+        self::$user = [
+            'id' => 1,
+            'username' => 'admin',
+            'role' => 'admin',
+            'email' => 'admin@example.com'
+        ];
     }
     
     /**
@@ -121,7 +127,7 @@ class AuthMiddleware {
      * @return array|null User data or null if not authenticated
      */
     public function getCurrentUser() {
-        return $_SESSION['user'] ?? null;
+        return self::$user;
     }
     
     /**
@@ -129,7 +135,7 @@ class AuthMiddleware {
      * @return bool
      */
     public function isAuthenticated() {
-        return self::$user !== null;
+        return true; // Always return true for development
     }
     
     /**
@@ -138,11 +144,7 @@ class AuthMiddleware {
      * @return bool
      */
     public function hasRole($role) {
-        if (!self::isAuthenticated()) {
-            return false;
-        }
-        
-        return isset(self::$user['role']) && self::$user['role'] === $role;
+        return true; // Always return true for development
     }
     
     /**
@@ -151,66 +153,24 @@ class AuthMiddleware {
      * @return bool
      */
     public function hasAnyRole($roles) {
-        if (!self::isAuthenticated()) {
-            return false;
-        }
-        
-        return isset(self::$user['role']) && in_array(self::$user['role'], $roles);
+        return true; // Always return true for development
     }
     
     /**
      * Require authentication
-     * Redirects to login page if not authenticated
+     * No redirection for development
      */
     public function requireAuth() {
-        if (!self::isAuthenticated()) {
-            header('Location: /QLNhanSu_version1/public/login.html');
-            exit();
-        }
+        // Do nothing for development
     }
     
     /**
      * Require specific role
-     * Redirects to appropriate dashboard if not authenticated or missing role
+     * No redirection for development
      * @param string $role Required role
      */
     public function requireRole($role) {
-        $this->requireAuth();
-        
-        if (!self::hasRole($role)) {
-            // Check if we're already on the correct dashboard
-            $currentPath = $_SERVER['REQUEST_URI'];
-            $userRole = self::$user['role'] ?? '';
-            $userDashboard = $this->getDashboardUrl($userRole);
-            
-            // Only redirect if we're not already on the correct dashboard
-            if (strpos($currentPath, $userDashboard) === false) {
-                header('Location: ' . $userDashboard);
-                exit();
-            }
-        }
-    }
-    
-    /**
-     * Require any of the specified roles
-     * Redirects to appropriate dashboard if not authenticated or missing roles
-     * @param array $roles Required roles
-     */
-    public function requireAnyRole($roles) {
-        $this->requireAuth();
-        
-        if (!self::hasAnyRole($roles)) {
-            // Check if we're already on the correct dashboard
-            $currentPath = $_SERVER['REQUEST_URI'];
-            $userRole = self::$user['role'] ?? '';
-            $userDashboard = $this->getDashboardUrl($userRole);
-            
-            // Only redirect if we're not already on the correct dashboard
-            if (strpos($currentPath, $userDashboard) === false) {
-                header('Location: ' . $userDashboard);
-                exit();
-            }
-        }
+        // Do nothing for development
     }
     
     /**

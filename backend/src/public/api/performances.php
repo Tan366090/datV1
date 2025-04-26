@@ -1,8 +1,26 @@
 <?php
-header('Content-Type: application/json');
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+    header('Access-Control-Max-Age: 3600');
+    header('Access-Control-Allow-Credentials: true');
+    http_response_code(200);
+    exit();
+}
+
+// Set CORS headers for all responses
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Max-Age: 3600');
+header('Access-Control-Allow-Credentials: true');
+header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../config/database.php';
 
@@ -37,29 +55,9 @@ try {
 
     $performances = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Format the data
-    $formattedPerformances = array_map(function($perf) {
-        return [
-            'id' => $perf['performance_id'],
-            'employee_id' => $perf['employee_id'],
-            'employee_code' => $perf['employee_code'],
-            'employee_name' => $perf['employee_name'],
-            'reviewer_id' => $perf['reviewer_id'],
-            'reviewer_name' => $perf['reviewer_name'],
-            'review_period' => $perf['review_period'],
-            'performance_score' => $perf['performance_score'],
-            'strengths' => $perf['strengths'],
-            'weaknesses' => $perf['weaknesses'],
-            'goals' => $perf['goals'],
-            'review_date' => $perf['review_date'],
-            'next_review_date' => $perf['next_review_date'],
-            'status' => $perf['status']
-        ];
-    }, $performances);
-
     echo json_encode([
         'success' => true,
-        'data' => $formattedPerformances
+        'data' => $performances
     ]);
 } catch (PDOException $e) {
     http_response_code(500);

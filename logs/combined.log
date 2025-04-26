@@ -405,3 +405,138 @@
 {"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:01:48:09ms","status":null,"timestamp":"2025-04-25 08:48:09","url":"-"}
 {"error":{"fatal":true},"level":"error","message":"Lỗi khi lấy dữ liệu từ bảng work_schedules:","timestamp":"2025-04-25 08:48:09"}
 {"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:01:48:09ms","status":null,"timestamp":"2025-04-25 08:48:09","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:35:29"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:35:29"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:35:41ms","status":null,"timestamp":"2025-04-25 15:35:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:35:41ms","status":null,"timestamp":"2025-04-25 15:35:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:35:41ms","status":null,"timestamp":"2025-04-25 15:35:41","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:35:42ms","status":null,"timestamp":"2025-04-25 15:35:42","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:41:00"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:41:00"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:41:48ms","status":null,"timestamp":"2025-04-25 15:41:48","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:41:48ms","status":null,"timestamp":"2025-04-25 15:41:48","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:41:48ms","status":null,"timestamp":"2025-04-25 15:41:48","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:41:48ms","status":null,"timestamp":"2025-04-25 15:41:48","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:44:01"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:44:01"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:44:11ms","status":null,"timestamp":"2025-04-25 15:44:11","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:44:11ms","status":null,"timestamp":"2025-04-25 15:44:11","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:44:11ms","status":null,"timestamp":"2025-04-25 15:44:11","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:44:11ms","status":null,"timestamp":"2025-04-25 15:44:11","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:44:11ms","status":null,"timestamp":"2025-04-25 15:44:11","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:45:23"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:45:23"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:46:11"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:46:11"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:47:01ms","status":null,"timestamp":"2025-04-25 15:47:01","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:49:15"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:49:15"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:49:26ms","status":null,"timestamp":"2025-04-25 15:49:26","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:49:26ms","status":null,"timestamp":"2025-04-25 15:49:26","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:49:26ms","status":null,"timestamp":"2025-04-25 15:49:26","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:49:26ms","status":null,"timestamp":"2025-04-25 15:49:26","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:49:26ms","status":null,"timestamp":"2025-04-25 15:49:26","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:49:51ms","status":null,"timestamp":"2025-04-25 15:49:51","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:52:28ms","status":null,"timestamp":"2025-04-25 15:52:28","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:55:28"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:55:28"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:55:52ms","status":null,"timestamp":"2025-04-25 15:55:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:55:52ms","status":null,"timestamp":"2025-04-25 15:55:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:55:52ms","status":null,"timestamp":"2025-04-25 15:55:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:55:52ms","status":null,"timestamp":"2025-04-25 15:55:52","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:57:00"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:57:00"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:07ms","status":null,"timestamp":"2025-04-25 15:57:07","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:07ms","status":null,"timestamp":"2025-04-25 15:57:07","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:07ms","status":null,"timestamp":"2025-04-25 15:57:07","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:07ms","status":null,"timestamp":"2025-04-25 15:57:07","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:07ms","status":null,"timestamp":"2025-04-25 15:57:07","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:57:39"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:57:39"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:45ms","status":null,"timestamp":"2025-04-25 15:57:45","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:45ms","status":null,"timestamp":"2025-04-25 15:57:45","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:45ms","status":null,"timestamp":"2025-04-25 15:57:45","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:45ms","status":null,"timestamp":"2025-04-25 15:57:45","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:57:45ms","status":null,"timestamp":"2025-04-25 15:57:45","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 15:59:32"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 15:59:32"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:59:44ms","status":null,"timestamp":"2025-04-25 15:59:44","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:59:44ms","status":null,"timestamp":"2025-04-25 15:59:44","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:59:45ms","status":null,"timestamp":"2025-04-25 15:59:45","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:59:45ms","status":null,"timestamp":"2025-04-25 15:59:45","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:08:59:45ms","status":null,"timestamp":"2025-04-25 15:59:45","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:01:02"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:01:02"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:01:16ms","status":null,"timestamp":"2025-04-25 16:01:16","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:01:16ms","status":null,"timestamp":"2025-04-25 16:01:16","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:01:16ms","status":null,"timestamp":"2025-04-25 16:01:16","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:01:16ms","status":null,"timestamp":"2025-04-25 16:01:16","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:01:16ms","status":null,"timestamp":"2025-04-25 16:01:16","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:01:47ms","status":null,"timestamp":"2025-04-25 16:01:47","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:09:25"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:09:25"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:11:02"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:11:02"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:15:39"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:15:39"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:15:52ms","status":null,"timestamp":"2025-04-25 16:15:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:15:52ms","status":null,"timestamp":"2025-04-25 16:15:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:15:52ms","status":null,"timestamp":"2025-04-25 16:15:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:15:52ms","status":null,"timestamp":"2025-04-25 16:15:52","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:16:40"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:16:41"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:17:37"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:17:37"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:17:51ms","status":null,"timestamp":"2025-04-25 16:17:51","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:17:51ms","status":null,"timestamp":"2025-04-25 16:17:51","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:17:51ms","status":null,"timestamp":"2025-04-25 16:17:51","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:17:51ms","status":null,"timestamp":"2025-04-25 16:17:51","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:17:51ms","status":null,"timestamp":"2025-04-25 16:17:51","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:19:09"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:19:09"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:19:21ms","status":null,"timestamp":"2025-04-25 16:19:21","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:19:21ms","status":null,"timestamp":"2025-04-25 16:19:21","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:19:21ms","status":null,"timestamp":"2025-04-25 16:19:21","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:19:21ms","status":null,"timestamp":"2025-04-25 16:19:21","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:19:21ms","status":null,"timestamp":"2025-04-25 16:19:21","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:19:21ms","status":null,"timestamp":"2025-04-25 16:19:21","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:19:21ms","status":null,"timestamp":"2025-04-25 16:19:21","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:19:21ms","status":null,"timestamp":"2025-04-25 16:19:21","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:19:21ms","status":null,"timestamp":"2025-04-25 16:19:21","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:20:43"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:20:43"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:21:00ms","status":null,"timestamp":"2025-04-25 16:21:00","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:21:00ms","status":null,"timestamp":"2025-04-25 16:21:00","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:21:00ms","status":null,"timestamp":"2025-04-25 16:21:00","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:21:00ms","status":null,"timestamp":"2025-04-25 16:21:00","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:21:00ms","status":null,"timestamp":"2025-04-25 16:21:00","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:21:44"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:21:44"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:22:08ms","status":null,"timestamp":"2025-04-25 16:22:08","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:23:51"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:23:51"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:03ms","status":null,"timestamp":"2025-04-25 16:24:03","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:03ms","status":null,"timestamp":"2025-04-25 16:24:03","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:03ms","status":null,"timestamp":"2025-04-25 16:24:03","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:04ms","status":null,"timestamp":"2025-04-25 16:24:04","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:04ms","status":null,"timestamp":"2025-04-25 16:24:04","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:24:41"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:24:41"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:44ms","status":null,"timestamp":"2025-04-25 16:24:44","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:46ms","status":null,"timestamp":"2025-04-25 16:24:46","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:46ms","status":null,"timestamp":"2025-04-25 16:24:46","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:46ms","status":null,"timestamp":"2025-04-25 16:24:46","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:52ms","status":null,"timestamp":"2025-04-25 16:24:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:52ms","status":null,"timestamp":"2025-04-25 16:24:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:52ms","status":null,"timestamp":"2025-04-25 16:24:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:52ms","status":null,"timestamp":"2025-04-25 16:24:52","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:24:52ms","status":null,"timestamp":"2025-04-25 16:24:52","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-25 16:26:42"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-25 16:26:42"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:26:49ms","status":null,"timestamp":"2025-04-25 16:26:49","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:26:49ms","status":null,"timestamp":"2025-04-25 16:26:49","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:26:49ms","status":null,"timestamp":"2025-04-25 16:26:49","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:26:49ms","status":null,"timestamp":"2025-04-25 16:26:49","url":"-"}
+{"level":"info","message":"HTTP Request","method":"::1","responseTime":"[25/Apr/2025:09:26:49ms","status":null,"timestamp":"2025-04-25 16:26:49","url":"-"}
+{"level":"info","message":"Server đang chạy tại port 3000","timestamp":"2025-04-26 08:09:41"}
+{"level":"info","message":"Đã kết nối thành công đến MySQL","timestamp":"2025-04-26 08:09:41"}

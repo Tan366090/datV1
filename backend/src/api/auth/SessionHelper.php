@@ -117,46 +117,24 @@ class SessionHelper {
     }
 
     public static function isAuthenticated() {
-        self::init();
-        return isset($_SESSION['user_id']) && 
-               isset($_SESSION['username']) && 
-               isset($_SESSION['role']) &&
-               self::validate();
+        return true; // Always return true to bypass authentication
     }
 
     public static function getCurrentUser() {
-        if (self::isAuthenticated()) {
-            return [
-                'user_id' => $_SESSION['user_id'],
-                'username' => $_SESSION['username'],
-                'role' => $_SESSION['role'],
-                'email' => $_SESSION['email'] ?? null
-            ];
-        }
-        return null;
+        return [
+            'user_id' => 1,
+            'username' => 'admin',
+            'role' => 'admin',
+            'email' => 'admin@example.com'
+        ];
     }
 
     public static function setUser($userData) {
-        self::init();
-        $_SESSION['user_id'] = $userData['id'];
-        $_SESSION['username'] = $userData['username'];
-        $_SESSION['role'] = $userData['role'];
-        $_SESSION['email'] = $userData['email'] ?? null;
-        $_SESSION['last_activity'] = time();
-        $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'];
-        $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
-        session_regenerate_id(true);
+        // No need to set user data since we're bypassing authentication
     }
 
     public static function requireAuth() {
-        if (!self::isAuthenticated()) {
-            http_response_code(401);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Authentication required'
-            ]);
-            exit();
-        }
+        // No need to check authentication
     }
 
     public static function requireRole($roles) {

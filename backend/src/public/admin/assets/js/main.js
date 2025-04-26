@@ -39,23 +39,16 @@ const ApiService = {
 // Common utilities
 export const CommonUtils = {
     formatDate: (date) => {
-        return new Date(date).toLocaleDateString("vi-VN");
+        return new Date(date).toLocaleDateString('vi-VN');
     },
     formatCurrency: (amount) => {
-        return new Intl.NumberFormat("vi-VN", {
-            style: "currency",
-            currency: "VND",
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
         }).format(amount);
     },
-    formatNumber: (number) => {
-        return new Intl.NumberFormat("vi-VN").format(number);
-    },
-    formatPercent: (number) => {
-        return new Intl.NumberFormat("vi-VN", {
-            style: "percent",
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
-        }).format(number);
+    formatPercent: (value) => {
+        return (value * 100).toFixed(2) + '%';
     }
 };
 
@@ -64,7 +57,7 @@ export const NotificationUtils = {
     show: (message, type = "info") => {
         const container = document.getElementById("notificationContainer");
         if (!container) return;
-
+        
         const notification = document.createElement("div");
         notification.className = `notification ${type}`;
         notification.textContent = message;
@@ -80,7 +73,10 @@ export const UIUtils = {
         localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
     },
     toggleSidebar: () => {
-        document.querySelector(".sidebar").classList.toggle("collapsed");
+        const sidebar = document.querySelector(".sidebar");
+        if (sidebar) {
+            sidebar.classList.toggle("collapsed");
+        }
     },
     showLoading: () => {
         const loadingOverlay = document.getElementById("loadingOverlay");
@@ -295,4 +291,6 @@ class Dashboard {
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new Dashboard();
-}); 
+});
+
+export { ApiService }; 

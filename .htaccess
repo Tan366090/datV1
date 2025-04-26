@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Redirect /admin to dashboard_admin_V1.html
+RewriteRule ^admin/?$ backend/src/public/admin/dashboard_admin_V1.html [L]
+
+# Allow direct access to files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Handle all other requests
+RewriteRule ^(.*)$ index.php [L] 
