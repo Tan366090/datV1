@@ -10,20 +10,23 @@ try {
     $db = new Database();
     $conn = $db->getConnection();
 
+    // Get all training records
     $query = "SELECT 
-                t.training_id,
-                t.training_name,
+                t.id,
+                t.title,
                 t.description,
                 t.start_date,
                 t.end_date,
-                t.location,
                 t.trainer,
-                t.cost,
+                t.location,
+                t.max_participants,
                 t.status,
-                COUNT(et.employee_id) as participant_count
+                COUNT(tp.id) as current_participants,
+                t.created_at,
+                t.updated_at
             FROM trainings t
-            LEFT JOIN employee_trainings et ON t.training_id = et.training_id
-            GROUP BY t.training_id
+            LEFT JOIN training_participants tp ON t.id = tp.training_id
+            GROUP BY t.id
             ORDER BY t.start_date DESC";
 
     $stmt = $conn->prepare($query);
@@ -32,18 +35,20 @@ try {
     $trainings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Format the data
-    $formattedTrainings = array_map(function($training) {
+    $formattedTrainings = array_map(function($train) {
         return [
-            'id' => $training['training_id'],
-            'name' => $training['training_name'],
-            'description' => $training['description'],
-            'start_date' => $training['start_date'],
-            'end_date' => $training['end_date'],
-            'location' => $training['location'],
-            'trainer' => $training['trainer'],
-            'cost' => $training['cost'],
-            'status' => $training['status'],
-            'participant_count' => $training['participant_count']
+            'id' => $train['id'],
+            'title' => $train['title'],
+            'description' => $train['description'],
+            'start_date' => $train['start_date'],
+            'end_date' => $train['end_date'],
+            'trainer' => $train['trainer'],
+            'location' => $train['location'],
+            'max_participants' => $train['max_participants'],
+            'current_participants' => $train['current_participants'],
+            'status' => $train['status'],
+            'created_at' => $train['created_at'],
+            'updated_at' => $train['updated_at']
         ];
     }, $trainings);
 

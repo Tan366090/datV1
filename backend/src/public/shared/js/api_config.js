@@ -1,4 +1,4 @@
-const API_BASE_URL = "/QLNhanSu/backend/src/api";
+const API_BASE_URL = "http://localhost:80/QLNhanSu/backend/src/api";
 
 const API_ENDPOINTS = {
     // Auth endpoints
@@ -11,19 +11,19 @@ const API_ENDPOINTS = {
     DASHBOARD: `${API_BASE_URL}/dashboard.php`,
 
     // Employee endpoints
-    EMPLOYEES: `${API_BASE_URL}/employees/index.php`,
+    EMPLOYEES: `${API_BASE_URL}/v1/employees`,
     EMPLOYEE_PROFILE: `${API_BASE_URL}/employees/profile.php`,
     EMPLOYEE_DOCUMENTS: `${API_BASE_URL}/employees/documents.php`,
     
     // Department endpoints
-    DEPARTMENTS: `${API_BASE_URL}/departments/index.php`,
+    DEPARTMENTS: `${API_BASE_URL}/v1/departments`,
     DEPARTMENT_EMPLOYEES: `${API_BASE_URL}/departments/employees.php`,
     
     // Position endpoints
     POSITIONS: `${API_BASE_URL}/positions/index.php`,
     
     // Salary endpoints
-    SALARIES: `${API_BASE_URL}/salary/index.php`,
+    SALARIES: `${API_BASE_URL}/v1/salaries`,
     SALARY_HISTORY: `${API_BASE_URL}/salary/history.php`,
     BONUSES: `${API_BASE_URL}/salary/bonuses.php`,
     

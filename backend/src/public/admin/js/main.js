@@ -1,362 +1,131 @@
-// Global variables
-let currentEmployee = null;
-const API_BASE_URL = "/api";
+// Import all modules from index.js
+import * as modules from './index.js';
 
-// Initialize DataTables with custom options
-function initializeDataTables() {
-    $("#employeeTable").DataTable({
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json",
-        },
-        responsive: true,
-        order: [[0, "desc"]],
-        pageLength: 10,
-        lengthMenu: [
-            [10, 25, 50, -1],
-            [10, 25, 50, "Tất cả"],
-        ],
-        dom: '<"top"lf>rt<"bottom"ip>',
-        initComplete: function () {
-            $(".dataTables_filter input").addClass("form-control");
-            $(".dataTables_length select").addClass("form-select");
-        },
-    });
-}
+// Loading state management
+const loadingState = {
+    isLoading: false,
+    setLoading: (state) => {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.toggle('d-none', !state);
+        }
+    }
+};
 
-// Setup event listeners
-function setupEventListeners() {
-    // Form submission handlers
-    $("#addEmployeeForm").on("submit", handleAddEmployee);
-    $("#profileForm").on("submit", handleUpdateProfile);
+// Error handling
+const errorHandler = {
+    handleError: (error, context) => {
+        console.error(`Error in ${context}:`, error);
+        showNotification('error', `Lỗi ${context}: ${error.message}`);
+    }
+};
 
-    // Modal handlers
-    $("#addEmployeeModal").on("show.bs.modal", function () {
-        loadDepartmentOptions();
-        loadPositionOptions();
-    });
+// Configuration validation
+function validateConfig() {
+    const requiredConfigs = [
+        'API_BASE_URL',
+        'AUTH_TOKEN_KEY',
+        'DEFAULT_LANGUAGE'
+    ];
 
-    // Tab change handlers
-    $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
-        const target = $(e.target).attr("href");
-        loadTabContent(target);
-    });
-
-    // Search functionality
-    $("#searchInput").on("keyup", function () {
-        const searchTerm = $(this).val().toLowerCase();
-        filterTable(searchTerm);
-    });
-}
-
-// Load initial data
-function loadInitialData() {
-    loadEmployees();
-    loadDepartments();
-    loadPositions();
-}
-
-// Add dark mode toggle
-function setupDarkModeToggle() {
-    const darkModeToggle = $(
-        '<button class="btn btn-secondary ms-2" id="darkModeToggle">' +
-            '<i class="fas fa-moon"></i></button>'
-    );
-    $(".main-content .d-flex").first().append(darkModeToggle);
-
-    $("#darkModeToggle").click(function () {
-        $("body").toggleClass("dark-mode");
-        const isDarkMode = $("body").hasClass("dark-mode");
-        $(this).html(
-            isDarkMode
-                ? '<i class="fas fa-sun"></i>'
-                : '<i class="fas fa-moon"></i>'
-        );
-    });
-}
-
-// Update sidebar toggle for better responsiveness
-function setupResponsiveSidebar() {
-    const sidebarToggle = $(
-        '<button class="btn btn-primary d-md-none" id="sidebarToggle">' +
-            '<i class="fas fa-bars"></i></button>'
-    );
-    $(".main-content").prepend(sidebarToggle);
-
-    $("#sidebarToggle").click(function () {
-        $(".sidebar").toggleClass("active");
-        $(".main-content").toggleClass("active");
-    });
-
-    // Automatically collapse sidebar on smaller screens
-    $(window)
-        .resize(function () {
-            if ($(window).width() < 768) {
-                $(".sidebar").addClass("active");
-                $(".main-content").addClass("active");
-            }
-        })
-        .trigger("resize");
-}
-
-// Setup form validation
-function setupFormValidation() {
-    // Add employee form validation
-    $("#addEmployeeForm").validate({
-        rules: {
-            employee_id: {
-                required: true,
-                minlength: 3,
-            },
-            full_name: {
-                required: true,
-                minlength: 5,
-            },
-            email: {
-                required: true,
-                email: true,
-            },
-            phone: {
-                required: true,
-                minlength: 10,
-            },
-        },
-        messages: {
-            employee_id: {
-                required: "Vui lòng nhập mã nhân viên",
-                minlength: "Mã nhân viên phải có ít nhất 3 ký tự",
-            },
-            full_name: {
-                required: "Vui lòng nhập họ tên",
-                minlength: "Họ tên phải có ít nhất 5 ký tự",
-            },
-            email: {
-                required: "Vui lòng nhập email",
-                email: "Email không hợp lệ",
-            },
-            phone: {
-                required: "Vui lòng nhập số điện thoại",
-                minlength: "Số điện thoại phải có ít nhất 10 số",
-            },
-        },
-        errorElement: "div",
-        errorClass: "invalid-feedback",
-        highlight: function (element) {
-            $(element).addClass("is-invalid");
-        },
-        unhighlight: function (element) {
-            $(element).removeClass("is-invalid");
-        },
-    });
-}
-
-// Load employees data
-function loadEmployees() {
-    $.ajax({
-        url: `${API_BASE_URL}/employees`,
-        method: "GET",
-        success: function (response) {
-            const table = $("#employeeTable").DataTable();
-            table.clear();
-            response.data.forEach((employee) => {
-                table.row.add([
-                    employee.id,
-                    employee.full_name,
-                    employee.department,
-                    employee.position,
-                    formatDate(employee.start_date),
-                    getStatusBadge(employee.status),
-                    getActionButtons(employee.id),
-                ]);
-            });
-            table.draw();
-        },
-        error: function (error) {
-            showToast("error", "Lỗi khi tải dữ liệu nhân viên");
-        },
-    });
-}
-
-// Load department options
-function loadDepartmentOptions() {
-    $.ajax({
-        url: `${API_BASE_URL}/departments`,
-        method: "GET",
-        success: function (response) {
-            const select = $('select[name="department"]');
-            select.empty();
-            response.data.forEach((dept) => {
-                select.append(
-                    `<option value="${dept.id}">${dept.name}</option>`
-                );
-            });
-        },
-    });
-}
-
-// Load position options
-function loadPositionOptions() {
-    $.ajax({
-        url: `${API_BASE_URL}/positions`,
-        method: "GET",
-        success: function (response) {
-            const select = $('select[name="position"]');
-            select.empty();
-            response.data.forEach((pos) => {
-                select.append(`<option value="${pos.id}">${pos.name}</option>`);
-            });
-        },
-    });
-}
-
-// Handle add employee
-function handleAddEmployee(e) {
-    e.preventDefault();
-    if (!$(this).valid()) return;
-
-    const formData = $(this).serialize();
-    $.ajax({
-        url: `${API_BASE_URL}/employees`,
-        method: "POST",
-        data: formData,
-        success: function (response) {
-            $("#addEmployeeModal").modal("hide");
-            showToast("success", "Thêm nhân viên thành công");
-            loadEmployees();
-        },
-        error: function (error) {
-            showToast("error", "Lỗi khi thêm nhân viên");
-        },
-    });
-}
-
-// Handle update profile
-function handleUpdateProfile(e) {
-    e.preventDefault();
-    if (!$(this).valid()) return;
-
-    const formData = $(this).serialize();
-    $.ajax({
-        url: `${API_BASE_URL}/employees/${currentEmployee}/profile`,
-        method: "PUT",
-        data: formData,
-        success: function (response) {
-            showToast("success", "Cập nhật thông tin thành công");
-        },
-        error: function (error) {
-            showToast("error", "Lỗi khi cập nhật thông tin");
-        },
-    });
-}
-
-// Load tab content
-function loadTabContent(tabId) {
-    if (!currentEmployee) return;
-
-    switch (tabId) {
-        case "#profile":
-            loadEmployeeProfile();
-            break;
-        case "#family":
-            loadFamilyMembers();
-            break;
-        case "#training":
-            loadTrainingHistory();
-            break;
-        case "#performance":
-            loadPerformanceHistory();
-            break;
+    const missingConfigs = requiredConfigs.filter(config => !window[config]);
+    if (missingConfigs.length > 0) {
+        throw new Error(`Missing required configurations: ${missingConfigs.join(', ')}`);
     }
 }
 
-// Helper functions
-function formatDate(date) {
-    return new Date(date).toLocaleDateString("vi-VN");
+// Task management functions
+function loadTasks() {
+    // Implementation for loading tasks
 }
 
-function getStatusBadge(status) {
-    const badges = {
-        active: '<span class="badge bg-success">Đang làm việc</span>',
-        inactive: '<span class="badge bg-danger">Nghỉ việc</span>',
-        on_leave: '<span class="badge bg-warning">Nghỉ phép</span>',
-    };
-    return badges[status] || "";
+// Weather widget functions
+function updateWeather() {
+    // Implementation for updating weather
 }
 
-function getActionButtons(id) {
-    return `
-        <div class="btn-group">
-            <button class="btn btn-sm btn-primary" onclick="editEmployee(${id})">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-info" onclick="viewEmployee(${id})">
-                <i class="fas fa-eye"></i>
-            </button>
-            <button class="btn btn-sm btn-danger" onclick="deleteEmployee(${id})">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    `;
+// Chat functions
+function loadChats() {
+    // Implementation for loading chats
 }
 
-function showToast(type, message) {
-    const toast = `
-        <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    `;
-
-    $(".toast-container").append(toast);
-    const toastElement = $(".toast").last();
-    const bsToast = new bootstrap.Toast(toastElement);
-    bsToast.show();
-
-    toastElement.on("hidden.bs.toast", function () {
-        $(this).remove();
-    });
+// Backup functions
+function loadBackupInfo() {
+    // Implementation for loading backup information
 }
 
-// Employee actions
-function editEmployee(id) {
-    currentEmployee = id;
-    $.ajax({
-        url: `${API_BASE_URL}/employees/${id}`,
-        method: "GET",
-        success: function (response) {
-            const employee = response.data;
-            $("#addEmployeeModal").modal("show");
-            $("#addEmployeeForm")
-                .find('input[name="employee_id"]')
-                .val(employee.id);
-            $("#addEmployeeForm")
-                .find('input[name="full_name"]')
-                .val(employee.full_name);
-            // Fill other fields...
-        },
-    });
-}
+// Make modules available globally
+window.modules = modules;
+window.loadingState = loadingState;
+window.errorHandler = errorHandler;
 
-function viewEmployee(id) {
-    currentEmployee = id;
-    $("#profile-tab").tab("show");
-}
+// Main application module
+const App = {
+    init() {
+        console.log('Application initialized');
+        this.validateConfig();
+        this.loadModules();
+        this.setupEventListeners();
+    },
 
-function deleteEmployee(id) {
-    if (confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
-        $.ajax({
-            url: `${API_BASE_URL}/employees/${id}`,
-            method: "DELETE",
-            success: function (response) {
-                showToast("success", "Xóa nhân viên thành công");
-                loadEmployees();
-            },
-            error: function (error) {
-                showToast("error", "Lỗi khi xóa nhân viên");
-            },
+    validateConfig() {
+        try {
+            validateConfig();
+        } catch (error) {
+            errorHandler.handleError(error, 'Configuration');
+        }
+    },
+
+    loadModules() {
+        // Load all required modules
+        const modules = [
+            'dashboard_features',
+            'export-data',
+            'dark-mode',
+            'loading-overlay',
+            'notification-handler',
+            'activity-filter',
+            'mobile-stats',
+            'change-password',
+            'profile',
+            'attendance-employee',
+            'leaves-employee',
+            'dashboard-employee',
+            'login',
+            'forgot-password',
+            'reset-password',
+            'activity-log'
+        ];
+
+        modules.forEach(module => {
+            const script = document.createElement('script');
+            script.src = `js/modules/${module}.js`;
+            script.async = true;
+            document.head.appendChild(script);
+        });
+    },
+
+    setupEventListeners() {
+        // Setup global event listeners
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('[data-loading]')) {
+                loadingState.setLoading(true);
+            }
+        });
+
+        // Setup error handling
+        window.addEventListener('error', (event) => {
+            errorHandler.handleError(event.error, 'Global');
+        });
+
+        // Setup unhandled promise rejections
+        window.addEventListener('unhandledrejection', (event) => {
+            errorHandler.handleError(event.reason, 'Promise');
         });
     }
-}
+};
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    App.init();
+}); 

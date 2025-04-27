@@ -9,6 +9,50 @@ define('JWT_ALGORITHM', 'HS256');
 define('JWT_EXPIRATION', 3600); // 1 hour
 define('JWT_REFRESH_EXPIRATION', 604800); // 7 days
 
+class JWTUtil {
+    private static $secret_key = 'your_secret_key_here'; // Change this to a secure key in production
+    private static $algorithm = 'HS256';
+    private static $issuer = 'qlnhansu_api';
+    private static $expire_time = 3600; // 1 hour
+
+    public static function generateToken($user_data) {
+        $issuedAt = time();
+        $expire = $issuedAt + self::$expire_time;
+
+        $token = array(
+            "iss" => self::$issuer,
+            "iat" => $issuedAt,
+            "exp" => $expire,
+            "data" => $user_data
+        );
+
+        return JWT::encode($token, self::$secret_key, self::$algorithm);
+    }
+
+    public static function validateToken($token) {
+        try {
+            $decoded = JWT::decode($token, new Key(self::$secret_key, self::$algorithm));
+            return $decoded->data;
+        } catch (Exception $e) {
+            throw new Exception('Invalid token: ' . $e->getMessage());
+        }
+    }
+
+    public static function getAuthorizationToken() {
+        $headers = apache_request_headers();
+        if (!isset($headers['Authorization'])) {
+            throw new Exception('Authorization header not found');
+        }
+
+        $auth_header = $headers['Authorization'];
+        if (strpos($auth_header, 'Bearer ') !== 0) {
+            throw new Exception('Invalid authorization format');
+        }
+
+        return substr($auth_header, 7);
+    }
+}
+
 /**
  * Generate a JWT token
  * @param array $payload Data to encode in the token

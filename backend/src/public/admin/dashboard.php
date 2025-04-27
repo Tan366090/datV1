@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require_once __DIR__ . '/../../backend/src/config/SessionManager.php';
+require_once __DIR__ . '/../../backend/src/config/Database.php';
 
 // Initialize SessionManager
 $sessionManager = \App\Config\SessionManager::getInstance();
@@ -31,6 +32,15 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 
 // Cập nhật thời gian hoạt động cuối cùng
 $_SESSION['last_activity'] = time();
+
+// Test database connection
+try {
+    $db = new \App\Config\Database();
+    $conn = $db->getConnection();
+    echo "<p>Database Connection: Success</p>";
+} catch(PDOException $e) {
+    echo "<p>Database Connection: Failed - " . $e->getMessage() . "</p>";
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi" spellcheck="false">
@@ -66,6 +76,7 @@ $_SESSION['last_activity'] = time();
             rel="stylesheet"
         />
         <link rel="stylesheet" href="./css/admin-dashboard.css" />
+        <link rel="stylesheet" href="./css/dashboard-realtime.css" />
         <link rel="stylesheet" href="./assets/css/icons.css" />
         <link rel="stylesheet" href="./css/api_test.css" />
         <script type="module" src="./js/api_test.js"></script>
@@ -83,6 +94,20 @@ $_SESSION['last_activity'] = time();
         <script type="module" src="/QLNhanSu_version1/public/shared/js/utils.js"></script>
         <script type="module" src="./js/dashboard.js"></script>
         <script type="module" src="./js/tab.js"></script>
+        <script src="./js/menu-search.js"></script>
+        <script src="./js/recent-menu.js"></script>
+        <script src="./js/global-search.js"></script>
+        <script src="./js/user-profile.js"></script>
+        <script src="./js/export-data.js"></script>
+        <script src="./js/ai-analysis.js"></script>
+        <script src="./js/gamification.js"></script>
+        <script src="./js/mobile-stats.js"></script>
+        <script src="./js/activity-filter.js"></script>
+        <script src="./js/notification-handler.js"></script>
+        <script src="./js/loading-overlay.js"></script>
+        <script src="./js/dark-mode.js"></script>
+        <script src="./js/error-logger.js"></script>
+        <script src="./js/api_test.js"></script>
       
         <!-- Session Check -->
         <script>
@@ -145,14 +170,6 @@ $_SESSION['last_activity'] = time();
         
         // Test PHP version
         echo "<p>PHP Version: " . phpversion() . "</p>";
-        
-        // Test database connection
-        try {
-            $db = new PDO('mysql:host=localhost;dbname=your_database', 'root', '');
-            echo "<p>Database Connection: Success</p>";
-        } catch(PDOException $e) {
-            echo "<p>Database Connection: Failed - " . $e->getMessage() . "</p>";
-        }
         
         // Test session
         if(isset($_SESSION['test'])) {

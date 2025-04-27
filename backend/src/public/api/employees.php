@@ -4,6 +4,23 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Tạm thời bỏ qua xác thực
+// session_start();
+// if (!isset($_SESSION['user_id'])) {
+//     http_response_code(401);
+//     echo json_encode([
+//         'success' => false,
+//         'message' => 'Unauthorized access'
+//     ]);
+//     exit();
+// }
+
 require_once __DIR__ . '/../config/database.php';
 
 try {
@@ -13,21 +30,20 @@ try {
     $query = "SELECT 
                 e.id,
                 e.employee_code,
-                u.full_name,
-                d.department_name,
-                p.position_name,
-                s.basic_salary as salary_amount,
-                e.hire_date as join_date,
-                u.date_of_birth as birth_date,
-                u.phone_number as phone,
-                u.email,
-                u.address,
-                e.status
+                e.full_name,
+                d.name as department_name,
+                p.name as position_name,
+                e.salary,
+                e.join_date,
+                e.birth_date,
+                e.phone,
+                e.email,
+                e.address,
+                e.status,
+                e.created_at
             FROM employees e
-            LEFT JOIN users u ON e.user_id = u.user_id
-            LEFT JOIN departments d ON e.department_id = d.department_id
-            LEFT JOIN positions p ON e.position_id = p.position_id
-            LEFT JOIN salaries s ON e.id = s.employee_id
+            LEFT JOIN departments d ON e.department_id = d.id
+            LEFT JOIN positions p ON e.position_id = p.id
             ORDER BY e.id DESC";
 
     $stmt = $conn->prepare($query);
@@ -39,7 +55,7 @@ try {
     $formattedEmployees = array_map(function($emp) {
         return [
             'id' => $emp['id'],
-            'employee_id' => $emp['employee_code'],
+            'employee_code' => $emp['employee_code'],
             'full_name' => $emp['full_name'],
             'position' => $emp['position_name'],
             'department' => $emp['department_name'],
@@ -49,7 +65,8 @@ try {
             'email' => $emp['email'],
             'address' => $emp['address'],
             'status' => $emp['status'],
-            'salary' => $emp['salary_amount']
+            'salary' => $emp['salary'],
+            'created_at' => $emp['created_at']
         ];
     }, $employees);
 

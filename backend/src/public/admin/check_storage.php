@@ -4,10 +4,17 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Cấu hình CORS
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+// Xử lý preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 try {
     // Kiểm tra xem file config có tồn tại không
@@ -16,19 +23,23 @@ try {
         throw new Exception("Database configuration file not found at: " . $configPath);
     }
 
-    require_once $configPath;
+    $dbConfig = require $configPath;
 
     // Kiểm tra các thông số kết nối
-    if (!isset($dbConfig['host']) || !isset($dbConfig['database']) || !isset($dbConfig['username'])) {
-        throw new Exception("Database configuration is incomplete");
+    $requiredConfigs = ['host', 'database', 'username', 'password'];
+    foreach ($requiredConfigs as $config) {
+        if (!isset($dbConfig[$config])) {
+            throw new Exception("Missing required database configuration: $config");
+        }
     }
 
-    // Kết nối database
+    // Kết nối database với timeout
     $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['database']};charset=utf8mb4";
     $options = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false
+        PDO::ATTR_EMULATE_PREPARES => false,
+        PDO::ATTR_TIMEOUT => 5 // 5 seconds timeout
     ];
 
     $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], $options);
@@ -54,18 +65,26 @@ try {
             
             $result[$table] = [
                 'count' => $count,
-                'sample' => $sample
+                'sample' => $sample,
+                'columns' => array_keys($sample[0] ?? [])
             ];
         } catch (Exception $e) {
             $result[$table] = [
-                'error' => "Error accessing table: " . $e->getMessage()
+                'error' => "Error accessing table: " . $e->getMessage(),
+                'count' => 0,
+                'sample' => []
             ];
         }
     }
 
     echo json_encode([
         'success' => true,
-        'data' => $result
+        'data' => $result,
+        'connection' => [
+            'host' => $dbConfig['host'],
+            'database' => $dbConfig['database'],
+            'status' => 'connected'
+        ]
     ]);
 
 } catch (Exception $e) {
@@ -74,7 +93,8 @@ try {
         'success' => false,
         'error' => $e->getMessage(),
         'file' => $e->getFile(),
-        'line' => $e->getLine()
+        'line' => $e->getLine(),
+        'trace' => $e->getTraceAsString()
     ]);
 }
 ?> 

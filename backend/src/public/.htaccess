@@ -1,12 +1,29 @@
 # Enable CORS
 Header set Access-Control-Allow-Origin "*"
-Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
 Header set Access-Control-Allow-Headers "Content-Type, Authorization"
 
-# Enable rewriting
+# Enable rewrite engine
 RewriteEngine On
 
-# Handle API requests
+# If the request is not for a file or directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite all other URLs to index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Prevent directory listing
+Options -Indexes
+
+# Set default character set
+AddDefaultCharset UTF-8
+
+# Enable PHP error reporting
+php_flag display_errors on
+php_value error_reporting E_ALL
+
+# Enable rewriting
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^api/(.*)$ api/index.php [QSA,L]
@@ -33,9 +50,6 @@ Header set Referrer-Policy "strict-origin-when-cross-origin"
 <FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico)$">
     Header set Cache-Control "max-age=31536000, public"
 </FilesMatch>
-
-# Prevent directory listing
-Options -Indexes
 
 # Protect sensitive files
 <FilesMatch "^\.">

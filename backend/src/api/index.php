@@ -33,12 +33,16 @@ $conn = $db->getConnection();
 $authMiddleware = new AuthMiddleware();
 $requestValidator = new RequestValidator();
 
-// Get request path and method
-$requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$requestMethod = $_SERVER['REQUEST_METHOD'];
+// Get the request path
+$request_uri = $_SERVER['REQUEST_URI'];
+$base_path = '/qlnhansu_V2/backend/src/api/';
+$path = str_replace($base_path, '', $request_uri);
+$path = trim($path, '/');
 
-// Remove /api prefix from path
-$requestPath = str_replace('/api', '', $requestPath);
+// Log the request for debugging
+error_log("Request URI: " . $request_uri);
+error_log("Base Path: " . $base_path);
+error_log("Path: " . $path);
 
 // Load routes
 $routes = require_once __DIR__ . '/routes/routes.php';
@@ -46,7 +50,7 @@ $routes = require_once __DIR__ . '/routes/routes.php';
 // Find matching route
 $matchedRoute = null;
 foreach ($routes as $route) {
-    if ($route['method'] === $requestMethod && $route['path'] === $requestPath) {
+    if ($route['method'] === $_SERVER['REQUEST_METHOD'] && $route['path'] === $path) {
         $matchedRoute = $route;
         break;
     }
@@ -79,5 +83,67 @@ try {
     ResponseHandler::sendSuccess($result);
 } catch (Exception $e) {
     ResponseHandler::sendError($e->getMessage(), $e->getCode() ?: 500);
+}
+
+// Handle different API endpoints
+switch($path) {
+    case 'user/profile':
+        require_once __DIR__ . '/user/profile.php';
+        break;
+
+    case 'ai/sentiment':
+        require_once __DIR__ . '/ai/sentiment.php';
+        break;
+
+    case 'recent-items':
+        echo json_encode([
+            'items' => [
+                ['id' => 1, 'name' => 'Recent Item 1', 'type' => 'document', 'url' => '/dashboard', 'timestamp' => time()],
+                ['id' => 2, 'name' => 'Recent Item 2', 'type' => 'task', 'url' => '/tasks', 'timestamp' => time()]
+            ]
+        ]);
+        break;
+
+    case 'ai/hr-trends':
+        echo json_encode([
+            'trends' => [
+                ['month' => 'Jan', 'value' => 100],
+                ['month' => 'Feb', 'value' => 120],
+                ['month' => 'Mar', 'value' => 150]
+            ]
+        ]);
+        break;
+
+    case 'gamification/leaderboard':
+        echo json_encode([
+            'leaderboard' => [
+                ['rank' => 1, 'name' => 'User 1', 'points' => 1000],
+                ['rank' => 2, 'name' => 'User 2', 'points' => 900],
+                ['rank' => 3, 'name' => 'User 3', 'points' => 800]
+            ]
+        ]);
+        break;
+
+    case 'gamification/progress':
+        echo json_encode([
+            'currentLevel' => 5,
+            'points' => 750,
+            'nextLevelPoints' => 1000,
+            'achievements' => [
+                ['id' => 1, 'name' => 'First Login', 'completed' => true],
+                ['id' => 2, 'name' => 'Task Master', 'completed' => false]
+            ]
+        ]);
+        break;
+
+    default:
+        http_response_code(404);
+        echo json_encode([
+            'error' => 'Endpoint not found',
+            'path' => $path,
+            'request_uri' => $request_uri,
+            'base_path' => $base_path
+        ]);
+        break;
 }
 ?> 

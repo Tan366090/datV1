@@ -35,14 +35,53 @@ class ApiController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Search query is required']);
         }
 
-        $results = [
-            'employees' => $this->searchEmployees($query),
-            'departments' => $this->searchDepartments($query),
-            'projects' => $this->searchProjects($query),
-            'documents' => $this->searchDocuments($query)
-        ];
+        $results = [];
+        
+        // Search employees
+        $employees = $this->searchEmployees($query);
+        foreach ($employees as $employee) {
+            $results[] = [
+                'type' => 'employee',
+                'id' => $employee->id,
+                'title' => $employee->name,
+                'description' => $employee->email
+            ];
+        }
 
-        return $this->response->setJSON(['success' => true, 'data' => $results]);
+        // Search departments
+        $departments = $this->searchDepartments($query);
+        foreach ($departments as $department) {
+            $results[] = [
+                'type' => 'department',
+                'id' => $department->id,
+                'title' => $department->name,
+                'description' => 'Phòng ban'
+            ];
+        }
+
+        // Search projects
+        $projects = $this->searchProjects($query);
+        foreach ($projects as $project) {
+            $results[] = [
+                'type' => 'project',
+                'id' => $project->id,
+                'title' => $project->name,
+                'description' => $project->description ?? 'Dự án'
+            ];
+        }
+
+        // Search documents
+        $documents = $this->searchDocuments($query);
+        foreach ($documents as $document) {
+            $results[] = [
+                'type' => 'document',
+                'id' => $document->id,
+                'title' => $document->title,
+                'description' => $document->description ?? 'Tài liệu'
+            ];
+        }
+
+        return $this->response->setJSON($results);
     }
 
     // User Profile

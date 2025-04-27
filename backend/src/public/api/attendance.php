@@ -11,18 +11,16 @@ try {
     $conn = $db->getConnection();
 
     $query = "SELECT 
-                a.attendance_id,
+                a.id,
                 a.employee_id,
-                u.full_name,
-                a.date,
-                a.time_in,
-                a.time_out,
-                a.status,
-                a.notes
+                e.full_name,
+                DATE(a.check_in) as date,
+                TIME(a.check_in) as time_in,
+                TIME(a.check_out) as time_out,
+                a.status
             FROM attendance a
             LEFT JOIN employees e ON a.employee_id = e.id
-            LEFT JOIN users u ON e.user_id = u.user_id
-            ORDER BY a.date DESC, a.time_in DESC";
+            ORDER BY a.check_in DESC";
 
     $stmt = $conn->prepare($query);
     $stmt->execute();
@@ -32,14 +30,13 @@ try {
     // Format the data
     $formattedAttendance = array_map(function($record) {
         return [
-            'id' => $record['attendance_id'],
+            'id' => $record['id'],
             'employee_id' => $record['employee_id'],
             'employee_name' => $record['full_name'],
             'date' => $record['date'],
             'time_in' => $record['time_in'],
             'time_out' => $record['time_out'],
-            'status' => $record['status'],
-            'notes' => $record['notes']
+            'status' => $record['status']
         ];
     }, $attendance);
 

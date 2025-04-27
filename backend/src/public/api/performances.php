@@ -16,11 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Set CORS headers for all responses
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Max-Age: 3600');
 header('Access-Control-Allow-Credentials: true');
-header('Content-Type: application/json; charset=utf-8');
+header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/database.php';
 
@@ -28,36 +28,46 @@ try {
     $db = new Database();
     $conn = $db->getConnection();
 
+    // Get all performance records
     $query = "SELECT 
-                p.performance_id,
+                p.id,
                 p.employee_id,
-                e.employee_code,
-                u.full_name as employee_name,
-                p.reviewer_id,
-                ur.full_name as reviewer_name,
-                p.review_period,
+                e.full_name as employee_name,
+                p.evaluation_date,
                 p.performance_score,
                 p.strengths,
-                p.weaknesses,
+                p.areas_for_improvement,
                 p.goals,
-                p.review_date,
-                p.next_review_date,
-                p.status
+                p.created_at,
+                p.updated_at
             FROM performances p
             LEFT JOIN employees e ON p.employee_id = e.id
-            LEFT JOIN users u ON e.user_id = u.user_id
-            LEFT JOIN employees er ON p.reviewer_id = er.id
-            LEFT JOIN users ur ON er.user_id = ur.user_id
-            ORDER BY p.review_date DESC";
+            ORDER BY p.evaluation_date DESC";
 
     $stmt = $conn->prepare($query);
     $stmt->execute();
 
     $performances = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Format the data
+    $formattedPerformances = array_map(function($perf) {
+        return [
+            'id' => $perf['id'],
+            'employee_id' => $perf['employee_id'],
+            'employee_name' => $perf['employee_name'],
+            'evaluation_date' => $perf['evaluation_date'],
+            'performance_score' => $perf['performance_score'],
+            'strengths' => $perf['strengths'],
+            'areas_for_improvement' => $perf['areas_for_improvement'],
+            'goals' => $perf['goals'],
+            'created_at' => $perf['created_at'],
+            'updated_at' => $perf['updated_at']
+        ];
+    }, $performances);
+
     echo json_encode([
         'success' => true,
-        'data' => $performances
+        'data' => $formattedPerformances
     ]);
 } catch (PDOException $e) {
     http_response_code(500);

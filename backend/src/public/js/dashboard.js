@@ -1,3 +1,69 @@
+// Common utilities
+const CommonUtils = {
+    formatDate: (date) => {
+        return new Date(date).toLocaleDateString("vi-VN");
+    },
+    formatCurrency: (amount) => {
+        return new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+        }).format(amount);
+    },
+};
+
+// Authentication utilities
+const AuthUtils = {
+    isAuthenticated: () => {
+        return localStorage.getItem("token") !== null;
+    },
+    logout: () => {
+        localStorage.removeItem("token");
+        window.location.href = "/login_new.html";
+    },
+};
+
+// Permission utilities
+const PermissionUtils = {
+    hasPermission: (permission) => {
+        const userPermissions = JSON.parse(
+            localStorage.getItem("permissions") || "[]"
+        );
+        return userPermissions.includes(permission);
+    },
+};
+
+// Notification utilities
+const NotificationUtils = {
+    show: (message, type = "info") => {
+        const container = document.getElementById("notificationContainer");
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        container.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+    },
+};
+
+// UI utilities
+const UIUtils = {
+    toggleDarkMode: () => {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem(
+            "darkMode",
+            document.body.classList.contains("dark-mode")
+        );
+    },
+    toggleSidebar: () => {
+        const sidebar = document.querySelector(".sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+    }
+};
+
+// Export utilities
+export { CommonUtils, AuthUtils, PermissionUtils, NotificationUtils, UIUtils };
+
 // Dashboard Handler Class
 class DashboardHandler {
     constructor() {

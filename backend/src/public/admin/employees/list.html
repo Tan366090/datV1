@@ -217,6 +217,29 @@
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
+
+            .employee-card {
+                transition: all 0.3s ease;
+            }
+            .employee-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+            .employee-avatar {
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+            }
+            .employee-status {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                display: inline-block;
+                margin-right: 5px;
+            }
+            .status-active { background-color: #28a745; }
+            .status-inactive { background-color: #dc3545; }
+            .status-onleave { background-color: #ffc107; }
         </style>
     </head>
     <body>
@@ -279,13 +302,12 @@
                             <thead>
                                 <tr>
                                     <th>Mã NV</th>
+                                    <th>Ảnh</th>
                                     <th>Họ tên</th>
-                                    <th>Giới tính</th>
-                                    <th>Ngày sinh</th>
-                                    <th>SĐT</th>
-                                    <th>Email</th>
                                     <th>Phòng ban</th>
-                                    <th>Vị trí</th>
+                                    <th>Chức vụ</th>
+                                    <th>Email</th>
+                                    <th>Điện thoại</th>
                                     <th>Trạng thái</th>
                                     <th>Thao tác</th>
                                 </tr>
@@ -322,6 +344,21 @@
                     </div>
                     <div class="modal-body">
                         <form id="employeeForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Ảnh đại diện</label>
+                                        <input type="file" class="form-control" name="avatar" accept="image/*">
+                                        <small class="form-text text-muted">Chấp nhận file ảnh (JPG, PNG, GIF)</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Mã nhân viên</label>
+                                        <input type="text" class="form-control" name="employee_code" required>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">

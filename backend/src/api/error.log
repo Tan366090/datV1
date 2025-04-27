@@ -1,0 +1,40 @@
+[27-Apr-2025 12:19:27 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29
+[27-Apr-2025 12:20:40 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29
+[27-Apr-2025 12:21:47 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29
+[27-Apr-2025 12:22:27 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29
+[27-Apr-2025 12:23:05 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29
+[27-Apr-2025 12:23:52 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29
+[27-Apr-2025 12:24:34 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29
+[27-Apr-2025 12:36:26 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29
+[27-Apr-2025 12:37:40 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29
+[27-Apr-2025 12:44:09 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "Database" not found in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php:29
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\api\index.php on line 29

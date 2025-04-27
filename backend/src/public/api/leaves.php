@@ -10,26 +10,21 @@ try {
     $db = new Database();
     $conn = $db->getConnection();
 
+    // Get all leave records
     $query = "SELECT 
-                l.leave_id,
+                l.id,
                 l.employee_id,
-                e.employee_code,
-                u.full_name as employee_name,
-                l.leave_type,
+                e.full_name as employee_name,
                 l.start_date,
                 l.end_date,
-                l.reason,
+                l.type,
                 l.status,
-                l.approved_by,
-                ua.full_name as approved_by_name,
+                l.reason,
                 l.created_at,
                 l.updated_at
             FROM leaves l
             LEFT JOIN employees e ON l.employee_id = e.id
-            LEFT JOIN users u ON e.user_id = u.user_id
-            LEFT JOIN employees ea ON l.approved_by = ea.id
-            LEFT JOIN users ua ON ea.user_id = ua.user_id
-            ORDER BY l.created_at DESC";
+            ORDER BY l.start_date DESC";
 
     $stmt = $conn->prepare($query);
     $stmt->execute();
@@ -39,17 +34,14 @@ try {
     // Format the data
     $formattedLeaves = array_map(function($leave) {
         return [
-            'id' => $leave['leave_id'],
+            'id' => $leave['id'],
             'employee_id' => $leave['employee_id'],
-            'employee_code' => $leave['employee_code'],
             'employee_name' => $leave['employee_name'],
-            'leave_type' => $leave['leave_type'],
             'start_date' => $leave['start_date'],
             'end_date' => $leave['end_date'],
-            'reason' => $leave['reason'],
+            'type' => $leave['type'],
             'status' => $leave['status'],
-            'approved_by' => $leave['approved_by'],
-            'approved_by_name' => $leave['approved_by_name'],
+            'reason' => $leave['reason'],
             'created_at' => $leave['created_at'],
             'updated_at' => $leave['updated_at']
         ];

@@ -257,7 +257,7 @@ class EnhancedPerformance {
         // Dynamic imports for code splitting
         const loadModule = async (moduleName) => {
             try {
-                const module = await import(`./modules/${moduleName}.js`);
+                const module = await import(`/qlnhansu_V2/backend/src/public/admin/js/modules/${moduleName}.js`);
                 return module;
             } catch (error) {
                 console.error(`Failed to load module ${moduleName}:`, error);

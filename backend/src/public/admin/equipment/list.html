@@ -3,308 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý thiết bị - Hệ thống quản lý nhân sự</title>
-    <link rel="stylesheet" href="/admin/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <title>Quản lý thiết bị</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../css/admin.css">
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/dashboard">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/employees">
-                                <i class="fas fa-users"></i> Nhân viên
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/departments">
-                                <i class="fas fa-building"></i> Phòng ban
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/positions">
-                                <i class="fas fa-briefcase"></i> Vị trí công việc
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/attendance">
-                                <i class="fas fa-calendar-check"></i> Chấm công
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/leave">
-                                <i class="fas fa-calendar-times"></i> Nghỉ phép
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/training">
-                                <i class="fas fa-graduation-cap"></i> Đào tạo
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/certificates">
-                                <i class="fas fa-certificate"></i> Bằng cấp
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/documents">
-                                <i class="fas fa-file-alt"></i> Tài liệu
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/admin/equipment">
-                                <i class="fas fa-laptop"></i> Thiết bị
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/salary">
-                                <i class="fas fa-money-bill-wave"></i> Lương
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Quản lý thiết bị</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEquipmentModal">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Danh sách thiết bị</h3>
+                        <button class="btn btn-primary" id="addEquipmentBtn">
                             <i class="fas fa-plus"></i> Thêm thiết bị
                         </button>
                     </div>
-                </div>
-
-                <!-- Filters -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <form id="filterForm" class="row g-3">
-                            <div class="col-md-3">
-                                <label for="filterType" class="form-label">Loại thiết bị</label>
-                                <select class="form-select" id="filterType">
-                                    <option value="">Tất cả</option>
-                                    <option value="laptop">Laptop</option>
-                                    <option value="desktop">Máy tính để bàn</option>
-                                    <option value="printer">Máy in</option>
-                                    <option value="phone">Điện thoại</option>
-                                    <option value="other">Khác</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="filterStatus" class="form-label">Trạng thái</label>
-                                <select class="form-select" id="filterStatus">
-                                    <option value="">Tất cả</option>
-                                    <option value="available">Sẵn sàng</option>
-                                    <option value="assigned">Đã cấp phát</option>
-                                    <option value="maintenance">Đang bảo trì</option>
-                                    <option value="broken">Hư hỏng</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="filterUser" class="form-label">Người sử dụng</label>
-                                <select class="form-select" id="filterUser">
-                                    <option value="">Tất cả</option>
-                                </select>
-                            </div>
-                            <div class="col-12 text-end">
-                                <button type="button" class="btn btn-secondary" id="resetFilters">
-                                    <i class="fas fa-undo"></i> Đặt lại
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-search"></i> Tìm kiếm
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Equipment table -->
-                <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="equipmentTable" class="table table-striped table-hover">
+                            <table class="table table-striped" id="equipmentTable">
                                 <thead>
                                     <tr>
-                                        <th>Mã thiết bị</th>
+                                        <th>ID</th>
                                         <th>Tên thiết bị</th>
-                                        <th>Loại</th>
+                                        <th>Loại thiết bị</th>
+                                        <th>Ngày mua</th>
+                                        <th>Giá trị</th>
                                         <th>Trạng thái</th>
                                         <th>Người sử dụng</th>
                                         <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Data will be loaded dynamically -->
+                                    <!-- Dữ liệu sẽ được thêm vào bằng JavaScript -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
 
-    <!-- Loading Spinner -->
-    <div class="loading-spinner" style="display: none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-
-    <!-- Error Message -->
-    <div class="error-message alert alert-danger" style="display: none;"></div>
-
-    <!-- Success Message -->
-    <div class="success-message alert alert-success" style="display: none;"></div>
-
-    <!-- Add Equipment Modal -->
-    <div class="modal fade" id="addEquipmentModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+    <!-- Modal thêm/sửa thiết bị -->
+    <div class="modal fade" id="equipmentModal" tabindex="-1">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Thêm thiết bị mới</h5>
+                    <h5 class="modal-title">Thêm thiết bị</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addEquipmentForm">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="equipmentCode" class="form-label">Mã thiết bị</label>
-                                <input type="text" class="form-control" id="equipmentCode" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="equipmentName" class="form-label">Tên thiết bị</label>
-                                <input type="text" class="form-control" id="equipmentName" required>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="equipmentType" class="form-label">Loại thiết bị</label>
-                                <select class="form-select" id="equipmentType" required>
-                                    <option value="">Chọn loại thiết bị</option>
-                                    <option value="laptop">Laptop</option>
-                                    <option value="desktop">Máy tính để bàn</option>
-                                    <option value="printer">Máy in</option>
-                                    <option value="phone">Điện thoại</option>
-                                    <option value="other">Khác</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="purchaseDate" class="form-label">Ngày mua</label>
-                                <input type="date" class="form-control" id="purchaseDate" required>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="brand" class="form-label">Hãng sản xuất</label>
-                                <input type="text" class="form-control" id="brand" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="model" class="form-label">Model</label>
-                                <input type="text" class="form-control" id="model" required>
-                            </div>
+                    <form id="equipmentForm">
+                        <div class="mb-3">
+                            <label class="form-label">Tên thiết bị</label>
+                            <input type="text" class="form-control" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="specifications" class="form-label">Thông số kỹ thuật</label>
-                            <textarea class="form-control" id="specifications" rows="3"></textarea>
+                            <label class="form-label">Loại thiết bị</label>
+                            <select class="form-select" name="type" required>
+                                <option value="">Chọn loại thiết bị</option>
+                                <option value="computer">Máy tính</option>
+                                <option value="printer">Máy in</option>
+                                <option value="phone">Điện thoại</option>
+                                <option value="other">Khác</option>
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Ghi chú</label>
-                            <textarea class="form-control" id="notes" rows="2"></textarea>
+                            <label class="form-label">Ngày mua</label>
+                            <input type="date" class="form-control" name="purchase_date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Giá trị</label>
+                            <input type="number" class="form-control" name="value" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" name="status" required>
+                                <option value="available">Sẵn sàng</option>
+                                <option value="in_use">Đang sử dụng</option>
+                                <option value="maintenance">Bảo trì</option>
+                                <option value="broken">Hỏng</option>
+                            </select>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" id="saveEquipment">Lưu</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Equipment Details Modal -->
-    <div class="modal fade" id="equipmentDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Chi tiết thiết bị</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="fw-bold">Mã thiết bị:</label>
-                            <p id="modalEquipmentCode"></p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="fw-bold">Tên thiết bị:</label>
-                            <p id="modalEquipmentName"></p>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="fw-bold">Loại thiết bị:</label>
-                            <p id="modalEquipmentType"></p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="fw-bold">Trạng thái:</label>
-                            <p id="modalStatus"></p>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="fw-bold">Hãng sản xuất:</label>
-                            <p id="modalBrand"></p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="fw-bold">Model:</label>
-                            <p id="modalModel"></p>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="fw-bold">Ngày mua:</label>
-                            <p id="modalPurchaseDate"></p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="fw-bold">Người sử dụng:</label>
-                            <p id="modalUser"></p>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold">Thông số kỹ thuật:</label>
-                        <p id="modalSpecifications"></p>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold">Ghi chú:</label>
-                        <p id="modalNotes"></p>
-                    </div>
-                </div>
-                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <div id="modalActions" class="btn-group">
-                        <!-- Action buttons will be added dynamically -->
-                    </div>
+                    <button type="button" class="btn btn-primary" id="saveEquipmentBtn">Lưu</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="/admin/js/equipment.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/admin.js"></script>
+    <script>
+        class EquipmentManager {
+            constructor() {
+                this.equipmentModal = new bootstrap.Modal(document.getElementById('equipmentModal'));
+                this.equipmentForm = document.getElementById('equipmentForm');
+                this.equipmentTable = document.getElementById('equipmentTable');
+                this.setupEventListeners();
+                this.loadEquipmentData();
+            }
+
+            setupEventListeners() {
+                document.getElementById('addEquipmentBtn').addEventListener('click', () => this.showAddModal());
+                document.getElementById('saveEquipmentBtn').addEventListener('click', () => this.saveEquipment());
+            }
+
+            async loadEquipmentData() {
+                try {
+                    const response = await fetch('/api/equipment/list');
+                    const data = await response.json();
+                    this.renderEquipmentTable(data);
+                } catch (error) {
+                    console.error('Error loading equipment data:', error);
+                    showNotification('Không thể tải dữ liệu thiết bị', 'error');
+                }
+            }
+
+            renderEquipmentTable(equipmentList) {
+                const tbody = this.equipmentTable.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                equipmentList.forEach(equipment => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${equipment.id}</td>
+                        <td>${equipment.name}</td>
+                        <td>${equipment.type}</td>
+                        <td>${equipment.purchase_date}</td>
+                        <td>${equipment.value}</td>
+                        <td>${equipment.status}</td>
+                        <td>${equipment.user || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary edit-btn" data-id="${equipment.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-id="${equipment.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                // Thêm event listeners cho các nút
+                tbody.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.showEditModal(e.target.closest('tr')));
+                });
+
+                tbody.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.deleteEquipment(e.target.closest('tr')));
+                });
+            }
+
+            showAddModal() {
+                this.equipmentForm.reset();
+                document.querySelector('.modal-title').textContent = 'Thêm thiết bị';
+                this.equipmentModal.show();
+            }
+
+            showEditModal(row) {
+                const equipmentId = row.querySelector('.edit-btn').dataset.id;
+                const equipmentData = {
+                    name: row.cells[1].textContent,
+                    type: row.cells[2].textContent,
+                    purchase_date: row.cells[3].textContent,
+                    value: row.cells[4].textContent,
+                    status: row.cells[5].textContent
+                };
+
+                Object.entries(equipmentData).forEach(([key, value]) => {
+                    this.equipmentForm.elements[key].value = value;
+                });
+
+                document.querySelector('.modal-title').textContent = 'Sửa thiết bị';
+                this.equipmentModal.show();
+            }
+
+            async saveEquipment() {
+                const formData = new FormData(this.equipmentForm);
+                const equipmentData = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/api/equipment/save', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(equipmentData)
+                    });
+
+                    if (response.ok) {
+                        showNotification('Lưu thiết bị thành công', 'success');
+                        this.equipmentModal.hide();
+                        this.loadEquipmentData();
+                    } else {
+                        throw new Error('Failed to save equipment');
+                    }
+                } catch (error) {
+                    console.error('Error saving equipment:', error);
+                    showNotification('Không thể lưu thiết bị', 'error');
+                }
+            }
+
+            async deleteEquipment(row) {
+                if (!confirm('Bạn có chắc chắn muốn xóa thiết bị này?')) {
+                    return;
+                }
+
+                const equipmentId = row.querySelector('.delete-btn').dataset.id;
+
+                try {
+                    const response = await fetch(`/api/equipment/delete/${equipmentId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        showNotification('Xóa thiết bị thành công', 'success');
+                        this.loadEquipmentData();
+                    } else {
+                        throw new Error('Failed to delete equipment');
+                    }
+                } catch (error) {
+                    console.error('Error deleting equipment:', error);
+                    showNotification('Không thể xóa thiết bị', 'error');
+                }
+            }
+        }
+
+        // Khởi tạo EquipmentManager khi trang được tải
+        document.addEventListener('DOMContentLoaded', () => {
+            new EquipmentManager();
+        });
+    </script>
 </body>
 </html> 

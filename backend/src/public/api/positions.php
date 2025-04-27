@@ -11,19 +11,13 @@ try {
     $conn = $db->getConnection();
 
     $query = "SELECT 
-                p.position_id,
-                p.position_name,
-                p.description,
-                p.department_id,
-                d.department_name,
-                p.salary_grade,
-                p.status,
+                p.id,
+                p.name,
                 COUNT(e.id) as employee_count
             FROM positions p
-            LEFT JOIN departments d ON p.department_id = d.department_id
-            LEFT JOIN employees e ON p.position_id = e.position_id
-            GROUP BY p.position_id
-            ORDER BY p.position_name";
+            LEFT JOIN employees e ON p.id = e.position_id
+            GROUP BY p.id
+            ORDER BY p.name";
 
     $stmt = $conn->prepare($query);
     $stmt->execute();
@@ -33,13 +27,8 @@ try {
     // Format the data
     $formattedPositions = array_map(function($pos) {
         return [
-            'id' => $pos['position_id'],
-            'name' => $pos['position_name'],
-            'description' => $pos['description'],
-            'department_id' => $pos['department_id'],
-            'department_name' => $pos['department_name'],
-            'salary_grade' => $pos['salary_grade'],
-            'status' => $pos['status'],
+            'id' => $pos['id'],
+            'name' => $pos['name'],
             'employee_count' => $pos['employee_count']
         ];
     }, $positions);

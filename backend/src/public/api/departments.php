@@ -11,18 +11,13 @@ try {
     $conn = $db->getConnection();
 
     $query = "SELECT 
-                d.department_id as id,
-                d.department_name as name,
-                d.department_code,
-                COUNT(e.id) as employee_count,
-                u.full_name as manager_name,
-                d.description,
-                d.status
+                d.id,
+                d.name,
+                COUNT(e.id) as employee_count
             FROM departments d
-            LEFT JOIN employees e ON d.department_id = e.department_id
-            LEFT JOIN users u ON d.manager_id = u.user_id
-            GROUP BY d.department_id
-            ORDER BY d.department_name";
+            LEFT JOIN employees e ON d.id = e.department_id
+            GROUP BY d.id
+            ORDER BY d.name";
 
     $stmt = $conn->prepare($query);
     $stmt->execute();
@@ -34,11 +29,7 @@ try {
         return [
             'id' => $dept['id'],
             'name' => $dept['name'],
-            'code' => $dept['department_code'],
-            'manager' => $dept['manager_name'],
-            'employee_count' => $dept['employee_count'],
-            'description' => $dept['description'],
-            'status' => $dept['status']
+            'employee_count' => $dept['employee_count']
         ];
     }, $departments);
 
