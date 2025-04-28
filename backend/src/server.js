@@ -79,36 +79,19 @@ const logger = winston.createLogger({
 const app = express();
 const port = 3000;
 
-// CORS configuration
-const corsOptions = {
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:8080', 'http://127.0.0.1:8080'],
+// Cấu hình CORS
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:80'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    credentials: true,
-    maxAge: 86400 // 24 hours
-};
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Middleware
-app.use(cors(corsOptions));
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https://unpkg.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-            connectSrc: ["'self'", "http://localhost:*", "http://127.0.0.1:*", "https://cdn.jsdelivr.net", "ws://localhost:8080", "ws://127.0.0.1:8080"],
-            workerSrc: ["'self'", "blob:"],
-            frameSrc: ["'self'"],
-            objectSrc: ["'none'"]
-        }
-    }
-}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(morgan('dev'));
+app.use(helmet());
 app.use(compression());
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
-app.use(morgan('combined'));
 
 // Cấu hình rate limiting
 const limiter = rateLimit({
@@ -303,15 +286,15 @@ const checkPermission = (requiredPermission) => {
 };
 
 // Cấu hình routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', authMiddleware, require('./routes/users'));
-app.use('/api/employees', authMiddleware, checkPermission('view_employees'), require('./routes/employees'));
-app.use('/api/departments', authMiddleware, checkPermission('view_departments'), require('./routes/departments'));
-app.use('/api/salary', authMiddleware, checkPermission('view_salary'), require('./routes/salary'));
-app.use('/api/attendance', authMiddleware, checkPermission('view_attendance'), require('./routes/attendance'));
-app.use('/api/equipment', authMiddleware, checkPermission('view_equipment'), require('./routes/equipment'));
-app.use('/api/performance', authMiddleware, checkPermission('view_performance'), require('./routes/performance'));
-app.use('/api/recruitment', authMiddleware, checkPermission('view_recruitment'), require('./routes/recruitment'));
+const apiRoutes = require('./routes/api');
+app.use('/api', apiRoutes);
+
+// Routes
+const analysisRoutes = require('./routes/analysis');
+const userRoutes = require('./routes/user');
+
+app.use('/api/analysis', analysisRoutes);
+app.use('/api/user', userRoutes);
 
 // Cấu hình static files
 app.use(express.static(path.join(__dirname, 'public')));

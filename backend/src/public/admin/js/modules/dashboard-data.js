@@ -1,26 +1,41 @@
 class DashboardData {
     constructor() {
-        this.apiUrl = '/qlnhansu_V2/backend/src/api/test_dashboard_data.php';
-        this.data = null;
+        this.data = {
+            total_employees: 0,
+            kpi_completion: 0,
+            new_candidates: 0,
+            active_projects: 0,
+            active_employees: 0,
+            attendance_rate: 0,
+            pending_leaves: 0,
+            monthly_salary: 0,
+            inactive_employees: 0,
+            department_distribution: [],
+            attendance_trend: [],
+            mobile_stats: {
+                downloads: 0,
+                active_users: 0,
+                notifications_sent: 0
+            },
+            backup_info: {
+                last_backup: 'Chưa có',
+                total_size: 0
+            }
+        };
     }
 
     async loadData() {
         try {
-            const response = await fetch(this.apiUrl);
+            // Fetch data from API
+            const response = await fetch('/qlnhansu_V2/backend/src/public/api/dashboard_api.php');
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result = await response.json();
-            
-            if (result.status === 'success') {
-                this.data = result.data;
-                this.updateUI();
-            } else {
-                throw new Error(result.message || 'Failed to load data');
-            }
+            const data = await response.json();
+            this.data = data;
+            this.updateUI();
         } catch (error) {
             console.error('Error loading dashboard data:', error);
-            this.showError('Không thể tải dữ liệu dashboard');
         }
     }
 
@@ -56,27 +71,29 @@ class DashboardData {
     }
 
     updateRecentEmployeesTable() {
-        const tbody = document.querySelector('#recentEmployeesTable tbody');
-        if (!tbody) return;
+        const tableBody = document.getElementById('recentEmployees');
+        if (!tableBody) return;
 
-        tbody.innerHTML = this.data.recent_employees.map(emp => `
-            <tr>
-                <td>${emp.employee_code || ''}</td>
-                <td>${emp.full_name || ''}</td>
-                <td>${emp.position || ''}</td>
-                <td>${emp.department || ''}</td>
-                <td>${this.formatDate(emp.join_date)}</td>
-                <td>${this.formatDate(emp.birth_date)}</td>
-                <td>${emp.phone || ''}</td>
-                <td>${emp.email || ''}</td>
-                <td>${emp.address || ''}</td>
-                <td>${emp.status || ''}</td>
+        tableBody.innerHTML = '';
+        this.data.recent_employees.forEach(employee => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${employee.employee_id}</td>
+                <td>${employee.full_name}</td>
+                <td>${employee.position}</td>
+                <td>${employee.department}</td>
+                <td>${employee.join_date}</td>
+                <td>${employee.birth_date}</td>
+                <td>${employee.phone}</td>
+                <td>${employee.email}</td>
+                <td>${employee.address}</td>
+                <td>${employee.status}</td>
                 <td>
-                    <button class="btn btn-sm btn-primary">Sửa</button>
-                    <button class="btn btn-sm btn-danger">Xóa</button>
+                    <button class="btn btn-sm btn-primary" onclick="viewEmployee(${employee.id})">Xem</button>
                 </td>
-            </tr>
-        `).join('');
+            `;
+            tableBody.appendChild(row);
+        });
     }
 
     updateAttendanceTrendChart() {
@@ -118,27 +135,80 @@ class DashboardData {
         const ctx = document.getElementById('departmentChart');
         if (!ctx) return;
 
-        const labels = this.data.department_distribution.map(item => item.department);
-        const data = this.data.department_distribution.map(item => item.employee_count);
+        // Group department data by status
+        const groupedData = {
+            active: [],
+            probation: [],
+            inactive: [],
+            onLeave: []
+        };
+
+        this.data.department_distribution.forEach(record => {
+            const department = record.department;
+            
+            // Active employees
+            groupedData.active.push({
+                x: department,
+                y: record.employee_count
+            });
+
+            // Probation employees
+            groupedData.probation.push({
+                x: department,
+                y: record.probation_employees
+            });
+
+            // Inactive employees
+            groupedData.inactive.push({
+                x: department,
+                y: record.inactive_employees
+            });
+
+            // On leave employees
+            groupedData.onLeave.push({
+                x: department,
+                y: record.on_leave_employees
+            });
+        });
 
         if (window.departmentChart) {
             window.departmentChart.destroy();
         }
 
         window.departmentChart = new Chart(ctx, {
-            type: 'doughnut',
+            type: 'bar',
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: [
-                        '#4e73df',
-                        '#1cc88a',
-                        '#36b9cc',
-                        '#f6c23e',
-                        '#e74a3b'
-                    ]
-                }]
+                labels: this.data.department_distribution.map(record => record.department),
+                datasets: [
+                    {
+                        label: 'Đang làm việc',
+                        data: groupedData.active,
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Thử việc',
+                        data: groupedData.probation,
+                        backgroundColor: 'rgba(255, 159, 64, 0.5)',
+                        borderColor: 'rgb(255, 159, 64)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Đã nghỉ việc',
+                        data: groupedData.inactive,
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Đang nghỉ phép',
+                        data: groupedData.onLeave,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        borderWidth: 1
+                    }
+                ]
             },
             options: {
                 responsive: true,
@@ -152,31 +222,16 @@ class DashboardData {
         });
     }
 
-    formatCurrency(amount) {
+    formatCurrency(value) {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
             currency: 'VND'
-        }).format(amount);
+        }).format(value);
     }
 
-    formatDate(date) {
-        if (!date) return '';
-        return new Intl.DateTimeFormat('vi-VN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).format(new Date(date));
-    }
-
-    showError(message) {
-        const errorContainer = document.getElementById('errorContainer');
-        if (errorContainer) {
-            errorContainer.textContent = message;
-            errorContainer.style.display = 'block';
-            setTimeout(() => {
-                errorContainer.style.display = 'none';
-            }, 5000);
-        }
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN');
     }
 }
 

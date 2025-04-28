@@ -5,23 +5,38 @@ const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
 const Papa = require('papaparse');
+const AI = require('../Libraries/AI');
 
 // AI Analysis Endpoints
 router.get('/ai/hr-trends', async (req, res) => {
     try {
-        const data = await getHRTrendsData();
-        res.json(data);
+        const trends = await AI.getHRTrends();
+        res.json({
+            success: true,
+            data: trends
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch HR trends' });
+        console.error('Error fetching HR trends:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Internal server error'
+        });
     }
 });
 
 router.get('/ai/sentiment', async (req, res) => {
     try {
-        const data = await getSentimentData();
-        res.json(data);
+        const sentiment = await AI.getSentimentAnalysis();
+        res.json({
+            success: true,
+            data: sentiment
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch sentiment data' });
+        console.error('Error fetching sentiment analysis:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Internal server error'
+        });
     }
 });
 

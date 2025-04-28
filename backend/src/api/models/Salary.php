@@ -2,86 +2,69 @@
 namespace App\Models;
 
 class Salary extends BaseModel {
-    protected $table = 'salaries';
+    protected $table = 'salary_history';
     
-    public function calculateMonthlySalary($employeeId, $year, $month) {
-        $conn = $this->db->getConnection();
-        
-        // Get base salary
-        $stmt = $conn->prepare("
-            SELECT base_salary, allowance, bonus
-            FROM {$this->table}
-            WHERE employee_id = ?
-            AND effective_date <= ?
-            ORDER BY effective_date DESC
-            LIMIT 1
-        ");
-        
-        $endDate = date('Y-m-t', strtotime("{$year}-{$month}-01"));
-        $stmt->execute([$employeeId, $endDate]);
-        $salaryInfo = $stmt->fetch();
-        
-        if (!$salaryInfo) {
-            throw new \Exception('No salary information found for employee');
-        }
-        
-        // Get attendance data
-        $stmt = $conn->prepare("
-            SELECT COUNT(*) as working_days,
-                   SUM(CASE WHEN TIME(check_in) > '08:30:00' THEN 1 ELSE 0 END) as late_days
-            FROM attendance
-            WHERE employee_id = ?
-            AND date BETWEEN ? AND ?
-        ");
-        
-        $startDate = date('Y-m-01', strtotime("{$year}-{$month}-01"));
-        $stmt->execute([$employeeId, $startDate, $endDate]);
-        $attendance = $stmt->fetch();
-        
-        // Calculate salary
-        $baseSalary = $salaryInfo['base_salary'];
-        $allowance = $salaryInfo['allowance'];
-        $bonus = $salaryInfo['bonus'];
-        
-        $dailySalary = $baseSalary / 22; // Assuming 22 working days per month
-        $lateDeduction = $attendance['late_days'] * ($dailySalary * 0.1); // 10% deduction for late days
-        
-        $totalSalary = $baseSalary + $allowance + $bonus - $lateDeduction;
-        
-        return [
-            'base_salary' => $baseSalary,
-            'allowance' => $allowance,
-            'bonus' => $bonus,
-            'working_days' => $attendance['working_days'],
-            'late_days' => $attendance['late_days'],
-            'late_deduction' => $lateDeduction,
-            'total_salary' => $totalSalary
-        ];
-    }
+    protected $fillable = [
+        'employee_id',
+        'effective_date',
+        'previous_salary',
+        'new_salary',
+        'salary_currency',
+        'reason',
+        'decision_attachment_url',
+        'recorded_by_user_id'
+    ];
     
-    public function updateSalary($employeeId, $baseSalary, $allowance, $bonus, $effectiveDate = null) {
-        if (!$effectiveDate) {
-            $effectiveDate = date('Y-m-d');
-        }
-        
-        $conn = $this->db->getConnection();
-        
-        $stmt = $conn->prepare("
-            INSERT INTO {$this->table} 
-            (employee_id, base_salary, allowance, bonus, effective_date, created_at)
-            VALUES (?, ?, ?, ?, ?, NOW())
-        ");
-        
-        return $stmt->execute([$employeeId, $baseSalary, $allowance, $bonus, $effectiveDate]);
-    }
-    
-    public function getSalaryHistory($employeeId) {
+    public function getWithDetails($id = null) {
         $conn = $this->db->getConnection();
         
         $sql = "
-            SELECT s.*, e.name as employee_name
-            FROM {$this->table} s
+            SELECT s.*, 
+                   e.employee_code,
+                   up.full_name,
+                   d.name as department_name,
+                   p.name as position_name,
+                   up2.full_name as recorded_by_name
+            FROM salary_history s
             JOIN employees e ON s.employee_id = e.id
+            JOIN user_profiles up ON e.user_id = up.user_id
+            JOIN departments d ON e.department_id = d.id
+            JOIN positions p ON e.position_id = p.id
+            LEFT JOIN users u ON s.recorded_by_user_id = u.id
+            LEFT JOIN user_profiles up2 ON u.id = up2.user_id
+            WHERE 1=1
+        ";
+        
+        if ($id) {
+            $sql .= " AND s.salary_history_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        }
+        
+        $sql .= " ORDER BY s.effective_date DESC";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+    
+    public function getByEmployee($employeeId) {
+        $conn = $this->db->getConnection();
+        
+        $sql = "
+            SELECT s.*, 
+                   e.employee_code,
+                   up.full_name,
+                   d.name as department_name,
+                   p.name as position_name,
+                   up2.full_name as recorded_by_name
+            FROM salary_history s
+            JOIN employees e ON s.employee_id = e.id
+            JOIN user_profiles up ON e.user_id = up.user_id
+            JOIN departments d ON e.department_id = d.id
+            JOIN positions p ON e.position_id = p.id
+            LEFT JOIN users u ON s.recorded_by_user_id = u.id
+            LEFT JOIN user_profiles up2 ON u.id = up2.user_id
             WHERE s.employee_id = ?
             ORDER BY s.effective_date DESC
         ";
@@ -91,29 +74,104 @@ class Salary extends BaseModel {
         return $stmt->fetchAll();
     }
     
-    public function getDepartmentSalaryReport($departmentId, $year, $month) {
+    public function getCurrentSalary($employeeId) {
         $conn = $this->db->getConnection();
         
-        $endDate = date('Y-m-t', strtotime("{$year}-{$month}-01"));
-        
         $sql = "
-            SELECT e.id as employee_id, e.name as employee_name,
-                   s.base_salary, s.allowance, s.bonus,
-                   COUNT(a.id) as working_days,
-                   SUM(CASE WHEN TIME(a.check_in) > '08:30:00' THEN 1 ELSE 0 END) as late_days
-            FROM employees e
-            JOIN salaries s ON e.id = s.employee_id
-            LEFT JOIN attendance a ON e.id = a.employee_id 
-                AND a.date BETWEEN ? AND ?
-            WHERE e.department_id = ?
-            AND s.effective_date <= ?
-            GROUP BY e.id, e.name, s.base_salary, s.allowance, s.bonus
-            ORDER BY e.name
+            SELECT s.*, 
+                   e.employee_code,
+                   up.full_name,
+                   d.name as department_name,
+                   p.name as position_name,
+                   up2.full_name as recorded_by_name
+            FROM salary_history s
+            JOIN employees e ON s.employee_id = e.id
+            JOIN user_profiles up ON e.user_id = up.user_id
+            JOIN departments d ON e.department_id = d.id
+            JOIN positions p ON e.position_id = p.id
+            LEFT JOIN users u ON s.recorded_by_user_id = u.id
+            LEFT JOIN user_profiles up2 ON u.id = up2.user_id
+            WHERE s.employee_id = ?
+            ORDER BY s.effective_date DESC
+            LIMIT 1
         ";
         
-        $startDate = date('Y-m-01', strtotime("{$year}-{$month}-01"));
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$startDate, $endDate, $departmentId, $endDate]);
+        $stmt->execute([$employeeId]);
+        return $stmt->fetch();
+    }
+    
+    public function getDepartmentSalaries($departmentId, $date = null) {
+        if (!$date) {
+            $date = date('Y-m-d');
+        }
+        
+        $conn = $this->db->getConnection();
+        
+        $sql = "
+            SELECT s.*, 
+                   e.employee_code,
+                   up.full_name,
+                   d.name as department_name,
+                   p.name as position_name,
+                   up2.full_name as recorded_by_name
+            FROM salary_history s
+            JOIN employees e ON s.employee_id = e.id
+            JOIN user_profiles up ON e.user_id = up.user_id
+            JOIN departments d ON e.department_id = d.id
+            JOIN positions p ON e.position_id = p.id
+            LEFT JOIN users u ON s.recorded_by_user_id = u.id
+            LEFT JOIN user_profiles up2 ON u.id = up2.user_id
+            WHERE e.department_id = ?
+            AND s.effective_date <= ?
+            AND s.salary_history_id IN (
+                SELECT MAX(s2.salary_history_id)
+                FROM salary_history s2
+                WHERE s2.employee_id = s.employee_id
+                AND s2.effective_date <= ?
+                GROUP BY s2.employee_id
+            )
+            ORDER BY up.full_name
+        ";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$departmentId, $date, $date]);
         return $stmt->fetchAll();
+    }
+    
+    public function getSalaryChanges($startDate, $endDate) {
+        $conn = $this->db->getConnection();
+        
+        $sql = "
+            SELECT s.*, 
+                   e.employee_code,
+                   up.full_name,
+                   d.name as department_name,
+                   p.name as position_name,
+                   up2.full_name as recorded_by_name
+            FROM salary_history s
+            JOIN employees e ON s.employee_id = e.id
+            JOIN user_profiles up ON e.user_id = up.user_id
+            JOIN departments d ON e.department_id = d.id
+            JOIN positions p ON e.position_id = p.id
+            LEFT JOIN users u ON s.recorded_by_user_id = u.id
+            LEFT JOIN user_profiles up2 ON u.id = up2.user_id
+            WHERE s.effective_date BETWEEN ? AND ?
+            ORDER BY s.effective_date DESC, up.full_name
+        ";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$startDate, $endDate]);
+        return $stmt->fetchAll();
+    }
+    
+    public function calculateSalaryIncrease($employeeId, $newSalary) {
+        $currentSalary = $this->getCurrentSalary($employeeId);
+        if (!$currentSalary) {
+            return 0;
+        }
+        
+        $increase = ($newSalary - $currentSalary['new_salary']) / $currentSalary['new_salary'] * 100;
+        return round($increase, 2);
     }
 } 

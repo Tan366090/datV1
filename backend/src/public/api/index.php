@@ -37,7 +37,23 @@ try {
             }
             break;
             
-        // Add more endpoints as needed
+        case 'dashboard':
+            require_once __DIR__ . '/dashboard_api.php';
+            $endpoint = $_GET['endpoint'] ?? '';
+            switch ($endpoint) {
+                case 'attendance':
+                    $period = $_GET['period'] ?? 'week';
+                    echo json_encode(getAttendanceData($period));
+                    break;
+                case 'data':
+                    echo json_encode(getDashboardStats());
+                    break;
+                default:
+                    http_response_code(404);
+                    echo json_encode(['error' => 'Dashboard endpoint not found']);
+                    break;
+            }
+            break;
             
         default:
             http_response_code(404);

@@ -4,15 +4,26 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Cấu hình CORS
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+// Cấu hình CORS chi tiết hơn
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: https://localhost');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
 
 // Xử lý preflight request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
+    exit();
+}
+
+// Kiểm tra HTTPS
+if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
+    http_response_code(403);
+    echo json_encode([
+        'success' => false,
+        'message' => 'HTTPS is required'
+    ]);
     exit();
 }
 
@@ -107,7 +118,19 @@ function getAttendanceData($period = 'week') {
         $sql = "SELECT 
                     DATE(attendance_date) as date,
                     COUNT(*) as total,
-                    SUM(CASE WHEN attendance_symbol = 'P' THEN 1 ELSE 0 END) as present
+                    SUM(CASE WHEN attendance_symbol = 'P' THEN 1 ELSE 0 END) as present,
+                    SUM(CASE WHEN attendance_symbol = 'Ô' THEN 1 ELSE 0 END) as sick,
+                    SUM(CASE WHEN attendance_symbol = 'Cô' THEN 1 ELSE 0 END) as child_care,
+                    SUM(CASE WHEN attendance_symbol = 'TS' THEN 1 ELSE 0 END) as maternity,
+                    SUM(CASE WHEN attendance_symbol = 'T' THEN 1 ELSE 0 END) as work_accident,
+                    SUM(CASE WHEN attendance_symbol = 'CN' THEN 1 ELSE 0 END) as sunday,
+                    SUM(CASE WHEN attendance_symbol = 'NL' THEN 1 ELSE 0 END) as holiday,
+                    SUM(CASE WHEN attendance_symbol = 'NB' THEN 1 ELSE 0 END) as compensatory,
+                    SUM(CASE WHEN attendance_symbol = '1/2K' THEN 1 ELSE 0 END) as half_day_unpaid,
+                    SUM(CASE WHEN attendance_symbol = 'K' THEN 1 ELSE 0 END) as unpaid,
+                    SUM(CASE WHEN attendance_symbol = 'N' THEN 1 ELSE 0 END) as stopped,
+                    SUM(CASE WHEN attendance_symbol = '1/2P' THEN 1 ELSE 0 END) as half_day_leave,
+                    SUM(CASE WHEN attendance_symbol = 'NN' THEN 1 ELSE 0 END) as half_day_work
                 FROM attendance 
                 WHERE attendance_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 1 $period)
                 GROUP BY DATE(attendance_date)
@@ -126,7 +149,11 @@ function getDepartmentData() {
         $pdo = getDBConnection();
         $sql = "SELECT 
                     d.name,
-                    COUNT(e.id) as employee_count
+                    COUNT(e.id) as total_employees,
+                    COUNT(CASE WHEN e.status = 'active' THEN 1 END) as active_employees,
+                    COUNT(CASE WHEN e.status = 'probation' THEN 1 END) as probation_employees,
+                    COUNT(CASE WHEN e.status = 'inactive' THEN 1 END) as inactive_employees,
+                    COUNT(CASE WHEN e.status = 'on_leave' THEN 1 END) as on_leave_employees
                 FROM departments d
                 LEFT JOIN employees e ON e.department_id = d.id
                 GROUP BY d.id, d.name";
@@ -164,42 +191,130 @@ try {
     // Kiểm tra authentication
     checkAuth();
     
-    // Lấy endpoint từ URL
+    // Kết nối database
+    $db = new PDO('mysql:host=localhost;dbname=qlnhansu', 'root', '');
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Lấy endpoint từ request
     $endpoint = $_GET['endpoint'] ?? '';
-    
-    switch ($endpoint) {
-        case 'stats':
-            $data = getDashboardStats();
-            break;
-            
-        case 'attendance':
-            $period = $_GET['period'] ?? 'week';
-            $data = getAttendanceData($period);
-            break;
-            
-        case 'departments':
-            $data = getDepartmentData();
-            break;
-            
-        case 'recent-employees':
-            $limit = $_GET['limit'] ?? 10;
-            $data = getRecentEmployees($limit);
-            break;
-            
-        default:
-            throw new Exception("Invalid endpoint");
+    $period = $_GET['period'] ?? 'week';
+
+    // Nếu không có endpoint, trả về danh sách các endpoint có sẵn
+    if (empty($endpoint)) {
+        echo json_encode([
+            'success' => true,
+            'endpoints' => [
+                'attendance' => 'Get attendance data',
+                'departments' => 'Get department data'
+            ]
+        ]);
+        exit();
     }
-    
+
+    switch ($endpoint) {
+        case 'attendance':
+            // Lấy dữ liệu chấm công theo period
+            $query = "SELECT 
+                        DATE(attendance_date) as date,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN attendance_symbol = 'P' THEN 1 ELSE 0 END) as present,
+                        SUM(CASE WHEN attendance_symbol = 'Ô' THEN 1 ELSE 0 END) as sick,
+                        SUM(CASE WHEN attendance_symbol = 'Cô' THEN 1 ELSE 0 END) as child_care,
+                        SUM(CASE WHEN attendance_symbol = 'TS' THEN 1 ELSE 0 END) as maternity,
+                        SUM(CASE WHEN attendance_symbol = 'T' THEN 1 ELSE 0 END) as work_accident,
+                        SUM(CASE WHEN attendance_symbol = 'CN' THEN 1 ELSE 0 END) as sunday,
+                        SUM(CASE WHEN attendance_symbol = 'NL' THEN 1 ELSE 0 END) as holiday,
+                        SUM(CASE WHEN attendance_symbol = 'NB' THEN 1 ELSE 0 END) as compensatory,
+                        SUM(CASE WHEN attendance_symbol = '1/2K' THEN 1 ELSE 0 END) as half_day_unpaid,
+                        SUM(CASE WHEN attendance_symbol = 'K' THEN 1 ELSE 0 END) as unpaid,
+                        SUM(CASE WHEN attendance_symbol = 'N' THEN 1 ELSE 0 END) as stopped,
+                        SUM(CASE WHEN attendance_symbol = '1/2P' THEN 1 ELSE 0 END) as half_day_leave,
+                        SUM(CASE WHEN attendance_symbol = 'NN' THEN 1 ELSE 0 END) as half_day_work
+                    FROM attendance 
+                    WHERE attendance_date >= DATE_SUB(CURRENT_DATE, INTERVAL 1 " . strtoupper($period) . ")
+                    GROUP BY DATE(attendance_date)
+                    ORDER BY date ASC";
+
+            $stmt = $db->prepare($query);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Format dữ liệu cho chart
+            $result = [
+                'labels' => array_map(function($item) { return $item['date']; }, $data),
+                'datasets' => [
+                    [
+                        'label' => 'Có mặt',
+                        'data' => array_map(function($item) { return $item['present']; }, $data),
+                        'borderColor' => 'rgb(75, 192, 192)',
+                        'tension' => 0.1
+                    ],
+                    [
+                        'label' => 'Nghỉ ốm',
+                        'data' => array_map(function($item) { return $item['sick']; }, $data),
+                        'borderColor' => 'rgb(255, 99, 132)',
+                        'tension' => 0.1
+                    ],
+                    [
+                        'label' => 'Nghỉ không lương',
+                        'data' => array_map(function($item) { return $item['unpaid']; }, $data),
+                        'borderColor' => 'rgb(255, 205, 86)',
+                        'tension' => 0.1
+                    ]
+                ]
+            ];
+
+            echo json_encode([
+                'success' => true,
+                'data' => $result
+            ]);
+            break;
+
+        case 'departments':
+            // Lấy dữ liệu phòng ban
+            $query = "SELECT 
+                        d.id as department_id,
+                        d.name,
+                        d.description,
+                        d.manager_id,
+                        d.parent_id,
+                        COUNT(e.id) as employee_count,
+                        COUNT(CASE WHEN e.status = 'active' THEN 1 END) as active_employees,
+                        COUNT(CASE WHEN e.status = 'inactive' THEN 1 END) as inactive_employees
+                    FROM departments d
+                    LEFT JOIN employees e ON d.id = e.department_id
+                    GROUP BY d.id, d.name, d.description, d.manager_id, d.parent_id
+                    ORDER BY employee_count DESC";
+
+            $stmt = $db->prepare($query);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'success' => true,
+                'data' => $data
+            ]);
+            break;
+
+        default:
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Invalid endpoint. Available endpoints: attendance, departments'
+            ]);
+    }
+
+} catch (PDOException $e) {
+    http_response_code(500);
     echo json_encode([
-        'success' => true,
-        'data' => $data
+        'success' => false,
+        'message' => 'Database error: ' . $e->getMessage()
     ]);
-    
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'message' => 'Server error: ' . $e->getMessage()
     ]);
 }
 ?> 

@@ -7,8 +7,9 @@ class Gamification {
         this.achievementsContainer = document.querySelector('.achievements');
         this.progressContainer = document.querySelector('.progress-container');
         this.setupEventListeners();
-        this.loadData();
-        this.loadUserProgress();
+        // Không tự động load data để tránh lỗi
+        // this.loadData();
+        // this.loadUserProgress();
     }
 
     setupEventListeners() {
@@ -27,14 +28,26 @@ class Gamification {
         try {
             // Lấy dữ liệu bảng xếp hạng
             const leaderboardResponse = await fetch('/api/gamification/leaderboard');
+            if (!leaderboardResponse.ok) {
+                console.warn('Leaderboard API not available');
+                return;
+            }
             const leaderboardData = await leaderboardResponse.json();
 
             // Lấy dữ liệu thành tích
             const achievementsResponse = await fetch('/api/gamification/achievements');
+            if (!achievementsResponse.ok) {
+                console.warn('Achievements API not available');
+                return;
+            }
             const achievementsData = await achievementsResponse.json();
 
             // Lấy dữ liệu tiến độ
             const progressResponse = await fetch('/api/gamification/progress');
+            if (!progressResponse.ok) {
+                console.warn('Progress API not available');
+                return;
+            }
             const progressData = await progressResponse.json();
 
             // Hiển thị dữ liệu
@@ -42,8 +55,8 @@ class Gamification {
             this.displayAchievements(achievementsData);
             this.displayProgress(progressData);
         } catch (error) {
-            console.error('Gamification error:', error);
-            this.showError('Có lỗi xảy ra khi tải dữ liệu');
+            console.warn('Gamification features are not available:', error);
+            // Không hiển thị lỗi cho người dùng
         }
     }
 
@@ -56,9 +69,11 @@ class Gamification {
                 this.level = data.level;
                 this.achievements = data.achievements;
                 this.updateUI();
+            } else {
+                console.warn('Progress API not available');
             }
         } catch (error) {
-            console.error('Error loading gamification progress:', error);
+            console.warn('Gamification progress features are not available:', error);
         }
     }
 

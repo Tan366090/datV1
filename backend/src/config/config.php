@@ -190,4 +190,27 @@ function checkRateLimit($ip, $endpoint) {
     $stmt->bind_param("ssi", $ip, $endpoint, $time);
     $stmt->execute();
 }
+
+// Base URL configuration
+define('BASE_URL', 'http://localhost/qlnhansu_V2');
+
+// Error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Session configuration
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', 0); // Set to 1 in production with HTTPS
+
+// Timezone
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+// File upload configuration
+define('MAX_FILE_SIZE', 5242880); // 5MB
+define('ALLOWED_FILE_TYPES', ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx']);
+
+// API configuration
+define('API_VERSION', 'v1');
+define('API_RATE_LIMIT', 100); // requests per minute
 ?> 

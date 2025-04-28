@@ -11,11 +11,16 @@ try {
     $conn = $db->getConnection();
 
     $query = "SELECT 
-                d.id,
+                d.id as department_id,
                 d.name,
-                COUNT(e.id) as employee_count
+                d.description,
+                d.manager_id,
+                d.status,
+                COUNT(e.id) as employee_count,
+                m.full_name as manager_name
             FROM departments d
             LEFT JOIN employees e ON d.id = e.department_id
+            LEFT JOIN user_profiles m ON d.manager_id = m.id
             GROUP BY d.id
             ORDER BY d.name";
 
@@ -24,18 +29,9 @@ try {
 
     $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Format the data
-    $formattedDepartments = array_map(function($dept) {
-        return [
-            'id' => $dept['id'],
-            'name' => $dept['name'],
-            'employee_count' => $dept['employee_count']
-        ];
-    }, $departments);
-
     echo json_encode([
         'success' => true,
-        'data' => $formattedDepartments
+        'data' => $departments
     ]);
 } catch (PDOException $e) {
     http_response_code(500);

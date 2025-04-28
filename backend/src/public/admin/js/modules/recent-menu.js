@@ -19,13 +19,47 @@ const RecentMenu = {
 
     async loadRecentItems() {
         try {
-            const response = await fetch(window.getApiUrl(window.API_CONFIG.ENDPOINTS.RECENT_ITEMS));
-            if (!response.ok) throw new Error('Failed to load recent items');
+            // Kiểm tra xem API_CONFIG có tồn tại không
+            if (!window.API_CONFIG || !window.API_CONFIG.ENDPOINTS || !window.API_CONFIG.ENDPOINTS.RECENT_ITEMS) {
+                console.warn('API configuration not found, using default recent items');
+                this.updateMenu(this.getDefaultItems());
+                return;
+            }
+
+            // Sử dụng đường dẫn đúng cho API endpoint
+            const response = await fetch('/qlnhansu_V2/backend/src/api/routes/recent-items.php');
+            if (!response.ok) {
+                console.warn('Failed to load recent items from API, using default items');
+                this.updateMenu(this.getDefaultItems());
+                return;
+            }
+            
             const data = await response.json();
             this.updateMenu(data);
         } catch (error) {
-            console.error('Error loading recent items:', error);
+            console.warn('Error loading recent items:', error);
+            this.updateMenu(this.getDefaultItems());
         }
+    },
+
+    getDefaultItems() {
+        return [
+            {
+                title: 'Dashboard',
+                url: 'dashboard.html',
+                timestamp: new Date().toISOString()
+            },
+            {
+                title: 'Danh sách nhân viên',
+                url: 'employees/list.html',
+                timestamp: new Date().toISOString()
+            },
+            {
+                title: 'Chấm công',
+                url: 'attendance/check.html',
+                timestamp: new Date().toISOString()
+            }
+        ];
     },
 
     updateMenu(items) {

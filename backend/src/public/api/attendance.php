@@ -11,38 +11,24 @@ try {
     $conn = $db->getConnection();
 
     $query = "SELECT 
-                a.id,
-                a.employee_id,
-                e.full_name,
-                DATE(a.check_in) as date,
-                TIME(a.check_in) as time_in,
-                TIME(a.check_out) as time_out,
-                a.status
-            FROM attendance a
-            LEFT JOIN employees e ON a.employee_id = e.id
-            ORDER BY a.check_in DESC";
+                DATE(e.check_in) as date,
+                COUNT(*) as total_employees,
+                SUM(CASE WHEN e.status = 'on_time' THEN 1 ELSE 0 END) as on_time_count,
+                SUM(CASE WHEN e.status = 'late' THEN 1 ELSE 0 END) as late_count,
+                SUM(CASE WHEN e.status = 'absent' THEN 1 ELSE 0 END) as absent_count
+            FROM employee_attendance e
+            WHERE e.check_in >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE(e.check_in)
+            ORDER BY date DESC";
 
     $stmt = $conn->prepare($query);
     $stmt->execute();
 
     $attendance = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Format the data
-    $formattedAttendance = array_map(function($record) {
-        return [
-            'id' => $record['id'],
-            'employee_id' => $record['employee_id'],
-            'employee_name' => $record['full_name'],
-            'date' => $record['date'],
-            'time_in' => $record['time_in'],
-            'time_out' => $record['time_out'],
-            'status' => $record['status']
-        ];
-    }, $attendance);
-
     echo json_encode([
         'success' => true,
-        'data' => $formattedAttendance
+        'data' => $attendance
     ]);
 } catch (PDOException $e) {
     http_response_code(500);

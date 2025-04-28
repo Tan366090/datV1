@@ -68,4 +68,10 @@ RewriteRule . - [L]
 # Handle static files
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.html [L] 
+RewriteRule ^(.*)$ index.html [L]
+
+# Rewrite API requests
+RewriteRule ^api/user/profile$ api/user_api.php [L,QSA]
+
+# Handle 404 errors
+ErrorDocument 404 /qlnhansu_V2/backend/src/public/admin/404.html 

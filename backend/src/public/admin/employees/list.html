@@ -3,250 +3,315 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-            http-equiv="Content-Security-Policy"
-            content="default-src 'self' https: http://localhost:* cdn.jsdelivr.net cdnjs.cloudflare.com fonts.googleapis.com fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* cdn.jsdelivr.net cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https: fonts.googleapis.com cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' http://localhost:* https:;"
-        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline' https://cdn.jsdelivr.net; script-src * 'unsafe-inline' 'unsafe-eval' https://code.jquery.com; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; font-src * data: 'unsafe-inline';" />
+
         <title>Danh sách nhân viên - Quản lý nhân sự</title>
-        <!-- CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="/admin/css/admin-dashboard.css">
-        <link rel="stylesheet" href="/admin/css/employee-list.css">
-        <!-- Fonts -->
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-            rel="stylesheet"
-        />
-        <link rel="stylesheet" href="/assets/css/notifications.css">
-        <link rel="stylesheet" href="/assets/css/loading.css">
-        <link rel="stylesheet" href="/assets/css/style.css">
-        <!-- JavaScript -->
-        <script type="module" src="/assets/js/main.js"></script>
-        <style>
-            /* Custom styles for employee list */
-            .action-bar {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 2rem;
-                gap: 1rem;
+        
+        <link rel="stylesheet" href="../../css/libs/bootstrap.min.css">
+        <link rel="stylesheet" href="../../css/libs/bootstrap-icons.min.css">
+        <link rel="stylesheet" href="../../css/libs/font-awesome.min.css">
+        <link rel="stylesheet" href="../../css/libs/roboto.css">
+        <link rel="stylesheet" href="../../dashboard_admin.css">
+       
+        <script src="../../js/libs/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="../../js/libs/jquery-3.7.1.min.js"></script>
+        
+        <!-- Configuration -->
+        <script src="../../js/config.js"></script>
+        
+        <!-- Main Scripts -->
+        <script type="module">
+            import { CommonUtils, AuthUtils, PermissionUtils, NotificationUtils, UIUtils } from '../../js/modules/utils.js';
+            import { APIUtils } from '../../js/modules/api.js';
+            import { LoadingOverlay } from '../../js/modules/loading-overlay.js';
+            import { DarkMode } from '../../js/modules/dark-mode.js';
+
+            // Khởi tạo các module
+            const loadingOverlay = new LoadingOverlay();
+            const darkMode = new DarkMode();
+
+            // Xử lý sự kiện khi trang được tải
+            document.addEventListener('DOMContentLoaded', async () => {
+                // Kiểm tra xác thực
+                if (!AuthUtils.isAuthenticated()) {
+                    window.location.href = '/login_new.html';
+                    return;
+                }
+
+                // Khởi tạo các module
+                await initializeModules();
+                
+                // Thêm các event listeners
+                addEventListeners();
+
+                // Tải dữ liệu nhân viên
+                await loadEmployees();
+            });
+
+            // Khởi tạo các module
+            async function initializeModules() {
+                try {
+                    loadingOverlay.show();
+                    
+                    // Khởi tạo chế độ tối
+                    darkMode.initialize();
+                    
+                    loadingOverlay.hide();
+                } catch (error) {
+                    console.error('Lỗi khởi tạo:', error);
+                    loadingOverlay.hide();
+                }
             }
 
-            .search-box {
-                flex: 1;
-                display: flex;
-                gap: 0.5rem;
+            // Thêm các event listeners
+            function addEventListeners() {
+                // Xử lý chuyển đổi chế độ tối
+                document.getElementById('themeToggle')?.addEventListener('click', () => {
+                    darkMode.toggle();
+                });
+
+                // Xử lý đăng xuất
+                document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                    AuthUtils.logout();
+                });
+
+                // Xử lý tìm kiếm
+                document.querySelector('.search-container input')?.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#employeeTable tbody tr');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+
+                // Xử lý lọc phòng ban
+                document.getElementById('departmentFilter')?.addEventListener('change', (e) => {
+                    const department = e.target.value;
+                    const rows = document.querySelectorAll('#employeeTable tbody tr');
+                    
+                    rows.forEach(row => {
+                        if (!department) {
+                            row.style.display = '';
+                            return;
+                        }
+                        const rowDepartment = row.querySelector('td:nth-child(4)').textContent;
+                        row.style.display = rowDepartment === department ? '' : 'none';
+                    });
+                });
+
+                // Xử lý lọc trạng thái
+                document.getElementById('statusFilter')?.addEventListener('change', (e) => {
+                    const status = e.target.value;
+                    const rows = document.querySelectorAll('#employeeTable tbody tr');
+                    
+                    rows.forEach(row => {
+                        if (!status) {
+                            row.style.display = '';
+                            return;
+                        }
+                        const rowStatus = row.querySelector('td:nth-child(8)').textContent;
+                        row.style.display = rowStatus.includes(status) ? '' : 'none';
+                    });
+                });
+
+                // Xử lý nút thêm nhân viên
+                document.getElementById('addEmployeeBtn')?.addEventListener('click', () => {
+                    window.location.href = 'add.html';
+                });
             }
 
-            .search-box input {
-                flex: 1;
-                padding: 0.5rem;
-                border: 1px solid #ddd;
-                border-radius: 4px;
+            // Hàm tải danh sách nhân viên
+            async function loadEmployees() {
+                try {
+                    loadingOverlay.show();
+                    
+                    const response = await fetch('/qlnhansu_V2/backend/src/api/employees.php');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        displayEmployees(data.data);
+                        updateStatistics(data.data);
+                    } else {
+                        showError('Không thể tải danh sách nhân viên');
+                    }
+                } catch (error) {
+                    console.error('Lỗi tải nhân viên:', error);
+                    showError('Có lỗi xảy ra khi tải danh sách nhân viên');
+                } finally {
+                    loadingOverlay.hide();
+                }
             }
 
-            .filter-box {
-                display: flex;
-                gap: 1rem;
+            // Hàm hiển thị danh sách nhân viên
+            function displayEmployees(employees) {
+                const tbody = document.querySelector('#employeeTable tbody');
+                tbody.innerHTML = '';
+
+                employees.forEach(employee => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${employee.employee_id}</td>
+                        <td><img src="${employee.avatar || '../../male.png'}" alt="Avatar" class="employee-avatar"></td>
+                        <td>${employee.full_name}</td>
+                        <td>${employee.department_name}</td>
+                        <td>${employee.position_name}</td>
+                        <td>${employee.email}</td>
+                        <td>${employee.phone}</td>
+                        <td>
+                            <span class="badge ${employee.status === 'active' ? 'bg-success' : 'bg-danger'}">
+                                ${employee.status === 'active' ? 'Đang làm việc' : 'Đã nghỉ việc'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-info" onclick="viewEmployee(${employee.employee_id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning" onclick="editEmployee(${employee.employee_id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteEmployee(${employee.employee_id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
             }
 
-            .filter-box select {
-                padding: 0.5rem;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                min-width: 150px;
+            // Hàm cập nhật thống kê
+            function updateStatistics(employees) {
+                const totalEmployees = employees.length;
+                const activeEmployees = employees.filter(e => e.status === 'active').length;
+                const newEmployees = employees.filter(e => {
+                    const hireDate = new Date(e.hire_date);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - hireDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 30; // Nhân viên mới trong 30 ngày
+                }).length;
+                const departments = new Set(employees.map(e => e.department_name)).size;
+
+                // Cập nhật thống kê
+                document.querySelector('[data-widget="total-employees"] .stat-value').textContent = totalEmployees;
+                document.querySelector('[data-widget="active-employees"] .stat-value').textContent = activeEmployees;
+                document.querySelector('[data-widget="new-employees"] .stat-value').textContent = newEmployees;
+                document.querySelector('[data-widget="departments"] .stat-value').textContent = departments;
             }
 
-            .statistics {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 1rem;
-                margin-bottom: 2rem;
+            // Hàm hiển thị lỗi
+            function showError(message) {
+                const notificationContainer = document.getElementById('notificationContainer');
+                const notification = document.createElement('div');
+                notification.className = 'alert alert-danger';
+                notification.textContent = message;
+                notificationContainer.appendChild(notification);
+                setTimeout(() => notification.remove(), 5000);
             }
 
-            .stat-card {
-                background: white;
-                padding: 1.5rem;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-            }
+            // Hàm xem chi tiết nhân viên
+            window.viewEmployee = function(id) {
+                window.location.href = `view.html?id=${id}`;
+            };
 
-            .stat-card i {
-                font-size: 2rem;
-                color: #3498db;
-            }
+            // Hàm sửa nhân viên
+            window.editEmployee = function(id) {
+                window.location.href = `edit.html?id=${id}`;
+            };
 
-            .stat-info h3 {
-                margin: 0;
-                font-size: 0.875rem;
-                color: #666;
-            }
-
-            .stat-info p {
-                margin: 0.25rem 0 0;
-                font-size: 1.5rem;
-                font-weight: 600;
-                color: #2c3e50;
-            }
-
-            .table-container {
-                background: white;
-                padding: 1.5rem;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                margin-bottom: 2rem;
-                overflow-x: auto;
-            }
-
-            #employeeTable {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            #employeeTable th,
-            #employeeTable td {
-                padding: 1rem;
-                text-align: left;
-                border-bottom: 1px solid #eee;
-            }
-
-            #employeeTable th {
-                background: #f8f9fa;
-                font-weight: 600;
-            }
-
-            .status-badge {
-                padding: 0.25rem 0.5rem;
-                border-radius: 999px;
-                font-size: 0.875rem;
-            }
-
-            .status-badge.active {
-                background: #e3fcef;
-                color: #0d9488;
-            }
-
-            .status-badge.inactive {
-                background: #fee2e2;
-                color: #dc2626;
-            }
-
-            .action-buttons {
-                display: flex;
-                gap: 0.5rem;
-            }
-
-            .btn {
-                padding: 0.5rem 1rem;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-weight: 500;
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-
-            .btn-primary {
-                background: #3498db;
-                color: white;
-            }
-
-            .btn-info {
-                background: #0ea5e9;
-                color: white;
-            }
-
-            .btn-warning {
-                background: #f59e0b;
-                color: white;
-            }
-
-            .btn-danger {
-                background: #dc2626;
-                color: white;
-            }
-
-            .pagination {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 1rem;
-            }
-
-            .loading-spinner {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(255,255,255,0.8);
-                justify-content: center;
-                align-items: center;
-                z-index: 9999;
-            }
-
-            .spinner {
-                width: 40px;
-                height: 40px;
-                border: 4px solid #f3f3f3;
-                border-top: 4px solid #3498db;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-
-            .error-message {
-                display: none;
-                position: fixed;
-                top: 1rem;
-                right: 1rem;
-                background: #fee2e2;
-                color: #dc2626;
-                padding: 1rem;
-                border-radius: 4px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                z-index: 9999;
-            }
-
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-
-            .employee-card {
-                transition: all 0.3s ease;
-            }
-            .employee-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            }
-            .employee-avatar {
-                width: 60px;
-                height: 60px;
-                object-fit: cover;
-            }
-            .employee-status {
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                display: inline-block;
-                margin-right: 5px;
-            }
-            .status-active { background-color: #28a745; }
-            .status-inactive { background-color: #dc3545; }
-            .status-onleave { background-color: #ffc107; }
-        </style>
+            // Hàm xóa nhân viên
+            window.deleteEmployee = async function(id) {
+                if (confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
+                    try {
+                        loadingOverlay.show();
+                        
+                        const response = await fetch(`/qlnhansu_V2/backend/src/api/employees.php?id=${id}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showSuccess('Xóa nhân viên thành công');
+                            await loadEmployees();
+                        } else {
+                            showError(data.message || 'Không thể xóa nhân viên');
+                        }
+                    } catch (error) {
+                        console.error('Lỗi xóa nhân viên:', error);
+        </script>
     </head>
     <body>
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Notification Container -->
+        <div id="notificationContainer" class="notification-container"></div>
+
         <div class="dashboard-container">
             <!-- Sidebar -->
             <aside class="sidebar">
-                <!-- Sidebar content from dashboard_admin.html -->
+                <div class="sidebar-header">
+                    <img src="../../male.png" alt="User Avatar" class="user-avatar" />
+                    <h2 style="color: #3498db;">VNPT</h2>
+                </div>
+
+                <!-- Menu Search -->
+                <div class="menu-search">
+                    <input type="text" placeholder="Tìm kiếm menu..." />
+                </div>
+
+                <nav>
+                    <ul class="nav-menu">
+                        <li class="nav-item" data-menu-id="dashboard">
+                            <a href="../dashboard_admin_V1.html" class="nav-link">
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item has-submenu" data-menu-id="employees">
+                            <a href="#" class="nav-link active">
+                                <span>Nhân viên</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a href="list.html" class="nav-link active">
+                                        <span>Danh sách nhân viên</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="add.html" class="nav-link">
+                                        <span>Thêm nhân viên</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="contracts.html" class="nav-link">
+                                        <span>Hợp đồng</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="attendance.html" class="nav-link">
+                                        <span>Chấm công</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- Other menu items... -->
+                    </ul>
+                </nav>
             </aside>
 
             <!-- Main Content -->
@@ -254,16 +319,112 @@
                 <!-- Header -->
                 <header class="header">
                     <div class="header-left">
-                        <h1>Danh sách nhân viên</h1>
+                        <h1 style="color: #F8D800;">Danh sách nhân viên</h1>
                     </div>
                     <div class="header-right">
                         <div class="header-controls">
-                            <button class="btn btn-primary" id="addEmployeeBtn">
-                                <i class="fas fa-plus"></i> Thêm nhân viên
-                            </button>
+                            <div class="search-container">
+                                <input type="text" class="form-control" placeholder="Tìm kiếm nhân viên..." />
+                            </div>
+                            <div class="theme-toggle-wrapper">
+                                <div class="theme-toggle" id="themeToggle" role="button" tabindex="0">
+                                    <div class="sun">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="5"/>
+                                            <line x1="12" y1="1" x2="12" y2="3"/>
+                                            <line x1="12" y1="21" x2="12" y2="23"/>
+                                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                                            <line x1="1" y1="12" x2="3" y2="12"/>
+                                            <line x1="21" y1="12" x2="23" y2="12"/>
+                                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                                        </svg>
+                                    </div>
+                                    <div class="moon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle"></i> Admin
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                                    <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </header>
+
+                <!-- Statistics Cards -->
+                <div class="row statistics-cards">
+                    <div class="col-md-3">
+                        <div class="stat-card" data-widget="total-employees">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value">0</h3>
+                                <p class="stat-label">Tổng nhân viên</p>
+                            </div>
+                            <div class="stat-trend">
+                                <span class="trend-value">0%</span>
+                                <i class="fas fa-arrow-up trend-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" data-widget="active-employees">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value">0</h3>
+                                <p class="stat-label">Đang làm việc</p>
+                            </div>
+                            <div class="stat-trend">
+                                <span class="trend-value">0%</span>
+                                <i class="fas fa-arrow-up trend-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" data-widget="new-employees">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value">0</h3>
+                                <p class="stat-label">Nhân viên mới</p>
+                            </div>
+                            <div class="stat-trend">
+                                <span class="trend-value">0%</span>
+                                <i class="fas fa-arrow-up trend-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" data-widget="departments">
+                            <div class="stat-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value">0</h3>
+                                <p class="stat-label">Phòng ban</p>
+                            </div>
+                            <div class="stat-trend">
+                                <span class="trend-value">0%</span>
+                                <i class="fas fa-arrow-up trend-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Filters -->
                 <div class="filters-section">
@@ -288,8 +449,8 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <button class="btn btn-secondary" id="exportBtn">
-                                <i class="fas fa-download"></i> Xuất Excel
+                            <button class="btn btn-primary" id="addEmployeeBtn">
+                                <i class="fas fa-plus"></i> Thêm nhân viên
                             </button>
                         </div>
                     </div>
@@ -344,99 +505,7 @@
                     </div>
                     <div class="modal-body">
                         <form id="employeeForm">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Ảnh đại diện</label>
-                                        <input type="file" class="form-control" name="avatar" accept="image/*">
-                                        <small class="form-text text-muted">Chấp nhận file ảnh (JPG, PNG, GIF)</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Mã nhân viên</label>
-                                        <input type="text" class="form-control" name="employee_code" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Họ tên</label>
-                                        <input type="text" class="form-control" name="full_name" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Giới tính</label>
-                                        <select class="form-select" name="gender" required>
-                                            <option value="male">Nam</option>
-                                            <option value="female">Nữ</option>
-                                            <option value="other">Khác</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Ngày sinh</label>
-                                        <input type="date" class="form-control" name="birth_date" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>SĐT</label>
-                                        <input type="tel" class="form-control" name="phone" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Email</label>
-                                        <input type="email" class="form-control" name="email" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Địa chỉ</label>
-                                        <input type="text" class="form-control" name="address" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Phòng ban</label>
-                                        <select class="form-select" name="department_id" required>
-                                            <!-- Departments will be loaded dynamically -->
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Vị trí</label>
-                                        <select class="form-select" name="position_id" required>
-                                            <!-- Positions will be loaded dynamically -->
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Tên đăng nhập</label>
-                                        <input type="text" class="form-control" name="username" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Mật khẩu</label>
-                                        <input type="password" class="form-control" name="password" required>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Form fields will be loaded dynamically -->
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -447,20 +516,7 @@
             </div>
         </div>
 
-        <!-- Loading Spinner -->
-        <div id="loadingSpinner" class="loading-spinner">
-            <div class="spinner"></div>
-        </div>
-
-        <!-- Error Message -->
-        <div id="errorMessage" class="error-message">
-            <i class="fas fa-exclamation-circle"></i>
-            <span id="errorText"></span>
-        </div>
-
         <!-- Scripts -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="/admin/js/employee-list.js"></script>
+        <script src="js/employee-list.js"></script>
     </body>
 </html>

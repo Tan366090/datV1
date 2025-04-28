@@ -4,124 +4,85 @@ namespace App\Models;
 class Leave extends BaseModel {
     protected $table = 'leaves';
     
-    public function requestLeave($employeeId, $startDate, $endDate, $reason, $type) {
-        $conn = $this->db->getConnection();
-        
-        // Check if there are any overlapping leave requests
-        $stmt = $conn->prepare("
-            SELECT COUNT(*) as count
-            FROM {$this->table}
-            WHERE employee_id = ?
-            AND (
-                (start_date BETWEEN ? AND ?)
-                OR (end_date BETWEEN ? AND ?)
-                OR (? BETWEEN start_date AND end_date)
-                OR (? BETWEEN start_date AND end_date)
-            )
-            AND status != 'rejected'
-        ");
-        
-        $stmt->execute([$employeeId, $startDate, $endDate, $startDate, $endDate, $startDate, $endDate]);
-        $result = $stmt->fetch();
-        
-        if ($result['count'] > 0) {
-            throw new \Exception('There is an overlapping leave request');
-        }
-        
-        // Insert new leave request
-        $stmt = $conn->prepare("
-            INSERT INTO {$this->table}
-            (employee_id, start_date, end_date, reason, type, status, created_at)
-            VALUES (?, ?, ?, ?, ?, 'pending', NOW())
-        ");
-        
-        return $stmt->execute([$employeeId, $startDate, $endDate, $reason, $type]);
-    }
+    protected $fillable = [
+        'employee_id',
+        'leave_type',
+        'start_date',
+        'end_date',
+        'leave_duration_days',
+        'reason',
+        'status',
+        'approved_by_user_id',
+        'approver_comments',
+        'attachment_url'
+    ];
     
-    public function approveLeave($leaveId, $approvedBy) {
-        $conn = $this->db->getConnection();
-        
-        $stmt = $conn->prepare("
-            UPDATE {$this->table}
-            SET status = 'approved',
-                approved_by = ?,
-                approved_at = NOW()
-            WHERE id = ?
-        ");
-        
-        return $stmt->execute([$approvedBy, $leaveId]);
-    }
-    
-    public function rejectLeave($leaveId, $rejectedBy, $rejectionReason) {
-        $conn = $this->db->getConnection();
-        
-        $stmt = $conn->prepare("
-            UPDATE {$this->table}
-            SET status = 'rejected',
-                rejected_by = ?,
-                rejection_reason = ?,
-                rejected_at = NOW()
-            WHERE id = ?
-        ");
-        
-        return $stmt->execute([$rejectedBy, $rejectionReason, $leaveId]);
-    }
-    
-    public function getEmployeeLeaves($employeeId, $year = null) {
+    public function getWithDetails($id = null) {
         $conn = $this->db->getConnection();
         
         $sql = "
-            SELECT l.*, e.name as employee_name,
-                   a.name as approved_by_name, r.name as rejected_by_name
-            FROM {$this->table} l
+            SELECT l.*, 
+                   e.employee_code,
+                   up.full_name,
+                   d.name as department_name,
+                   up2.full_name as approver_name
+            FROM leaves l
             JOIN employees e ON l.employee_id = e.id
-            LEFT JOIN employees a ON l.approved_by = a.id
-            LEFT JOIN employees r ON l.rejected_by = r.id
-            WHERE l.employee_id = ?
-        ";
-        
-        $params = [$employeeId];
-        
-        if ($year) {
-            $sql .= " AND YEAR(l.start_date) = ?";
-            $params[] = $year;
-        }
-        
-        $sql .= " ORDER BY l.start_date DESC";
-        
-        $stmt = $conn->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll();
-    }
-    
-    public function getDepartmentLeaves($departmentId, $startDate, $endDate) {
-        $conn = $this->db->getConnection();
-        
-        $sql = "
-            SELECT l.*, e.name as employee_name, d.name as department_name,
-                   a.name as approved_by_name, r.name as rejected_by_name
-            FROM {$this->table} l
-            JOIN employees e ON l.employee_id = e.id
+            JOIN user_profiles up ON e.user_id = up.user_id
             JOIN departments d ON e.department_id = d.id
-            LEFT JOIN employees a ON l.approved_by = a.id
-            LEFT JOIN employees r ON l.rejected_by = r.id
-            WHERE e.department_id = ?
-            AND l.start_date BETWEEN ? AND ?
-            ORDER BY l.start_date DESC
+            LEFT JOIN users u ON l.approved_by_user_id = u.id
+            LEFT JOIN user_profiles up2 ON u.id = up2.user_id
+            WHERE l.status != 'deleted'
         ";
         
+        if ($id) {
+            $sql .= " AND l.id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        }
+        
+        $sql .= " ORDER BY l.created_at DESC";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$departmentId, $startDate, $endDate]);
+        $stmt->execute();
         return $stmt->fetchAll();
     }
     
-    public function getPendingLeaves() {
+    public function getByEmployee($employeeId) {
         $conn = $this->db->getConnection();
         
         $sql = "
-            SELECT l.*, e.name as employee_name, d.name as department_name
-            FROM {$this->table} l
+            SELECT l.*, 
+                   e.employee_code,
+                   up.full_name,
+                   d.name as department_name,
+                   up2.full_name as approver_name
+            FROM leaves l
             JOIN employees e ON l.employee_id = e.id
+            JOIN user_profiles up ON e.user_id = up.user_id
+            JOIN departments d ON e.department_id = d.id
+            LEFT JOIN users u ON l.approved_by_user_id = u.id
+            LEFT JOIN user_profiles up2 ON u.id = up2.user_id
+            WHERE l.employee_id = ? AND l.status != 'deleted'
+            ORDER BY l.created_at DESC
+        ";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$employeeId]);
+        return $stmt->fetchAll();
+    }
+    
+    public function getPendingRequests() {
+        $conn = $this->db->getConnection();
+        
+        $sql = "
+            SELECT l.*, 
+                   e.employee_code,
+                   up.full_name,
+                   d.name as department_name
+            FROM leaves l
+            JOIN employees e ON l.employee_id = e.id
+            JOIN user_profiles up ON e.user_id = up.user_id
             JOIN departments d ON e.department_id = d.id
             WHERE l.status = 'pending'
             ORDER BY l.created_at DESC
@@ -130,5 +91,82 @@ class Leave extends BaseModel {
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+    
+    public function approve($id, $userId, $comments = null) {
+        $conn = $this->db->getConnection();
+        
+        $sql = "
+            UPDATE {$this->table}
+            SET status = 'approved',
+                approved_by_user_id = ?,
+                approver_comments = ?,
+                updated_at = NOW()
+            WHERE id = ? AND status = 'pending'
+        ";
+        
+        $stmt = $conn->prepare($sql);
+        return $stmt->execute([$userId, $comments, $id]);
+    }
+    
+    public function reject($id, $userId, $comments) {
+        $conn = $this->db->getConnection();
+        
+        $sql = "
+            UPDATE {$this->table}
+            SET status = 'rejected',
+                approved_by_user_id = ?,
+                approver_comments = ?,
+                updated_at = NOW()
+            WHERE id = ? AND status = 'pending'
+        ";
+        
+        $stmt = $conn->prepare($sql);
+        return $stmt->execute([$userId, $comments, $id]);
+    }
+    
+    public function cancel($id, $employeeId) {
+        $conn = $this->db->getConnection();
+        
+        $sql = "
+            UPDATE {$this->table}
+            SET status = 'cancelled',
+                updated_at = NOW()
+            WHERE id = ? AND employee_id = ? AND status = 'pending'
+        ";
+        
+        $stmt = $conn->prepare($sql);
+        return $stmt->execute([$id, $employeeId]);
+    }
+    
+    public function checkOverlap($employeeId, $startDate, $endDate, $excludeId = null) {
+        $conn = $this->db->getConnection();
+        
+        $sql = "
+            SELECT COUNT(*) as count
+            FROM {$this->table}
+            WHERE employee_id = ?
+            AND status IN ('pending', 'approved')
+            AND ((start_date BETWEEN ? AND ?)
+                OR (end_date BETWEEN ? AND ?))
+        ";
+        
+        if ($excludeId) {
+            $sql .= " AND id != ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$employeeId, $startDate, $endDate, $startDate, $endDate, $excludeId]);
+        } else {
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$employeeId, $startDate, $endDate, $startDate, $endDate]);
+        }
+        
+        return $stmt->fetchColumn() > 0;
+    }
+    
+    public function calculateDuration($startDate, $endDate) {
+        $start = strtotime($startDate);
+        $end = strtotime($endDate);
+        $days = ($end - $start) / (60 * 60 * 24) + 1;
+        return round($days, 1);
     }
 } 

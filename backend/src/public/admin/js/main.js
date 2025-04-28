@@ -128,4 +128,26 @@ const App = {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     App.init();
-}); 
+});
+
+async function loadUserProfile() {
+    try {
+        const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/user_api.php', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load user profile');
+        }
+
+        const data = await response.json();
+        updateUserProfile(data);
+    } catch (error) {
+        console.error('Error loading user profile:', error);
+        showError('Failed to load user profile');
+    }
+} 

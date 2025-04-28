@@ -110,43 +110,18 @@ export class Dashboard {
         CommonUtils.showLoading();
 
         try {
-            const [
-                employees,
-                departments,
-                positions,
-                performances,
-                payroll,
-                leaves,
-                trainings,
-                tasks
-            ] = await Promise.all([
-                APIUtils.fetchData('employees'),
-                APIUtils.fetchData('departments'),
-                APIUtils.fetchData('positions'),
-                APIUtils.fetchData('performances'),
-                APIUtils.fetchData('payroll'),
-                APIUtils.fetchData('leaves'),
-                APIUtils.fetchData('trainings'),
-                APIUtils.fetchData('tasks')
-            ]);
-
-            this.data = {
-                employees,
-                departments,
-                positions,
-                performances,
-                payroll,
-                leaves,
-                trainings,
-                tasks
-            };
-
-            await this.updateMetrics();
-            await this.updateCharts();
-            await this.updateRecentEmployees();
+            // Fetch departments with employee count
+            const departmentsResponse = await fetch('/api/departments/with-employee-count');
+            const departmentsData = await departmentsResponse.json();
+            
+            if (departmentsData.success) {
+                this.data.departments = departmentsData.data;
+                await this.updateCharts();
+            } else {
+                console.error('Failed to load department data:', departmentsData.message);
+            }
         } catch (error) {
-            console.error("Error loading dashboard data:", error);
-            NotificationUtils.show("Lỗi khi tải dữ liệu dashboard", "error");
+            console.error('Error loading data:', error);
         } finally {
             this.isLoading = false;
             CommonUtils.hideLoading();
@@ -219,28 +194,65 @@ export class Dashboard {
     processAttendanceData(employees) {
         const attendanceByDate = {};
         employees.forEach((emp) => {
-            if (!attendanceByDate[emp.last_attendance_date]) {
-                attendanceByDate[emp.last_attendance_date] = { present: 0, total: 0 };
-            }
-            attendanceByDate[emp.last_attendance_date].total++;
-            if (emp.status === "present") {
-                attendanceByDate[emp.last_attendance_date].present++;
-            }
+            if (!emp.attendance_records) return;
+            
+            emp.attendance_records.forEach(record => {
+                const date = record.attendance_date;
+                if (!attendanceByDate[date]) {
+                    attendanceByDate[date] = {
+                        present: 0,
+                        total: 0,
+                        workHours: 0
+                    };
+                }
+                
+                attendanceByDate[date].total++;
+                
+                // Count present based on attendance_symbol
+                if (record.attendance_symbol === 'P') {
+                    attendanceByDate[date].present++;
+                }
+                
+                // Calculate work hours
+                if (record.check_in_time && record.check_out_time) {
+                    const hours = record.work_duration_hours || 0;
+                    attendanceByDate[date].workHours += hours;
+                }
+            });
         });
 
         const labels = Object.keys(attendanceByDate).sort();
         const values = labels.map((date) => {
             const { present, total } = attendanceByDate[date];
-            return (present / total) * 100;
+            return total > 0 ? (present / total) * 100 : 0;
         });
 
         return { labels, values };
     }
 
     processDepartmentData(departments) {
+        if (!departments || !Array.isArray(departments)) {
+            return {
+                labels: ['Không có dữ liệu'],
+                values: [1]
+            };
+        }
+
+        // Filter out departments with no employees
+        const validDepartments = departments.filter(dept => 
+            dept.name && dept.employee_count !== undefined && dept.employee_count > 0
+        );
+
+        if (validDepartments.length === 0) {
+            return {
+                labels: ['Không có nhân viên'],
+                values: [1]
+            };
+        }
+
         return {
-            labels: departments.map((d) => d.name),
-            values: departments.map((d) => d.employee_count),
+            labels: validDepartments.map(dept => dept.name),
+            values: validDepartments.map(dept => dept.employee_count)
         };
     }
 
@@ -305,20 +317,56 @@ export class Dashboard {
         const departmentCtx = document.getElementById('departmentChart');
         if (departmentCtx) {
             this.charts.department = new Chart(departmentCtx, {
-                type: 'bar',
+                type: 'pie',
                 data: {
                     labels: [],
                     datasets: [{
                         label: 'Số nhân viên theo phòng ban',
                         data: [],
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(153, 102, 255, 0.8)',
+                            'rgba(255, 159, 64, 0.8)',
+                            'rgba(199, 199, 199, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(199, 199, 199, 1)'
+                        ],
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} nhân viên (${percentage}%)`;
+                                }
+                            }
                         }
                     }
                 }
