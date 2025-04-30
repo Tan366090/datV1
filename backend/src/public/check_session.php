@@ -11,7 +11,7 @@ $user = [
 ];
 
 // Always return admin dashboard URL
-$dashboardUrl = '/qlnhansu_V2/backend/src/public/admin/dashboard_admin_V1.html';
+$dashboardUrl = '/qlnhansu_V2/backend/src/public/admin/dashboard_admin_V1.php';
 
 // Return user data and dashboard URL
 echo json_encode([

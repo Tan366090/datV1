@@ -1,33 +1,22 @@
 <?php
 header('Content-Type: application/json');
+require_once '../../config/database.php';
 
 try {
-    // Kết nối database
-    $db = new PDO('mysql:host=localhost;dbname=qlnhansu', 'root', '');
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db = new Database();
+    $conn = $db->getConnection();
 
-    // Lấy dữ liệu phòng ban và số lượng nhân viên
-    $query = "SELECT 
-                d.department_id,
-                d.name,
-                COUNT(e.employee_id) as employee_count
-              FROM departments d
-              LEFT JOIN employees e ON d.department_id = e.department_id
-              GROUP BY d.department_id, d.name
-              ORDER BY employee_count DESC";
-
-    $stmt = $db->prepare($query);
+    $query = "SELECT department_id, department_name FROM departments WHERE status = 'active' ORDER BY department_name";
+    $stmt = $conn->prepare($query);
     $stmt->execute();
-    $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Trả về dữ liệu dưới dạng JSON
+    $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
     echo json_encode([
         'success' => true,
         'data' => $departments
     ]);
-
 } catch (PDOException $e) {
-    // Xử lý lỗi
     echo json_encode([
         'success' => false,
         'message' => 'Database error: ' . $e->getMessage()

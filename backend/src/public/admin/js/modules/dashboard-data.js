@@ -41,15 +41,15 @@ class DashboardData {
 
     updateUI() {
         // Update quick stats
-        document.getElementById('totalEmployees').textContent = this.data.total_employees || 0;
-        document.getElementById('kpiCompletion').textContent = `${this.data.kpi_completion || 0}%`;
-        document.getElementById('newCandidates').textContent = this.data.new_candidates || 0;
-        document.getElementById('activeProjects').textContent = this.data.active_projects || 0;
-        document.getElementById('activeEmployees').textContent = this.data.active_employees || 0;
-        document.getElementById('attendanceRate').textContent = `${this.data.attendance_rate || 0}%`;
-        document.getElementById('pendingLeaves').textContent = this.data.pending_leaves || 0;
-        document.getElementById('monthlySalary').textContent = this.formatCurrency(this.data.monthly_salary || 0);
-        document.getElementById('inactiveEmployees').textContent = this.data.inactive_employees || 0;
+        this.updateElementText('totalEmployees', this.data.total_employees || 0);
+        this.updateElementText('kpiCompletion', `${this.data.kpi_completion || 0}%`);
+        this.updateElementText('newCandidates', this.data.new_candidates || 0);
+        this.updateElementText('activeProjects', this.data.active_projects || 0);
+        this.updateElementText('activeEmployees', this.data.active_employees || 0);
+        this.updateElementText('attendanceRate', `${this.data.attendance_rate || 0}%`);
+        this.updateElementText('pendingLeaves', this.data.pending_leaves || 0);
+        this.updateElementText('monthlySalary', this.formatCurrency(this.data.monthly_salary || 0));
+        this.updateElementText('inactiveEmployees', this.data.inactive_employees || 0);
 
         // Update recent employees table
         this.updateRecentEmployeesTable();
@@ -61,13 +61,22 @@ class DashboardData {
         this.updateDepartmentChart();
 
         // Update mobile stats
-        document.getElementById('mobileDownloads').textContent = this.data.mobile_stats.downloads || 0;
-        document.getElementById('activeUsers').textContent = this.data.mobile_stats.active_users || 0;
-        document.getElementById('notificationsSent').textContent = this.data.mobile_stats.notifications_sent || 0;
+        this.updateElementText('mobileDownloads', this.data.mobile_stats?.downloads || 0);
+        this.updateElementText('activeUsers', this.data.mobile_stats?.active_users || 0);
+        this.updateElementText('notificationsSent', this.data.mobile_stats?.notifications_sent || 0);
 
         // Update backup info
-        document.getElementById('lastBackup').textContent = this.data.backup_info.last_backup || 'Chưa có';
-        document.getElementById('backupSize').textContent = `${this.data.backup_info.total_size || 0} MB`;
+        this.updateElementText('lastBackup', this.data.backup_info?.last_backup || 'Chưa có');
+        this.updateElementText('backupSize', `${this.data.backup_info?.total_size || 0} MB`);
+    }
+
+    updateElementText(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = value;
+        } else {
+            console.warn(`Element with id '${elementId}' not found`);
+        }
     }
 
     updateRecentEmployeesTable() {

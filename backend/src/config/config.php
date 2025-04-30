@@ -75,7 +75,12 @@ return [
         'path' => '/',
         'domain' => null,
         'secure' => true,
-        'httponly' => true
+        'httponly' => true,
+        'save_handler' => 'files',
+        'save_path' => __DIR__ . '/../../temp/sessions',
+        'gc_maxlifetime' => 7200,
+        'gc_probability' => 1,
+        'gc_divisor' => 100
     ],
 
     // CORS settings
@@ -213,4 +218,15 @@ define('ALLOWED_FILE_TYPES', ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx']);
 // API configuration
 define('API_VERSION', 'v1');
 define('API_RATE_LIMIT', 100); // requests per minute
+
+// CSRF Configuration
+define('CSRF_ENABLED', getenv('CSRF_ENABLED') !== 'false');
+define('CSRF_TOKEN_NAME', '_csrf');
+define('CSRF_HEADER_NAME', 'X-CSRF-Token');
+define('CSRF_COOKIE_NAME', 'XSRF-TOKEN');
+define('CSRF_COOKIE_LIFETIME', 7200); // 2 hours
+define('CSRF_COOKIE_PATH', '/');
+define('CSRF_COOKIE_DOMAIN', null);
+define('CSRF_COOKIE_SECURE', false); // Set to true in production
+define('CSRF_COOKIE_HTTPONLY', true);
 ?> 

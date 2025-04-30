@@ -123,9 +123,9 @@ app.use(express.static(path.join(__dirname, 'backend/src/public'), {
     }
 }));
 
-// Route mặc định - tự động mở dashboard_admin_V1.html
+// Route mặc định - tự động mở dashboard_admin_V1.php
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'backend/src/public/admin/dashboard_admin_V1.html'));
+    res.sendFile(path.join(__dirname, 'backend/src/public/admin/dashboard_admin_V1.php'));
 });
 
 // Cấu hình kết nối MySQL

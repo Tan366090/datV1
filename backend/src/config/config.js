@@ -62,16 +62,15 @@ export default {
     },
 
     mail: {
-        driver: process.env.MAIL_MAILER || "smtp",
-        host: process.env.MAIL_HOST || "smtp.gmail.com",
-        port: process.env.MAIL_PORT || 587,
-        username: process.env.MAIL_USERNAME,
-        password: process.env.MAIL_PASSWORD,
-        encryption: process.env.MAIL_ENCRYPTION || "tls",
-        from: {
-            address: process.env.MAIL_FROM_ADDRESS,
-            name: process.env.MAIL_FROM_NAME || "QLNhanSu"
-        }
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: process.env.SMTP_PORT || 587,
+        secure: false,
+        auth: {
+            user: process.env.SMTP_USERNAME,
+            pass: process.env.SMTP_PASSWORD
+        },
+        from: process.env.SMTP_FROM_EMAIL,
+        fromName: process.env.SMTP_FROM_NAME || 'HR System'
     },
 
     redis: {

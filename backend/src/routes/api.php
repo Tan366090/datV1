@@ -128,4 +128,7 @@ $router->group('/certificates', function($router) {
     $router->get('/expiring', 'CertificateController@getExpiringCertificates');
     $router->get('/department/{departmentId}', 'CertificateController@getDepartmentCertificates');
     $router->get('/search', 'CertificateController@search');
-}); 
+});
+
+// Attendance routes
+$router->get('/attendance/today', 'AttendanceController@getTodayAttendance'); 

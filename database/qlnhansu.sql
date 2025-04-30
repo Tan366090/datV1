@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 25, 2025 at 05:01 AM
+-- Generation Time: Apr 30, 2025 at 10:49 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -29,12 +29,14 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `activities` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `type` varchar(50) NOT NULL,
+  `user_id` int(11) DEFAULT NULL COMMENT 'User performing action, NULL if system',
+  `type` varchar(100) NOT NULL COMMENT 'e.g., LOGIN, LOGOUT, UPDATE_PROFILE, CREATE_LEAVE',
   `description` text NOT NULL,
+  `target_entity` varchar(100) DEFAULT NULL COMMENT 'e.g., Employee, LeaveRequest',
+  `target_entity_id` int(11) DEFAULT NULL,
+  `status` enum('success','warning','error','info') DEFAULT 'info',
   `user_agent` varchar(255) DEFAULT NULL,
   `ip_address` varchar(45) DEFAULT NULL,
-  `status` enum('success','warning','error','active') DEFAULT 'success',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -42,17 +44,115 @@ CREATE TABLE `activities` (
 -- Dumping data for table `activities`
 --
 
-INSERT INTO `activities` (`id`, `user_id`, `type`, `description`, `user_agent`, `ip_address`, `status`, `created_at`) VALUES
-(1, 1, 'login', 'User logged in', NULL, NULL, 'success', '2025-04-21 02:23:14'),
-(2, 1, 'login', 'Admin logged into the system', 'Mozilla/5.0 (Windows NT 10.0)', '192.168.1.100', 'success', '2025-04-21 02:24:14'),
-(3, 2, 'update_profile', 'Updated personal information', 'Mozilla/5.0 (Windows NT 10.0)', '192.168.1.101', 'success', '2025-04-21 02:24:24'),
-(4, 3, 'view_document', 'Accessed employee handbook', 'Mozilla/5.0 (Windows NT 10.0)', '192.168.1.102', 'success', '2025-04-21 02:24:40'),
-(5, 1, 'approve_leave', 'Approved leave request for employee ID 2', 'Mozilla/5.0 (Windows NT 10.0)', '192.168.1.100', 'success', '2025-04-21 02:24:51'),
-(6, 6, 'login', 'Operations Manager logged in', 'Mozilla/5.0 (Windows NT 10.0)', '192.168.1.106', 'success', '2025-04-21 02:25:14'),
-(7, 7, 'update_profile', 'Updated HR information', 'Mozilla/5.0 (Windows NT 10.0)', '192.168.1.107', 'success', '2025-04-21 02:25:24'),
-(8, 8, 'view_document', 'Accessed development guidelines', 'Mozilla/5.0 (Windows NT 10.0)', '192.168.1.108', 'success', '2025-04-21 02:25:40'),
-(9, 9, 'approve_leave', 'Approved leave request for employee ID 3', 'Mozilla/5.0 (Windows NT 10.0)', '192.168.1.109', 'success', '2025-04-21 02:25:51'),
-(10, 10, 'login', 'Marketing Specialist logged in', 'Mozilla/5.0 (Windows NT 10.0)', '192.168.1.110', 'success', '2025-04-21 02:26:14');
+INSERT INTO `activities` (`id`, `user_id`, `type`, `description`, `target_entity`, `target_entity_id`, `status`, `user_agent`, `ip_address`, `created_at`) VALUES
+(1, 1, 'LOGIN', 'Đăng nhập thành công', 'User', 1, 'info', NULL, NULL, '2025-04-30 05:00:00'),
+(2, 2, 'UPDATE_PROFILE', 'Cập nhật thông tin cá nhân', 'UserProfile', 2, 'info', NULL, NULL, '2025-04-30 05:00:00'),
+(3, 3, 'CREATE_LEAVE', 'Tạo đơn nghỉ phép', 'Leave', 3, 'info', NULL, NULL, '2025-04-30 05:00:00'),
+(4, 4, 'UPLOAD_DOCUMENT', 'Tải lên tài liệu mới', 'Document', 4, 'info', NULL, NULL, '2025-04-30 05:00:00'),
+(5, 5, 'APPROVE_LEAVE', 'Duyệt đơn nghỉ phép', 'Leave', 5, 'info', NULL, NULL, '2025-04-30 05:00:00'),
+(6, 6, 'ASSIGN_ASSET', 'Phân bổ tài sản', 'AssetAssignment', 6, 'info', NULL, NULL, '2025-04-30 05:00:00'),
+(7, 7, 'GENERATE_REPORT', 'Xuất báo cáo lương', 'Payroll', 7, 'info', NULL, NULL, '2025-04-30 05:00:00'),
+(8, 8, 'CREATE_PROJECT', 'Tạo dự án mới', 'Project', 8, 'info', NULL, NULL, '2025-04-30 05:00:00'),
+(9, 9, 'COMPLETE_TASK', 'Hoàn thành công việc', 'Task', 9, 'info', NULL, NULL, '2025-04-30 05:00:00'),
+(10, 10, 'LOGOUT', 'Đăng xuất hệ thống', 'User', 10, 'info', NULL, NULL, '2025-04-30 05:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assets`
+--
+
+CREATE TABLE `assets` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `asset_code` varchar(50) NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `serial_number` varchar(100) DEFAULT NULL,
+  `purchase_date` date DEFAULT NULL,
+  `purchase_cost` decimal(10,2) DEFAULT NULL,
+  `current_value` decimal(10,2) DEFAULT NULL,
+  `status` enum('available','assigned','maintenance','disposed','lost','damaged') NOT NULL DEFAULT 'available',
+  `location` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `assets`
+--
+
+INSERT INTO `assets` (`id`, `name`, `asset_code`, `category`, `description`, `serial_number`, `purchase_date`, `purchase_cost`, `current_value`, `status`, `location`, `created_at`, `updated_at`) VALUES
+(1, 'Laptop Dell XPS 15', 'ASSET-001', 'Thiết bị IT', NULL, NULL, NULL, NULL, NULL, 'available', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31'),
+(2, 'Máy in HP LaserJet', 'ASSET-002', 'Văn phòng', NULL, NULL, NULL, NULL, NULL, 'assigned', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31'),
+(3, 'Máy chiếu Epson', 'ASSET-003', 'Thiết bị trình chiếu', NULL, NULL, NULL, NULL, NULL, 'available', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31'),
+(4, 'Điện thoại Samsung Galaxy', 'ASSET-004', 'Thiết bị di động', NULL, NULL, NULL, NULL, NULL, 'maintenance', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31'),
+(5, 'Máy tính bảng iPad Pro', 'ASSET-005', 'Thiết bị di động', NULL, NULL, NULL, NULL, NULL, 'available', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31'),
+(6, 'Máy quét Canon', 'ASSET-006', 'Văn phòng', NULL, NULL, NULL, NULL, NULL, 'available', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31'),
+(7, 'Máy ảnh Sony', 'ASSET-007', 'Thiết bị chụp ảnh', NULL, NULL, NULL, NULL, NULL, 'assigned', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31'),
+(8, 'Ổ cứng di động 1TB', 'ASSET-008', 'Lưu trữ', NULL, NULL, NULL, NULL, NULL, 'available', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31'),
+(9, 'Màn hình LG 24 inch', 'ASSET-009', 'Thiết bị IT', NULL, NULL, NULL, NULL, NULL, 'available', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31'),
+(10, 'Bàn phím cơ Logitech', 'ASSET-010', 'Phụ kiện', NULL, NULL, NULL, NULL, NULL, 'available', NULL, '2025-04-30 11:54:31', '2025-04-30 11:54:31');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `asset_assignments`
+--
+
+CREATE TABLE `asset_assignments` (
+  `id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `assigned_date` date NOT NULL,
+  `expected_return_date` date DEFAULT NULL,
+  `actual_return_date` date DEFAULT NULL,
+  `condition_out` text DEFAULT NULL,
+  `condition_in` text DEFAULT NULL,
+  `status` enum('active','returned','lost','damaged') NOT NULL DEFAULT 'active',
+  `notes` text DEFAULT NULL,
+  `assigned_by_user_id` int(11) DEFAULT NULL,
+  `returned_to_user_id` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `asset_assignments`
+--
+
+INSERT INTO `asset_assignments` (`id`, `asset_id`, `employee_id`, `assigned_date`, `expected_return_date`, `actual_return_date`, `condition_out`, `condition_in`, `status`, `notes`, `assigned_by_user_id`, `returned_to_user_id`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, '2023-01-01', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41'),
+(2, 2, 2, '2023-02-01', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41'),
+(3, 3, 3, '2023-03-01', NULL, NULL, NULL, NULL, 'returned', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41'),
+(4, 4, 4, '2023-04-01', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41'),
+(5, 5, 5, '2023-05-01', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41'),
+(6, 6, 6, '2023-06-01', NULL, NULL, NULL, NULL, 'returned', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41'),
+(7, 7, 7, '2023-07-01', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41'),
+(8, 8, 8, '2023-08-01', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41'),
+(9, 9, 9, '2023-09-01', NULL, NULL, NULL, NULL, 'returned', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41'),
+(10, 10, 10, '2023-10-01', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, '2025-04-30 11:54:41', '2025-04-30 11:54:41');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `asset_maintenance`
+--
+
+CREATE TABLE `asset_maintenance` (
+  `id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL,
+  `maintenance_type` enum('preventive','corrective','inspection','upgrade') NOT NULL,
+  `description` text DEFAULT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `cost` decimal(10,2) DEFAULT NULL,
+  `vendor` varchar(255) DEFAULT NULL,
+  `status` enum('scheduled','in_progress','completed','cancelled','failed') NOT NULL DEFAULT 'scheduled',
+  `created_by_user_id` int(11) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -62,38 +162,41 @@ INSERT INTO `activities` (`id`, `user_id`, `type`, `description`, `user_agent`, 
 
 CREATE TABLE `attendance` (
   `attendance_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
   `attendance_date` date NOT NULL,
-  `recorded_at` datetime DEFAULT current_timestamp(),
+  `check_in_time` time DEFAULT NULL,
+  `check_out_time` time DEFAULT NULL,
+  `work_duration_hours` decimal(4,2) DEFAULT NULL,
+  `attendance_symbol` varchar(10) DEFAULT NULL COMMENT 'e.g., P (Present), A (Absent), L (Leave), WFH',
   `notes` text DEFAULT NULL,
-  `attendance_symbol` varchar(10) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `recorded_at` datetime DEFAULT current_timestamp(),
+  `source` varchar(50) DEFAULT 'manual' COMMENT 'e.g., manual, biometric, system'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `attendance`
 --
 
-INSERT INTO `attendance` (`attendance_id`, `user_id`, `attendance_date`, `recorded_at`, `notes`, `attendance_symbol`, `created_at`) VALUES
-(5, 5, '2024-03-01', '2024-03-01 08:15:00', 'On time', 'P', '2025-04-21 14:57:56'),
-(6, 6, '2024-03-01', '2024-03-01 08:00:00', 'On time', 'P', '2025-04-21 14:57:56'),
-(7, 7, '2024-03-01', '2024-03-01 08:20:00', 'On time', 'P', '2025-04-21 14:57:56'),
-(8, 8, '2024-03-01', '2024-03-01 08:00:00', 'On time', 'P', '2025-04-21 14:57:56'),
-(9, 9, '2024-03-01', '2024-03-01 08:25:00', 'On time', 'P', '2025-04-21 14:57:56'),
-(10, 10, '2024-03-01', '2024-03-01 08:00:00', 'On time', 'P', '2025-04-21 14:57:56'),
-(15, 5, '2024-04-15', '2025-04-22 03:20:24', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-22 03:20:24'),
-(20, 5, '2024-04-16', '2025-04-22 03:20:24', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-22 03:20:24'),
-(25, 5, '2024-04-17', '2025-04-22 03:20:24', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-22 03:20:24'),
-(30, 5, '2024-04-18', '2025-04-22 03:20:24', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-22 03:20:24'),
-(35, 5, '2024-04-19', '2025-04-22 03:20:24', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-22 03:20:24'),
-(40, 5, '2024-04-20', '2025-04-22 03:20:24', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-22 03:20:24'),
-(45, 5, '2024-04-21', '2025-04-22 03:20:24', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-22 03:20:24'),
-(49, 5, '2025-04-21', '2025-04-21 22:24:39', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-21 22:24:39'),
-(50, 6, '2025-04-21', '2025-04-21 22:24:39', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-21 22:24:39'),
-(51, 7, '2025-04-21', '2025-04-21 22:24:39', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-21 22:24:39'),
-(52, 8, '2025-04-21', '2025-04-21 22:24:39', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-21 22:24:39'),
-(53, 9, '2025-04-21', '2025-04-21 22:24:39', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-21 22:24:39'),
-(54, 10, '2025-04-21', '2025-04-21 22:24:39', 'Check-in Ä‘Ãºng giá»', 'P', '2025-04-21 22:24:39');
+INSERT INTO `attendance` (`attendance_id`, `employee_id`, `attendance_date`, `check_in_time`, `check_out_time`, `work_duration_hours`, `attendance_symbol`, `notes`, `recorded_at`, `source`) VALUES
+(1, 1, '2023-10-01', '08:00:00', '17:00:00', NULL, 'P', NULL, '2025-04-30 11:54:01', 'manual'),
+(2, 1, '2023-10-02', '08:15:00', '17:30:00', NULL, 'P', NULL, '2025-04-30 11:54:01', 'manual'),
+(3, 1, '2023-10-03', NULL, NULL, NULL, 'A', NULL, '2025-04-30 11:54:01', 'manual'),
+(4, 2, '2023-10-01', '08:05:00', '17:10:00', NULL, 'P', NULL, '2025-04-30 11:54:01', 'manual'),
+(5, 2, '2023-10-02', '08:20:00', '17:25:00', NULL, 'WFH', NULL, '2025-04-30 11:54:01', 'manual'),
+(6, 3, '2023-10-01', '08:10:00', '17:15:00', NULL, 'L', NULL, '2025-04-30 11:54:01', 'manual'),
+(7, 4, '2023-10-01', '08:00:00', '17:00:00', NULL, 'P', NULL, '2025-04-30 11:54:01', 'manual'),
+(8, 5, '2023-10-01', '08:30:00', '17:45:00', NULL, 'P', NULL, '2025-04-30 11:54:01', 'manual'),
+(9, 6, '2023-10-01', NULL, NULL, NULL, 'A', NULL, '2025-04-30 11:54:01', 'manual'),
+(10, 7, '2023-10-01', '08:00:00', '17:00:00', NULL, 'P', NULL, '2025-04-30 11:54:01', 'manual'),
+(27, 2, '2025-04-30', '07:50:00', NULL, NULL, 'P', NULL, '2025-04-30 15:33:05', 'manual'),
+(28, 3, '2025-04-30', '07:50:00', NULL, NULL, 'P', NULL, '2025-04-30 15:33:05', 'manual'),
+(29, 4, '2025-04-30', '07:50:00', NULL, NULL, 'P', NULL, '2025-04-30 15:33:05', 'manual'),
+(30, 5, '2025-04-30', '08:15:00', NULL, NULL, 'P', NULL, '2025-04-30 15:33:05', 'manual'),
+(31, 6, '2025-04-30', '08:15:00', NULL, NULL, 'P', NULL, '2025-04-30 15:33:05', 'manual'),
+(32, 7, '2025-04-30', '08:15:00', NULL, NULL, 'P', NULL, '2025-04-30 15:33:05', 'manual'),
+(33, 8, '2025-04-30', NULL, NULL, NULL, 'A', NULL, '2025-04-30 15:33:05', 'manual'),
+(34, 9, '2025-04-30', NULL, NULL, NULL, 'A', NULL, '2025-04-30 15:33:05', 'manual'),
+(35, 10, '2025-04-30', NULL, NULL, NULL, 'A', NULL, '2025-04-30 15:33:05', 'manual');
 
 -- --------------------------------------------------------
 
@@ -103,15 +206,65 @@ INSERT INTO `attendance` (`attendance_id`, `user_id`, `attendance_date`, `record
 
 CREATE TABLE `audit_logs` (
   `log_id` bigint(20) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `action_type` varchar(100) NOT NULL,
-  `target_entity` varchar(100) DEFAULT NULL,
-  `target_entity_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL COMMENT 'User making the change, NULL if system',
+  `action_type` enum('CREATE','UPDATE','DELETE') NOT NULL,
+  `target_entity` varchar(100) NOT NULL,
+  `target_entity_id` int(11) NOT NULL,
   `timestamp` datetime DEFAULT current_timestamp(),
   `ip_address` varchar(45) DEFAULT NULL,
   `user_agent` text DEFAULT NULL,
-  `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`details`))
+  `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'JSON containing old and new values' CHECK (json_valid(`details`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `audit_logs`
+--
+
+INSERT INTO `audit_logs` (`log_id`, `user_id`, `action_type`, `target_entity`, `target_entity_id`, `timestamp`, `ip_address`, `user_agent`, `details`) VALUES
+(1, 1, 'CREATE', 'Employee', 1, '2025-04-30 11:55:39', '192.168.1.100', NULL, '{\"old\": null, \"new\": {\"name\": \"Nguyễn Văn Admin\"}}'),
+(2, 2, 'UPDATE', 'Employee', 2, '2025-04-30 11:55:39', '192.168.1.101', NULL, '{\"old\": {\"salary\": 20000000}, \"new\": {\"salary\": 25000000}}'),
+(3, 3, 'DELETE', 'Document', 3, '2025-04-30 11:55:39', '192.168.1.102', NULL, '{\"old\": {\"title\": \"Mẫu hợp đồng cũ\"}}'),
+(4, 1, 'CREATE', 'Asset', 1, '2025-04-30 11:55:39', '192.168.1.100', NULL, '{\"old\": null, \"new\": {\"name\": \"Laptop Dell\"}}'),
+(5, 4, 'UPDATE', 'Contract', 4, '2025-04-30 11:55:39', '192.168.1.103', NULL, '{\"old\": {\"end_date\": null}, \"new\": {\"end_date\": \"2023-04-01\"}}'),
+(6, 5, 'CREATE', 'Training', 5, '2025-04-30 11:55:39', '192.168.1.104', NULL, '{\"old\": null, \"new\": {\"name\": \"Marketing Digital\"}}'),
+(7, 6, 'DELETE', 'Leave', 6, '2025-04-30 11:55:39', '192.168.1.105', NULL, '{\"old\": {\"reason\": \"Khám sức khỏe\"}}'),
+(8, 7, 'UPDATE', 'Salary', 7, '2025-04-30 11:55:39', '192.168.1.106', NULL, '{\"old\": 15000000, \"new\": 18000000}'),
+(9, 8, 'CREATE', 'Project', 1, '2025-04-30 11:55:39', '192.168.1.107', NULL, '{\"old\": null, \"new\": {\"name\": \"Dự án CRM\"}}'),
+(10, 9, 'DELETE', 'User', 9, '2025-04-30 11:55:39', '192.168.1.108', NULL, '{\"old\": {\"username\": \"old_user\"}}');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `backup_logs`
+--
+
+CREATE TABLE `backup_logs` (
+  `id` int(11) NOT NULL,
+  `backup_type` enum('full','incremental','differential') NOT NULL,
+  `file_path` varchar(512) NOT NULL,
+  `file_size_bytes` bigint(20) NOT NULL,
+  `status` enum('success','failed','in_progress') NOT NULL,
+  `error_message` text DEFAULT NULL,
+  `duration_seconds` int(11) DEFAULT NULL,
+  `created_by_user_id` int(11) DEFAULT NULL COMMENT 'User initiating backup, NULL if automated',
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `backup_logs`
+--
+
+INSERT INTO `backup_logs` (`id`, `backup_type`, `file_path`, `file_size_bytes`, `status`, `error_message`, `duration_seconds`, `created_by_user_id`, `created_at`) VALUES
+(1, 'full', '/backups/full_20231001.zip', 1024000000, 'success', NULL, NULL, NULL, '2025-04-30 12:00:32'),
+(2, 'incremental', '/backups/inc_20231002.zip', 204800000, 'success', NULL, NULL, NULL, '2025-04-30 12:00:32'),
+(3, 'differential', '/backups/diff_20231003.zip', 512000000, 'failed', 'Lỗi đĩa cứng', NULL, NULL, '2025-04-30 12:00:32'),
+(4, 'full', '/backups/full_20231004.zip', 1536000000, 'success', NULL, NULL, NULL, '2025-04-30 12:00:32'),
+(5, 'incremental', '/backups/inc_20231005.zip', 256000000, 'success', NULL, NULL, NULL, '2025-04-30 12:00:32'),
+(6, 'differential', '/backups/diff_20231006.zip', 768000000, 'success', NULL, NULL, NULL, '2025-04-30 12:00:32'),
+(7, 'full', '/backups/full_20231007.zip', 2048000000, 'in_progress', NULL, NULL, NULL, '2025-04-30 12:00:32'),
+(8, 'incremental', '/backups/inc_20231008.zip', 307200000, 'failed', 'Mất kết nối mạng', NULL, NULL, '2025-04-30 12:00:32'),
+(9, 'differential', '/backups/diff_20231009.zip', 1024000000, 'success', NULL, NULL, NULL, '2025-04-30 12:00:32'),
+(10, 'full', '/backups/full_20231010.zip', 2560000000, 'success', NULL, NULL, NULL, '2025-04-30 12:00:32');
 
 -- --------------------------------------------------------
 
@@ -123,12 +276,28 @@ CREATE TABLE `benefits` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  `type` varchar(50) NOT NULL,
-  `amount` decimal(10,2) DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
+  `type` varchar(50) NOT NULL COMMENT 'e.g., Health, Retirement, Allowance',
+  `amount` decimal(10,2) DEFAULT NULL COMMENT 'Fixed amount, if applicable',
+  `status` varchar(20) NOT NULL DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `benefits`
+--
+
+INSERT INTO `benefits` (`id`, `name`, `description`, `type`, `amount`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Bảo hiểm y tế', 'Bảo hiểm cho nhân viên và gia đình', 'Health', 1000000.00, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20'),
+(2, 'Bảo hiểm thất nghiệp', 'Hỗ trợ thất nghiệp', 'Retirement', 500000.00, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20'),
+(3, 'Phụ cấp đi lại', 'Hỗ trợ xăng xe', 'Allowance', 500000.00, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20'),
+(4, 'Phụ cấp ăn trưa', 'Tiền ăn trưa hàng tháng', 'Allowance', 300000.00, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20'),
+(5, 'Thưởng cuối năm', 'Thưởng theo hiệu suất', 'Bonus', NULL, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20'),
+(6, 'Du lịch công ty', 'Tour du lịch hàng năm', 'Other', NULL, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20'),
+(7, 'Hỗ trợ học phí', 'Hỗ trợ khóa học chuyên môn', 'Education', 2000000.00, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20'),
+(8, 'Phòng gym', 'Thẻ thành viên phòng gym', 'Health', 500000.00, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20'),
+(9, 'Bảo hiểm nhân thọ', 'Bảo hiểm tử kỳ', 'Insurance', 800000.00, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20'),
+(10, 'Quà sinh nhật', 'Voucher mua sắm', 'Other', 200000.00, 'active', '2025-04-30 04:56:20', '2025-04-30 04:56:20');
 
 -- --------------------------------------------------------
 
@@ -138,50 +307,32 @@ CREATE TABLE `benefits` (
 
 CREATE TABLE `bonuses` (
   `bonus_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `bonus_type` varchar(20) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `bonus_type` varchar(50) NOT NULL COMMENT 'e.g., Performance, Referral, Spot',
   `amount` decimal(15,2) DEFAULT NULL,
-  `days_off` decimal(4,1) DEFAULT NULL,
+  `effective_date` date NOT NULL COMMENT 'Date bonus applies',
+  `payroll_id` int(11) DEFAULT NULL COMMENT 'FK to payroll where this bonus was included',
   `reason` text NOT NULL,
-  `effective_date` date NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `added_by_user_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `status` enum('pending','approved','paid','rejected') DEFAULT 'pending',
+  `approved_by_user_id` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `bonuses`
 --
 
-INSERT INTO `bonuses` (`bonus_id`, `user_id`, `bonus_type`, `amount`, `days_off`, `reason`, `effective_date`, `created_at`, `added_by_user_id`) VALUES
-(1, 1, 'performance', 1000000.00, NULL, 'Outstanding performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
-(2, 2, 'performance', 800000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
-(3, 3, 'performance', 800000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
-(4, 4, 'performance', 800000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
-(5, 5, 'performance', 800000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
-(6, 6, 'performance', 800000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
-(7, 7, 'performance', 500000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
-(8, 8, 'performance', 600000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
-(9, 9, 'performance', 500000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1),
-(10, 10, 'performance', 500000.00, NULL, 'Good performance Q1 2024', '2024-03-31', '2025-04-21 14:57:56', 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `candidates`
---
-
-CREATE TABLE `candidates` (
-  `id` int(11) NOT NULL,
-  `first_name` varchar(100) NOT NULL,
-  `last_name` varchar(100) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `position_id` int(11) NOT NULL,
-  `status` varchar(20) NOT NULL,
-  `resume_url` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+INSERT INTO `bonuses` (`bonus_id`, `employee_id`, `bonus_type`, `amount`, `effective_date`, `payroll_id`, `reason`, `status`, `approved_by_user_id`, `created_at`) VALUES
+(1, 1, 'Performance', 5000000.00, '2023-10-01', NULL, 'Hoàn thành dự án xuất sắc', 'paid', NULL, '2025-04-30 11:57:33'),
+(2, 2, 'Referral', 3000000.00, '2023-10-01', NULL, 'Giới thiệu nhân viên mới', 'paid', NULL, '2025-04-30 11:57:33'),
+(3, 3, 'Spot', 2000000.00, '2023-10-01', NULL, 'Giải quyết vấn đề nhanh', 'paid', NULL, '2025-04-30 11:57:33'),
+(4, 4, 'Performance', 4000000.00, '2023-10-01', NULL, 'Đạt KPI cao', 'paid', NULL, '2025-04-30 11:57:33'),
+(5, 5, 'Annual', 3000000.00, '2023-10-01', NULL, 'Thưởng cuối năm', 'paid', NULL, '2025-04-30 11:57:33'),
+(6, 6, 'Spot', 1000000.00, '2023-10-01', NULL, 'Hỗ trợ đồng nghiệp', 'paid', NULL, '2025-04-30 11:57:33'),
+(7, 7, 'Performance', 3500000.00, '2023-10-01', NULL, 'Hoàn thành deadline', 'paid', NULL, '2025-04-30 11:57:33'),
+(8, 8, 'Referral', 2500000.00, '2023-10-01', NULL, 'Giới thiệu khách hàng', 'paid', NULL, '2025-04-30 11:57:33'),
+(9, 9, 'Spot', 1500000.00, '2023-10-01', NULL, 'Sáng kiến cải tiến', 'paid', NULL, '2025-04-30 11:57:33'),
+(10, 10, 'Annual', 2000000.00, '2023-10-01', NULL, 'Thưởng cuối năm', 'paid', NULL, '2025-04-30 11:57:33');
 
 -- --------------------------------------------------------
 
@@ -197,10 +348,26 @@ CREATE TABLE `certificates` (
   `issue_date` date NOT NULL,
   `expiry_date` date DEFAULT NULL,
   `credential_id` varchar(100) DEFAULT NULL,
-  `file_url` varchar(255) DEFAULT NULL,
+  `file_url` varchar(512) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `certificates`
+--
+
+INSERT INTO `certificates` (`id`, `employee_id`, `name`, `issuing_organization`, `issue_date`, `expiry_date`, `credential_id`, `file_url`, `created_at`, `updated_at`) VALUES
+(1, 1, 'AWS Certified', 'Amazon', '2022-01-01', '2025-01-01', 'AWS-123', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59'),
+(2, 2, 'PMP', 'PMI', '2021-02-01', '2026-02-01', 'PMP-456', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59'),
+(3, 3, 'HR Certification', 'HRCI', '2020-03-01', '2024-03-01', 'HRC-789', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59'),
+(4, 4, 'Google Analytics', 'Google', '2023-04-01', '2026-04-01', 'GA-101', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59'),
+(5, 5, 'Scrum Master', 'Scrum.org', '2022-05-01', NULL, 'SM-202', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59'),
+(6, 6, 'CEH', 'EC-Council', '2021-06-01', '2024-06-01', 'CEH-303', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59'),
+(7, 7, 'CPA', 'AICPA', '2020-07-01', '2025-07-01', 'CPA-404', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59'),
+(8, 8, 'Adobe Certified', 'Adobe', '2023-08-01', '2026-08-01', 'ADB-505', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59'),
+(9, 9, 'Salesforce Admin', 'Salesforce', '2022-09-01', NULL, 'SF-606', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59'),
+(10, 10, 'TOEIC 950', 'ETS', '2021-10-01', NULL, 'TOEIC-707', NULL, '2025-04-30 04:56:59', '2025-04-30 04:56:59');
 
 -- --------------------------------------------------------
 
@@ -211,14 +378,33 @@ CREATE TABLE `certificates` (
 CREATE TABLE `contracts` (
   `id` int(11) NOT NULL,
   `employee_id` int(11) NOT NULL,
-  `contract_type` varchar(50) NOT NULL,
+  `contract_code` varchar(50) DEFAULT NULL,
+  `contract_type` varchar(50) NOT NULL COMMENT 'e.g., Permanent, Fixed-Term, Intern',
   `start_date` date NOT NULL,
-  `end_date` date DEFAULT NULL,
-  `salary` decimal(10,2) NOT NULL,
-  `status` varchar(20) NOT NULL,
+  `end_date` date DEFAULT NULL COMMENT 'NULL for permanent contracts',
+  `salary` decimal(15,2) NOT NULL COMMENT 'Base salary defined in contract',
+  `salary_currency` varchar(3) NOT NULL DEFAULT 'VND',
+  `status` enum('draft','active','expired','terminated') NOT NULL DEFAULT 'draft',
+  `file_url` varchar(512) DEFAULT NULL COMMENT 'Link to scanned contract PDF',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `contracts`
+--
+
+INSERT INTO `contracts` (`id`, `employee_id`, `contract_code`, `contract_type`, `start_date`, `end_date`, `salary`, `salary_currency`, `status`, `file_url`, `created_at`, `updated_at`) VALUES
+(1, 1, NULL, 'Permanent', '2020-01-01', NULL, 30000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09'),
+(2, 2, NULL, 'Permanent', '2020-02-01', NULL, 25000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09'),
+(3, 3, NULL, 'Permanent', '2020-03-01', NULL, 22000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09'),
+(4, 4, NULL, 'Fixed-Term', '2020-04-01', '2023-04-01', 15000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09'),
+(5, 5, NULL, 'Fixed-Term', '2020-05-01', '2023-05-01', 15000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09'),
+(6, 6, NULL, 'Intern', '2020-06-01', '2020-12-01', 5000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09'),
+(7, 7, NULL, 'Permanent', '2020-07-01', NULL, 18000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09'),
+(8, 8, NULL, 'Permanent', '2020-08-01', NULL, 20000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09'),
+(9, 9, NULL, 'Fixed-Term', '2020-09-01', '2023-09-01', 16000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09'),
+(10, 10, NULL, 'Permanent', '2020-10-01', NULL, 17000000.00, 'VND', 'draft', NULL, '2025-04-30 04:54:09', '2025-04-30 04:54:09');
 
 -- --------------------------------------------------------
 
@@ -228,32 +414,32 @@ CREATE TABLE `contracts` (
 
 CREATE TABLE `degrees` (
   `degree_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `degree_name` varchar(255) NOT NULL,
-  `issue_date` date NOT NULL,
-  `expiry_date` date DEFAULT NULL,
-  `validity` varchar(50) DEFAULT NULL,
-  `attachment_url` varchar(512) DEFAULT NULL,
+  `employee_id` int(11) NOT NULL,
+  `degree_name` varchar(255) NOT NULL COMMENT 'e.g., Bachelor of Science',
+  `major` varchar(255) DEFAULT NULL,
+  `institution` varchar(255) NOT NULL,
+  `graduation_date` date NOT NULL,
+  `gpa` decimal(4,2) DEFAULT NULL,
+  `attachment_url` varchar(512) DEFAULT NULL COMMENT 'Link to scanned degree',
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `is_active` tinyint(1) DEFAULT 1
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `degrees`
 --
 
-INSERT INTO `degrees` (`degree_id`, `user_id`, `degree_name`, `issue_date`, `expiry_date`, `validity`, `attachment_url`, `created_at`, `updated_at`, `is_active`) VALUES
-(1, 1, 'Bachelor of Computer Science', '2015-06-15', NULL, 'Permanent', NULL, '2025-04-19 23:00:19', '2025-04-19 23:00:19', 1),
-(2, 2, 'Master of Business Administration', '2018-05-20', NULL, 'Permanent', NULL, '2025-04-19 23:00:19', '2025-04-19 23:00:19', 1),
-(3, 3, 'Bachelor of Information Technology', '2016-07-10', NULL, 'Permanent', NULL, '2025-04-19 23:00:19', '2025-04-19 23:00:19', 1),
-(4, 1, 'Bachelor of Business Administration', '2015-06-15', NULL, 'Permanent', NULL, '2025-04-19 23:06:24', '2025-04-19 23:06:24', 1),
-(5, 2, 'Master of Computer Science', '2018-05-20', NULL, 'Permanent', NULL, '2025-04-19 23:06:24', '2025-04-19 23:06:24', 1),
-(6, 3, 'Bachelor of Information Technology', '2016-07-10', NULL, 'Permanent', NULL, '2025-04-19 23:06:24', '2025-04-19 23:06:24', 1),
-(7, 7, 'Bachelor of Human Resources', '2017-06-15', NULL, 'Permanent', NULL, '2025-04-19 23:00:19', '2025-04-19 23:00:19', 1),
-(8, 8, 'Bachelor of Computer Science', '2018-05-20', NULL, 'Permanent', NULL, '2025-04-19 23:00:19', '2025-04-19 23:00:19', 1),
-(9, 9, 'Bachelor of Accounting', '2019-07-10', NULL, 'Permanent', NULL, '2025-04-19 23:00:19', '2025-04-19 23:00:19', 1),
-(10, 10, 'Bachelor of Marketing', '2018-06-15', NULL, 'Permanent', NULL, '2025-04-19 23:00:19', '2025-04-19 23:00:19', 1);
+INSERT INTO `degrees` (`degree_id`, `employee_id`, `degree_name`, `major`, `institution`, `graduation_date`, `gpa`, `attachment_url`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Cử nhân CNTT', 'Khoa học máy tính', 'Đại học Bách Khoa', '2010-06-01', 3.60, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51'),
+(2, 2, 'Thạc sĩ Quản trị', 'Quản trị kinh doanh', 'Đại học Kinh tế', '2015-05-01', 3.80, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51'),
+(3, 3, 'Cử nhân Luật', 'Luật dân sự', 'Đại học Luật', '2012-07-01', 3.50, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51'),
+(4, 4, 'Kỹ sư phần mềm', 'Công nghệ phần mềm', 'Đại học Công nghệ', '2018-08-01', 3.70, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51'),
+(5, 5, 'Cử nhân Marketing', 'Tiếp thị số', 'Đại học Kinh tế', '2019-09-01', 3.40, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51'),
+(6, 6, 'Cử nhân Tài chính', 'Tài chính doanh nghiệp', 'Đại học Ngân hàng', '2017-10-01', 3.90, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51'),
+(7, 7, 'Thạc sĩ Kế toán', 'Kế toán quốc tế', 'Đại học Tài chính', '2020-11-01', 3.80, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51'),
+(8, 8, 'Cử nhân Thiết kế', 'Thiết kế đồ họa', 'Đại học Mỹ thuật', '2021-12-01', 3.50, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51'),
+(9, 9, 'Kỹ sư xây dựng', 'Xây dựng dân dụng', 'Đại học Xây dựng', '2016-04-01', 3.60, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51'),
+(10, 10, 'Cử nhân Ngôn ngữ', 'Tiếng Anh thương mại', 'Đại học Ngoại ngữ', '2019-03-01', 3.70, NULL, '2025-04-30 11:56:51', '2025-04-30 11:56:51');
 
 -- --------------------------------------------------------
 
@@ -266,21 +452,26 @@ CREATE TABLE `departments` (
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `manager_id` int(11) DEFAULT NULL,
+  `parent_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `parent_id` int(11) DEFAULT NULL
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `departments`
 --
 
-INSERT INTO `departments` (`id`, `name`, `description`, `manager_id`, `created_at`, `updated_at`, `parent_id`) VALUES
-(1, 'Human Resources', 'HR Department', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', NULL),
-(2, 'Information Technology', 'IT Department', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', NULL),
-(3, 'Finance', 'Finance Department', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', NULL),
-(4, 'Marketing', 'Marketing Department', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', NULL),
-(5, 'Operations', 'Operations Department', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', NULL);
+INSERT INTO `departments` (`id`, `name`, `description`, `manager_id`, `parent_id`, `created_at`, `updated_at`) VALUES
+(1, 'IT', 'Phòng Công nghệ Thông tin', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16'),
+(2, 'HR', 'Phòng Nhân sự', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16'),
+(3, 'Finance', 'Phòng Tài chính', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16'),
+(4, 'Marketing', 'Phòng Tiếp thị', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16'),
+(5, 'Sales', 'Phòng Kinh doanh', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16'),
+(6, 'Operations', 'Phòng Vận hành', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16'),
+(7, 'Legal', 'Phòng Pháp lý', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16'),
+(8, 'R&D', 'Phòng Nghiên cứu và Phát triển', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16'),
+(9, 'Customer Service', 'Phòng Dịch vụ Khách hàng', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16'),
+(10, 'Logistics', 'Phòng Hậu cần', NULL, NULL, '2025-04-30 11:53:16', '2025-04-30 11:53:16');
 
 -- --------------------------------------------------------
 
@@ -292,10 +483,11 @@ CREATE TABLE `documents` (
   `id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  `file_url` varchar(512) NOT NULL,
-  `document_type` varchar(50) NOT NULL,
-  `uploaded_by` int(11) NOT NULL,
-  `department_id` int(11) DEFAULT NULL,
+  `file_url` varchar(512) NOT NULL COMMENT 'URL to the primary/latest version',
+  `document_type` varchar(50) NOT NULL COMMENT 'e.g., Policy, Guideline, Template, Report',
+  `uploaded_by_user_id` int(11) NOT NULL,
+  `department_id` int(11) DEFAULT NULL COMMENT 'Department this document belongs to (optional)',
+  `access_level` enum('public','internal','restricted') DEFAULT 'internal',
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -304,12 +496,17 @@ CREATE TABLE `documents` (
 -- Dumping data for table `documents`
 --
 
-INSERT INTO `documents` (`id`, `title`, `description`, `file_url`, `document_type`, `uploaded_by`, `department_id`, `created_at`, `updated_at`) VALUES
-(1, 'Employee Handbook', 'Company policies and procedures', '/documents/handbook.pdf', 'policy', 1, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 'IT Security Guidelines', 'IT security best practices', '/documents/security.pdf', 'guideline', 2, 2, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 'Financial Procedures', 'Financial management procedures', '/documents/finance.pdf', 'procedure', 3, 3, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 'Marketing Strategy', 'Company marketing strategy', '/documents/marketing.pdf', 'strategy', 4, 4, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 'Operations Manual', 'Operations procedures manual', '/documents/operations.pdf', 'manual', 5, 5, '2025-04-21 14:57:56', '2025-04-21 14:57:56');
+INSERT INTO `documents` (`id`, `title`, `description`, `file_url`, `document_type`, `uploaded_by_user_id`, `department_id`, `access_level`, `created_at`, `updated_at`) VALUES
+(1, 'Chính sách công ty', 'Quy định nội bộ', 'http://example.com/policy.pdf', 'Policy', 1, 1, 'internal', '2025-04-30 11:55:15', '2025-04-30 11:55:15'),
+(2, 'Hướng dẫn sử dụng hệ thống', 'Tài liệu IT', 'http://example.com/guide.pdf', 'Guideline', 2, 1, 'internal', '2025-04-30 11:55:15', '2025-04-30 11:55:15'),
+(3, 'Mẫu hợp đồng lao động', 'Dành cho HR', 'http://example.com/contract.docx', 'Template', 3, 2, 'restricted', '2025-04-30 11:55:15', '2025-04-30 11:55:15'),
+(4, 'Báo cáo tài chính Q1', 'Báo cáo nội bộ', 'http://example.com/finance_q1.xlsx', 'Report', 7, 3, 'restricted', '2025-04-30 11:55:15', '2025-04-30 11:55:15'),
+(5, 'Chiến lược Marketing 2023', 'Kế hoạch tiếp thị', 'http://example.com/marketing_plan.pdf', 'Plan', 8, 4, 'internal', '2025-04-30 11:55:15', '2025-04-30 11:55:15'),
+(6, 'Biên bản họp', 'Họp triển khai dự án', 'http://example.com/meeting_minutes.docx', 'Minutes', 2, 1, 'internal', '2025-04-30 11:55:15', '2025-04-30 11:55:15'),
+(7, 'Danh sách nhân viên', 'Cập nhật tháng 10', 'http://example.com/employee_list.xlsx', 'List', 3, 2, 'restricted', '2025-04-30 11:55:15', '2025-04-30 11:55:15'),
+(8, 'Quy trình tuyển dụng', 'HR Process', 'http://example.com/recruitment_process.pdf', 'Process', 3, 2, 'internal', '2025-04-30 11:55:15', '2025-04-30 11:55:15'),
+(9, 'Đề án R&D', 'Nghiên cứu sản phẩm mới', 'http://example.com/rnd_proposal.pdf', 'Proposal', 10, 8, 'restricted', '2025-04-30 11:55:15', '2025-04-30 11:55:15'),
+(10, 'Hướng dẫn an toàn', 'Quy định an toàn lao động', 'http://example.com/safety_guide.pdf', 'Guideline', 1, 6, 'public', '2025-04-30 11:55:15', '2025-04-30 11:55:15');
 
 -- --------------------------------------------------------
 
@@ -321,11 +518,11 @@ CREATE TABLE `document_versions` (
   `id` int(11) NOT NULL,
   `document_id` int(11) NOT NULL,
   `version_number` varchar(20) NOT NULL,
-  `file_url` varchar(255) NOT NULL,
+  `file_url` varchar(512) NOT NULL COMMENT 'URL to this specific version',
   `changes_description` text DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+  `created_by_user_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -341,6 +538,22 @@ CREATE TABLE `email_verification_tokens` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `email_verification_tokens`
+--
+
+INSERT INTO `email_verification_tokens` (`id`, `user_id`, `token`, `expires_at`, `created_at`) VALUES
+(1, 1, 'token123', '2023-11-01 00:00:00', '2025-04-30 11:59:41'),
+(2, 2, 'token456', '2023-11-01 00:00:00', '2025-04-30 11:59:41'),
+(3, 3, 'token789', '2023-11-01 00:00:00', '2025-04-30 11:59:41'),
+(4, 4, 'token101', '2023-11-01 00:00:00', '2025-04-30 11:59:41'),
+(5, 5, 'token112', '2023-11-01 00:00:00', '2025-04-30 11:59:41'),
+(6, 6, 'token131', '2023-11-01 00:00:00', '2025-04-30 11:59:41'),
+(7, 7, 'token415', '2023-11-01 00:00:00', '2025-04-30 11:59:41'),
+(8, 8, 'token161', '2023-11-01 00:00:00', '2025-04-30 11:59:41'),
+(9, 9, 'token718', '2023-11-01 00:00:00', '2025-04-30 11:59:41'),
+(10, 10, 'token191', '2023-11-01 00:00:00', '2025-04-30 11:59:41');
+
 -- --------------------------------------------------------
 
 --
@@ -349,34 +562,32 @@ CREATE TABLE `email_verification_tokens` (
 
 CREATE TABLE `employees` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL COMMENT 'Link to the user account',
   `employee_code` varchar(20) DEFAULT NULL,
   `department_id` int(11) DEFAULT NULL,
   `position_id` int(11) DEFAULT NULL,
   `hire_date` date DEFAULT NULL,
-  `contract_type` varchar(50) DEFAULT NULL,
-  `contract_start_date` date DEFAULT NULL,
-  `contract_end_date` date DEFAULT NULL,
-  `status` varchar(20) DEFAULT 'active',
+  `termination_date` date DEFAULT NULL,
+  `status` enum('active','inactive','terminated','on_leave') DEFAULT 'active',
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `employees`
 --
 
-INSERT INTO `employees` (`id`, `user_id`, `employee_code`, `department_id`, `position_id`, `hire_date`, `contract_type`, `contract_start_date`, `contract_end_date`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'EMP001', 1, 1, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, 'EMP002', 1, 1, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, 'EMP003', 2, 3, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, 'EMP004', 3, 5, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, 'EMP005', 4, 7, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, 'EMP006', 5, 9, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, 'EMP007', 1, 2, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, 'EMP008', 2, 4, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, 'EMP009', 3, 6, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, 'EMP010', 4, 8, '2023-01-01', 'full_time', '2023-01-01', '2025-12-31', 'active', '2025-04-21 14:57:56', '2025-04-21 14:57:56');
+INSERT INTO `employees` (`id`, `user_id`, `employee_code`, `department_id`, `position_id`, `hire_date`, `termination_date`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 'EMP-ADM-001', 1, 1, '2020-01-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(2, 2, 'EMP-MGR-IT-002', 1, 2, '2020-02-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(3, 3, 'EMP-HR-003', 2, 3, '2020-03-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(4, 4, 'EMP-IT-004', 1, 4, '2020-04-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(5, 5, 'EMP-IT-005', 1, 4, '2020-05-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(6, 6, 'EMP-HR-006', 2, 4, '2020-06-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(7, 7, 'EMP-FIN-007', 3, 5, '2020-07-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(8, 8, 'EMP-MKT-008', 4, 7, '2020-08-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(9, 9, 'EMP-SLS-009', 5, 8, '2020-09-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(10, 10, 'EMP-OPT-010', 6, 9, '2020-10-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44');
 
 -- --------------------------------------------------------
 
@@ -388,9 +599,11 @@ CREATE TABLE `employee_positions` (
   `id` int(11) NOT NULL,
   `employee_id` int(11) NOT NULL,
   `position_id` int(11) NOT NULL,
+  `department_id` int(11) NOT NULL,
   `start_date` date NOT NULL,
-  `end_date` date DEFAULT NULL,
-  `is_current` tinyint(1) DEFAULT 1,
+  `end_date` date DEFAULT NULL COMMENT 'NULL if current position',
+  `is_current` tinyint(1) GENERATED ALWAYS AS (if(`end_date` is null,1,0)) STORED,
+  `reason_for_change` text DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -399,120 +612,17 @@ CREATE TABLE `employee_positions` (
 -- Dumping data for table `employee_positions`
 --
 
-INSERT INTO `employee_positions` (`id`, `employee_id`, `position_id`, `start_date`, `end_date`, `is_current`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, 1, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, 3, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, 5, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, 7, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, 9, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, 2, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, 4, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, 6, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, 8, '2023-01-01', NULL, 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `employee_trainings`
---
-
-CREATE TABLE `employee_trainings` (
-  `id` int(11) NOT NULL,
-  `employee_id` int(11) NOT NULL,
-  `training_id` int(11) NOT NULL,
-  `status` varchar(20) DEFAULT 'registered',
-  `result` varchar(20) DEFAULT NULL,
-  `feedback` text DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `employee_trainings`
---
-
-INSERT INTO `employee_trainings` (`id`, `employee_id`, `training_id`, `status`, `result`, `feedback`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, 1, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, 2, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, 3, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, 4, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, 5, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, 1, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, 2, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, 3, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, 4, 'registered', NULL, NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `equipment`
---
-
-CREATE TABLE `equipment` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `description` text DEFAULT NULL,
-  `serial_number` varchar(100) DEFAULT NULL,
-  `purchase_date` date DEFAULT NULL,
-  `purchase_cost` decimal(10,2) DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `equipment_assignments`
---
-
-CREATE TABLE `equipment_assignments` (
-  `id` int(11) NOT NULL,
-  `equipment_name` varchar(255) NOT NULL,
-  `employee_id` int(11) NOT NULL,
-  `assigned_date` date NOT NULL,
-  `return_date` date DEFAULT NULL,
-  `status` varchar(20) DEFAULT 'assigned',
-  `notes` text DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `equipment_assignments`
---
-
-INSERT INTO `equipment_assignments` (`id`, `equipment_name`, `employee_id`, `assigned_date`, `return_date`, `status`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 'Laptop Dell XPS', 1, '2023-01-01', NULL, 'assigned', 'Primary work laptop', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 'MacBook Pro', 2, '2023-01-01', NULL, 'assigned', 'Development machine', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 'Desktop PC', 3, '2023-01-01', NULL, 'assigned', 'Workstation', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 'Laptop HP EliteBook', 4, '2023-01-01', NULL, 'assigned', 'Finance work laptop', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 'MacBook Air', 5, '2023-01-01', NULL, 'assigned', 'Marketing work laptop', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 'Desktop PC', 6, '2023-01-01', NULL, 'assigned', 'Operations workstation', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 'Laptop Lenovo ThinkPad', 7, '2023-01-01', NULL, 'assigned', 'HR work laptop', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 'MacBook Pro', 8, '2023-01-01', NULL, 'assigned', 'Development machine', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 'Laptop Dell Latitude', 9, '2023-01-01', NULL, 'assigned', 'Finance work laptop', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 'MacBook Air', 10, '2023-01-01', NULL, 'assigned', 'Marketing work laptop', '2025-04-21 14:57:56', '2025-04-21 14:57:56');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `evaluations`
---
-
-CREATE TABLE `evaluations` (
-  `id` int(11) NOT NULL,
-  `employee_id` int(11) NOT NULL,
-  `evaluator_id` int(11) NOT NULL,
-  `evaluation_date` date NOT NULL,
-  `performance_score` int(11) DEFAULT NULL,
-  `comments` text DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+INSERT INTO `employee_positions` (`id`, `employee_id`, `position_id`, `department_id`, `start_date`, `end_date`, `reason_for_change`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 1, '2020-01-01', NULL, 'Bổ nhiệm ban đầu', '2025-04-30 11:57:13', '2025-04-30 11:57:13'),
+(2, 2, 2, 1, '2020-02-01', '2022-02-01', 'Thăng chức lên Manager', '2025-04-30 11:57:13', '2025-04-30 11:57:13'),
+(3, 2, 1, 1, '2022-02-01', NULL, 'Điều chỉnh vai trò', '2025-04-30 11:57:13', '2025-04-30 11:57:13'),
+(4, 3, 3, 2, '2020-03-01', NULL, 'Bổ nhiệm HR Manager', '2025-04-30 11:57:13', '2025-04-30 11:57:13'),
+(5, 4, 4, 1, '2020-04-01', '2023-04-01', 'Hết hạn hợp đồng', '2025-04-30 11:57:13', '2025-04-30 11:57:13'),
+(6, 4, 5, 1, '2023-04-01', NULL, 'Gia hạn hợp đồng', '2025-04-30 11:57:13', '2025-04-30 11:57:13'),
+(7, 5, 4, 1, '2020-05-01', NULL, 'Bổ nhiệm nhân viên', '2025-04-30 11:57:13', '2025-04-30 11:57:13'),
+(8, 6, 6, 2, '2020-06-01', '2023-06-01', 'Chuyển phòng ban', '2025-04-30 11:57:13', '2025-04-30 11:57:13'),
+(9, 7, 7, 3, '2020-07-01', NULL, 'Bổ nhiệm kế toán', '2025-04-30 11:57:13', '2025-04-30 11:57:13'),
+(10, 8, 8, 4, '2020-08-01', NULL, 'Nhân viên Marketing', '2025-04-30 11:57:13', '2025-04-30 11:57:13');
 
 -- --------------------------------------------------------
 
@@ -522,10 +632,12 @@ CREATE TABLE `evaluations` (
 
 CREATE TABLE `family_members` (
   `family_member_id` int(11) NOT NULL,
-  `profile_id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL COMMENT 'Link to the Employee record',
   `member_name` varchar(255) NOT NULL,
   `relationship` varchar(100) NOT NULL,
-  `year_of_birth` int(11) DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `occupation` varchar(100) DEFAULT NULL,
+  `is_dependent` tinyint(1) DEFAULT 0,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -534,17 +646,17 @@ CREATE TABLE `family_members` (
 -- Dumping data for table `family_members`
 --
 
-INSERT INTO `family_members` (`family_member_id`, `profile_id`, `member_name`, `relationship`, `year_of_birth`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Jane Doe', 'Spouse', 1992, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, 'John Smith', 'Spouse', 1990, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, 'Mary Wilson', 'Spouse', 1989, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, 'Sarah Brown', 'Spouse', 1991, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, 'David Lee', 'Spouse', 1988, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, 'Lisa Chen', 'Spouse', 1993, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, 'Mike Johnson', 'Spouse', 1994, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, 'Anna Davis', 'Spouse', 1992, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, 'Tom Wilson', 'Spouse', 1991, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, 'Peter Brown', 'Spouse', 1990, '2025-04-21 14:57:56', '2025-04-21 14:57:56');
+INSERT INTO `family_members` (`family_member_id`, `employee_id`, `member_name`, `relationship`, `date_of_birth`, `occupation`, `is_dependent`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Nguyễn Thị A', 'Vợ', '1987-05-05', 'Giáo viên', 1, '2025-04-30 11:56:44', '2025-04-30 11:56:44'),
+(2, 2, 'Trần Văn B', 'Chồng', '1988-06-06', 'Kỹ sư', 0, '2025-04-30 11:56:44', '2025-04-30 11:56:44'),
+(3, 3, 'Lê Thị C', 'Con gái', '2015-07-07', 'Học sinh', 1, '2025-04-30 11:56:44', '2025-04-30 11:56:44'),
+(4, 4, 'Phạm Văn D', 'Cha', '1960-08-08', 'Nghỉ hưu', 1, '2025-04-30 11:56:44', '2025-04-30 11:56:44'),
+(5, 5, 'Hoàng Thị E', 'Mẹ', '1962-09-09', 'Nội trợ', 1, '2025-04-30 11:56:44', '2025-04-30 11:56:44'),
+(6, 6, 'Võ Văn F', 'Anh trai', '1990-10-10', 'Bác sĩ', 0, '2025-04-30 11:56:44', '2025-04-30 11:56:44'),
+(7, 7, 'Đặng Thị G', 'Em gái', '1998-11-11', 'Sinh viên', 1, '2025-04-30 11:56:44', '2025-04-30 11:56:44'),
+(8, 8, 'Bùi Văn H', 'Con trai', '2018-12-12', 'Học sinh', 1, '2025-04-30 11:56:44', '2025-04-30 11:56:44'),
+(9, 9, 'Mai Thị I', 'Vợ', '1995-01-01', 'Kế toán', 1, '2025-04-30 11:56:44', '2025-04-30 11:56:44'),
+(10, 10, 'Lý Văn K', 'Chồng', '1994-02-02', 'Luật sư', 0, '2025-04-30 11:56:44', '2025-04-30 11:56:44');
 
 -- --------------------------------------------------------
 
@@ -557,7 +669,7 @@ CREATE TABLE `holidays` (
   `name` varchar(255) NOT NULL,
   `date` date NOT NULL,
   `description` text DEFAULT NULL,
-  `is_recurring` tinyint(1) DEFAULT 0,
+  `is_recurring` tinyint(1) DEFAULT 0 COMMENT '1 if repeats annually on same date',
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -567,10 +679,16 @@ CREATE TABLE `holidays` (
 --
 
 INSERT INTO `holidays` (`id`, `name`, `date`, `description`, `is_recurring`, `created_at`, `updated_at`) VALUES
-(1, 'New Year', '2024-01-01', 'New Year Day', 1, '2025-04-19 23:06:24', '2025-04-19 23:06:24'),
-(2, 'Tet Holiday', '2024-02-10', 'Lunar New Year', 1, '2025-04-19 23:06:24', '2025-04-19 23:06:24'),
-(3, 'Reunification Day', '2024-04-30', 'National Holiday', 1, '2025-04-19 23:06:24', '2025-04-19 23:06:24'),
-(4, 'Labor Day', '2024-05-01', 'International Workers Day', 1, '2025-04-19 23:06:24', '2025-04-19 23:06:24');
+(1, 'Tết Dương lịch', '2024-01-01', 'Nghỉ Tết Dương lịch', 1, '2025-04-30 11:56:36', '2025-04-30 11:56:36'),
+(2, 'Tết Nguyên đán', '2024-02-10', 'Nghỉ Tết Âm lịch', 1, '2025-04-30 11:56:36', '2025-04-30 11:56:36'),
+(3, 'Giỗ Tổ Hùng Vương', '2024-04-18', 'Quốc giỗ', 1, '2025-04-30 11:56:36', '2025-04-30 11:56:36'),
+(4, 'Ngày Giải phóng', '2024-04-30', 'Thống nhất đất nước', 1, '2025-04-30 11:56:36', '2025-04-30 11:56:36'),
+(5, 'Quốc tế Lao động', '2024-05-01', 'Ngày Lao động', 1, '2025-04-30 11:56:36', '2025-04-30 11:56:36'),
+(6, 'Quốc khánh', '2024-09-02', 'Ngày Quốc khánh', 1, '2025-04-30 11:56:36', '2025-04-30 11:56:36'),
+(7, 'Trung thu', '2024-09-17', 'Tết Trung thu', 1, '2025-04-30 11:56:36', '2025-04-30 11:56:36'),
+(8, 'Halloween', '2024-10-31', 'Lễ hội hóa trang', 0, '2025-04-30 11:56:36', '2025-04-30 11:56:36'),
+(9, 'Noel', '2024-12-25', 'Giáng sinh', 1, '2025-04-30 11:56:36', '2025-04-30 11:56:36'),
+(10, 'Tết Tây', '2025-01-01', 'Năm mới', 1, '2025-04-30 11:56:36', '2025-04-30 11:56:36');
 
 -- --------------------------------------------------------
 
@@ -581,16 +699,33 @@ INSERT INTO `holidays` (`id`, `name`, `date`, `description`, `is_recurring`, `cr
 CREATE TABLE `insurance` (
   `id` int(11) NOT NULL,
   `employee_id` int(11) NOT NULL,
-  `insurance_type` varchar(50) NOT NULL,
+  `insurance_type` varchar(50) NOT NULL COMMENT 'e.g., Social, Health, Unemployment',
   `policy_number` varchar(100) DEFAULT NULL,
   `provider` varchar(255) DEFAULT NULL,
   `start_date` date NOT NULL,
   `end_date` date DEFAULT NULL,
-  `premium` decimal(10,2) DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
+  `employee_contribution` decimal(15,2) DEFAULT NULL,
+  `employer_contribution` decimal(15,2) DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `insurance`
+--
+
+INSERT INTO `insurance` (`id`, `employee_id`, `insurance_type`, `policy_number`, `provider`, `start_date`, `end_date`, `employee_contribution`, `employer_contribution`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Social', 'SOC-001', 'Bảo hiểm Xã hội', '2020-01-01', NULL, 800000.00, 1600000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06'),
+(2, 2, 'Health', 'HLT-002', 'Bảo hiểm Y tế', '2020-02-01', NULL, 500000.00, 1000000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06'),
+(3, 3, 'Unemployment', 'UNE-003', 'Bảo hiểm Thất nghiệp', '2020-03-01', NULL, 200000.00, 400000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06'),
+(4, 4, 'Social', 'SOC-004', 'Bảo hiểm Xã hội', '2020-04-01', NULL, 800000.00, 1600000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06'),
+(5, 5, 'Health', 'HLT-005', 'Bảo hiểm Y tế', '2020-05-01', NULL, 500000.00, 1000000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06'),
+(6, 6, 'Social', 'SOC-006', 'Bảo hiểm Xã hội', '2020-06-01', NULL, 800000.00, 1600000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06'),
+(7, 7, 'Health', 'HLT-007', 'Bảo hiểm Y tế', '2020-07-01', NULL, 500000.00, 1000000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06'),
+(8, 8, 'Social', 'SOC-008', 'Bảo hiểm Xã hội', '2020-08-01', NULL, 800000.00, 1600000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06'),
+(9, 9, 'Health', 'HLT-009', 'Bảo hiểm Y tế', '2020-09-01', NULL, 500000.00, 1000000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06'),
+(10, 10, 'Social', 'SOC-010', 'Bảo hiểm Xã hội', '2020-10-01', NULL, 800000.00, 1600000.00, 'active', '2025-04-30 04:57:06', '2025-04-30 04:57:06');
 
 -- --------------------------------------------------------
 
@@ -600,15 +735,72 @@ CREATE TABLE `insurance` (
 
 CREATE TABLE `interviews` (
   `id` int(11) NOT NULL,
-  `candidate_id` int(11) NOT NULL,
-  `interviewer_id` int(11) NOT NULL,
-  `interview_date` datetime NOT NULL,
-  `type` varchar(50) NOT NULL,
-  `status` varchar(20) NOT NULL,
-  `notes` text DEFAULT NULL,
+  `job_application_id` int(11) NOT NULL,
+  `interviewer_employee_id` int(11) NOT NULL,
+  `interview_datetime` datetime NOT NULL,
+  `duration_minutes` int(11) DEFAULT 60,
+  `location` varchar(255) DEFAULT NULL,
+  `type` varchar(50) NOT NULL COMMENT 'e.g., Screening, Technical, HR, Panel',
+  `status` enum('scheduled','completed','cancelled','rescheduled') NOT NULL DEFAULT 'scheduled',
+  `interviewer_feedback` text DEFAULT NULL,
+  `candidate_feedback` text DEFAULT NULL,
+  `score` decimal(4,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `interviews`
+--
+
+INSERT INTO `interviews` (`id`, `job_application_id`, `interviewer_employee_id`, `interview_datetime`, `duration_minutes`, `location`, `type`, `status`, `interviewer_feedback`, `candidate_feedback`, `score`, `created_at`, `updated_at`) VALUES
+(1, 1, 3, '2023-10-05 09:00:00', 60, NULL, 'Technical', 'completed', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31'),
+(2, 2, 3, '2023-10-06 10:00:00', 60, NULL, 'HR', 'scheduled', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31'),
+(3, 3, 3, '2023-10-07 11:00:00', 60, NULL, 'Panel', 'completed', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31'),
+(4, 4, 3, '2023-10-08 14:00:00', 60, NULL, 'Technical', 'scheduled', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31'),
+(5, 5, 3, '2023-10-09 15:00:00', 60, NULL, 'HR', 'cancelled', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31'),
+(6, 6, 3, '2023-10-10 16:00:00', 60, NULL, 'Technical', 'completed', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31'),
+(7, 7, 3, '2023-10-11 09:00:00', 60, NULL, 'HR', 'scheduled', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31'),
+(8, 8, 3, '2023-10-12 10:00:00', 60, NULL, 'Panel', 'completed', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31'),
+(9, 9, 3, '2023-10-13 11:00:00', 60, NULL, 'Technical', 'scheduled', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31'),
+(10, 10, 3, '2023-10-14 14:00:00', 60, NULL, 'HR', 'completed', NULL, NULL, NULL, '2025-04-30 04:58:31', '2025-04-30 04:58:31');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `job_applications`
+--
+
+CREATE TABLE `job_applications` (
+  `id` int(11) NOT NULL,
+  `job_position_id` int(11) NOT NULL COMMENT 'FK to the specific job opening',
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `resume_url` varchar(512) DEFAULT NULL,
+  `cover_letter_url` varchar(512) DEFAULT NULL,
+  `source` varchar(100) DEFAULT NULL COMMENT 'e.g., LinkedIn, Website, Referral',
+  `status` enum('new','reviewing','shortlisted','interviewing','assessment','offered','hired','rejected','withdrawn') NOT NULL DEFAULT 'new',
+  `applied_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `job_applications`
+--
+
+INSERT INTO `job_applications` (`id`, `job_position_id`, `first_name`, `last_name`, `email`, `phone`, `resume_url`, `cover_letter_url`, `source`, `status`, `applied_at`, `updated_at`) VALUES
+(1, 1, 'Nguyễn', 'A', 'nguyena@gmail.com', '0911111111', 'http://example.com/resume1.pdf', NULL, NULL, 'hired', '2025-04-30 11:58:25', '2025-04-30 11:58:25'),
+(2, 2, 'Trần', 'B', 'tranb@gmail.com', '0912222222', 'http://example.com/resume2.pdf', NULL, NULL, 'interviewing', '2025-04-30 11:58:25', '2025-04-30 11:58:25'),
+(3, 3, 'Lê', 'C', 'lec@gmail.com', '0913333333', 'http://example.com/resume3.pdf', NULL, NULL, 'shortlisted', '2025-04-30 11:58:25', '2025-04-30 11:58:25'),
+(4, 4, 'Phạm', 'D', 'phamd@gmail.com', '0914444444', 'http://example.com/resume4.pdf', NULL, NULL, 'new', '2025-04-30 11:58:25', '2025-04-30 11:58:25'),
+(5, 5, 'Hoàng', 'E', 'hoange@gmail.com', '0915555555', 'http://example.com/resume5.pdf', NULL, NULL, 'rejected', '2025-04-30 11:58:25', '2025-04-30 11:58:25'),
+(6, 6, 'Võ', 'F', 'vof@gmail.com', '0916666666', 'http://example.com/resume6.pdf', NULL, NULL, 'assessment', '2025-04-30 11:58:25', '2025-04-30 11:58:25'),
+(7, 7, 'Đặng', 'G', 'dangg@gmail.com', '0917777777', 'http://example.com/resume7.pdf', NULL, NULL, 'offered', '2025-04-30 11:58:25', '2025-04-30 11:58:25'),
+(8, 8, 'Bùi', 'H', 'buih@gmail.com', '0918888888', 'http://example.com/resume8.pdf', NULL, NULL, 'withdrawn', '2025-04-30 11:58:25', '2025-04-30 11:58:25'),
+(9, 9, 'Mai', 'I', 'maii@gmail.com', '0919999999', 'http://example.com/resume9.pdf', NULL, NULL, 'hired', '2025-04-30 11:58:25', '2025-04-30 11:58:25'),
+(10, 10, 'Lý', 'K', 'lyk@gmail.com', '0910000000', 'http://example.com/resume10.pdf', NULL, NULL, 'reviewing', '2025-04-30 11:58:25', '2025-04-30 11:58:25');
 
 -- --------------------------------------------------------
 
@@ -618,16 +810,38 @@ CREATE TABLE `interviews` (
 
 CREATE TABLE `job_positions` (
   `id` int(11) NOT NULL,
-  `title` varchar(255) NOT NULL,
+  `campaign_id` int(11) DEFAULT NULL,
+  `position_id` int(11) NOT NULL,
+  `title_override` varchar(255) DEFAULT NULL COMMENT 'Specific title for this opening, if different',
   `department_id` int(11) NOT NULL,
   `description` text DEFAULT NULL,
   `requirements` text DEFAULT NULL,
-  `salary_range_min` decimal(10,2) DEFAULT NULL,
-  `salary_range_max` decimal(10,2) DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
+  `responsibilities` text DEFAULT NULL,
+  `salary_range_min` decimal(15,2) DEFAULT NULL,
+  `salary_range_max` decimal(15,2) DEFAULT NULL,
+  `status` enum('draft','open','closed','on_hold') NOT NULL DEFAULT 'draft',
+  `posting_date` date DEFAULT NULL,
+  `closing_date` date DEFAULT NULL,
+  `hiring_manager_user_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `job_positions`
+--
+
+INSERT INTO `job_positions` (`id`, `campaign_id`, `position_id`, `title_override`, `department_id`, `description`, `requirements`, `responsibilities`, `salary_range_min`, `salary_range_max`, `status`, `posting_date`, `closing_date`, `hiring_manager_user_id`, `created_at`, `updated_at`) VALUES
+(1, NULL, 5, 'Lập trình viên Java', 1, NULL, NULL, NULL, 15000000.00, 25000000.00, 'open', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18'),
+(2, NULL, 6, 'Chuyên viên HR', 2, NULL, NULL, NULL, 10000000.00, 15000000.00, 'open', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18'),
+(3, NULL, 7, 'Kế toán tổng hợp', 3, NULL, NULL, NULL, 12000000.00, 18000000.00, 'open', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18'),
+(4, NULL, 8, 'Chuyên viên Marketing', 4, NULL, NULL, NULL, 10000000.00, 15000000.00, 'open', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18'),
+(5, NULL, 9, 'Nhân viên Sales', 5, NULL, NULL, NULL, 8000000.00, 12000000.00, 'open', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18'),
+(6, NULL, 10, 'Quản lý vận hành', 6, NULL, NULL, NULL, 15000000.00, 20000000.00, 'open', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18'),
+(7, NULL, 1, 'Admin', 1, NULL, NULL, NULL, 10000000.00, 15000000.00, 'closed', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18'),
+(8, NULL, 2, 'IT Manager', 1, NULL, NULL, NULL, 20000000.00, 30000000.00, 'closed', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18'),
+(9, NULL, 3, 'HR Manager', 2, NULL, NULL, NULL, 18000000.00, 25000000.00, 'closed', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18'),
+(10, NULL, 4, 'Senior Developer', 1, NULL, NULL, NULL, 20000000.00, 30000000.00, 'closed', NULL, NULL, NULL, '2025-04-30 04:58:18', '2025-04-30 04:58:18');
 
 -- --------------------------------------------------------
 
@@ -639,14 +853,32 @@ CREATE TABLE `kpi` (
   `id` int(11) NOT NULL,
   `employee_id` int(11) NOT NULL,
   `metric_name` varchar(255) NOT NULL,
-  `target_value` decimal(10,2) DEFAULT NULL,
-  `actual_value` decimal(10,2) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `target_value` decimal(15,2) DEFAULT NULL,
+  `actual_value` decimal(15,2) DEFAULT NULL,
+  `unit` varchar(20) DEFAULT NULL,
   `period_start` date NOT NULL,
   `period_end` date NOT NULL,
-  `status` varchar(20) NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `kpi`
+--
+
+INSERT INTO `kpi` (`id`, `employee_id`, `metric_name`, `description`, `target_value`, `actual_value`, `unit`, `period_start`, `period_end`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Doanh số', NULL, 1000000000.00, 950000000.00, 'VND', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55'),
+(2, 2, 'Số dự án hoàn thành', NULL, 5.00, 4.00, 'projects', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55'),
+(3, 3, 'Tuyển dụng thành công', NULL, 20.00, 18.00, 'người', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55'),
+(4, 4, 'Số giờ làm việc', NULL, 2000.00, 1950.00, 'giờ', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55'),
+(5, 5, 'Tỉ lệ khách hàng hài lòng', NULL, 90.00, 85.00, '%', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55'),
+(6, 6, 'Số lỗi phát sinh', NULL, 0.00, 2.00, 'lỗi', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55'),
+(7, 7, 'Hoàn thành deadline', NULL, 100.00, 98.00, '%', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55'),
+(8, 8, 'Chiến dịch thành công', NULL, 3.00, 3.00, 'chiến dịch', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55'),
+(9, 9, 'Tăng trưởng doanh số', NULL, 15.00, 12.00, '%', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55'),
+(10, 10, 'Giảm chi phí', NULL, 10.00, 8.00, '%', '2023-01-01', '2023-12-31', 'active', '2025-04-30 04:57:55', '2025-04-30 04:57:55');
 
 -- --------------------------------------------------------
 
@@ -657,31 +889,34 @@ CREATE TABLE `kpi` (
 CREATE TABLE `leaves` (
   `id` int(11) NOT NULL,
   `employee_id` int(11) NOT NULL,
-  `leave_type` varchar(50) NOT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
+  `leave_type` varchar(50) NOT NULL COMMENT 'e.g., Annual, Sick, Unpaid, Maternity',
+  `start_date` datetime NOT NULL COMMENT 'Include time for partial days',
+  `end_date` datetime NOT NULL COMMENT 'Include time for partial days',
+  `leave_duration_days` decimal(4,1) NOT NULL,
   `reason` text NOT NULL,
-  `status` varchar(20) DEFAULT 'pending',
-  `approved_by` int(11) DEFAULT NULL,
+  `status` enum('pending','approved','rejected','cancelled') DEFAULT 'pending',
+  `approved_by_user_id` int(11) DEFAULT NULL COMMENT 'User who approved/rejected',
+  `approver_comments` text DEFAULT NULL,
+  `attachment_url` varchar(512) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `leaves`
 --
 
-INSERT INTO `leaves` (`id`, `employee_id`, `leave_type`, `start_date`, `end_date`, `reason`, `status`, `approved_by`, `created_at`, `updated_at`) VALUES
-(1, 1, 'annual', '2024-04-01', '2024-04-03', 'Annual vacation', 'approved', 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, 'sick', '2024-03-25', '2024-03-26', 'Medical appointment', 'approved', 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, 'annual', '2024-04-15', '2024-04-16', 'Personal matters', 'pending', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, 'annual', '2024-04-10', '2024-04-12', 'Annual vacation', 'approved', 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, 'sick', '2024-04-15', '2024-04-15', 'Medical appointment', 'pending', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, 'annual', '2024-04-20', '2024-04-22', 'Personal matters', 'approved', 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, 'annual', '2024-04-05', '2024-04-07', 'Annual vacation', 'approved', 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, 'sick', '2024-03-28', '2024-03-28', 'Medical appointment', 'approved', 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, 'annual', '2024-04-08', '2024-04-10', 'Annual vacation', 'approved', 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, 'sick', '2024-04-18', '2024-04-18', 'Medical appointment', 'pending', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56');
+INSERT INTO `leaves` (`id`, `employee_id`, `leave_type`, `start_date`, `end_date`, `leave_duration_days`, `reason`, `status`, `approved_by_user_id`, `approver_comments`, `attachment_url`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Annual', '2023-10-05 00:00:00', '2023-10-07 00:00:00', 3.0, 'Nghỉ phép cá nhân', 'approved', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23'),
+(2, 2, 'Sick', '2023-10-10 00:00:00', '2023-10-11 00:00:00', 2.0, 'Ốm', 'approved', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23'),
+(3, 3, 'Unpaid', '2023-10-15 00:00:00', '2023-10-16 00:00:00', 2.0, 'Việc gia đình', 'pending', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23'),
+(4, 4, 'Maternity', '2023-11-01 00:00:00', '2024-02-01 00:00:00', 90.0, 'Nghỉ thai sản', 'approved', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23'),
+(5, 5, 'Annual', '2023-10-20 00:00:00', '2023-10-22 00:00:00', 3.0, 'Du lịch', 'approved', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23'),
+(6, 6, 'Sick', '2023-10-25 00:00:00', '2023-10-26 00:00:00', 2.0, 'Khám sức khỏe', 'approved', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23'),
+(7, 7, 'Unpaid', '2023-11-05 00:00:00', '2023-11-07 00:00:00', 3.0, 'Học tập', 'pending', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23'),
+(8, 8, 'Annual', '2023-12-01 00:00:00', '2023-12-05 00:00:00', 5.0, 'Nghỉ lễ', 'approved', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23'),
+(9, 9, 'Sick', '2023-10-18 00:00:00', '2023-10-19 00:00:00', 2.0, 'Cảm cúm', 'approved', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23'),
+(10, 10, 'Unpaid', '2023-10-30 00:00:00', '2023-10-31 00:00:00', 2.0, 'Việc riêng', 'pending', NULL, NULL, NULL, '2025-04-30 11:54:23', '2025-04-30 11:54:23');
 
 -- --------------------------------------------------------
 
@@ -692,9 +927,25 @@ INSERT INTO `leaves` (`id`, `employee_id`, `leave_type`, `start_date`, `end_date
 CREATE TABLE `login_attempts` (
   `id` int(11) NOT NULL,
   `ip_address` varchar(45) NOT NULL,
-  `attempt_time` datetime NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+  `username_attempted` varchar(100) DEFAULT NULL,
+  `attempt_time` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `login_attempts`
+--
+
+INSERT INTO `login_attempts` (`id`, `ip_address`, `username_attempted`, `attempt_time`) VALUES
+(1, '192.168.1.100', 'admin', '2025-04-30 12:00:15'),
+(2, '192.168.1.101', 'employee1', '2025-04-30 12:00:15'),
+(3, '192.168.1.102', 'unknown_user', '2025-04-30 12:00:15'),
+(4, '192.168.1.103', 'manager_it', '2025-04-30 12:00:15'),
+(5, '192.168.1.104', 'hr_manager', '2025-04-30 12:00:15'),
+(6, '192.168.1.105', 'test_user', '2025-04-30 12:00:15'),
+(7, '192.168.1.106', 'employee2', '2025-04-30 12:00:15'),
+(8, '192.168.1.107', 'employee3', '2025-04-30 12:00:15'),
+(9, '192.168.1.108', 'employee4', '2025-04-30 12:00:15'),
+(10, '192.168.1.109', 'employee5', '2025-04-30 12:00:15');
 
 -- --------------------------------------------------------
 
@@ -704,29 +955,32 @@ CREATE TABLE `login_attempts` (
 
 CREATE TABLE `notifications` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL COMMENT 'Recipient user',
   `title` varchar(255) NOT NULL,
   `message` text NOT NULL,
-  `type` varchar(50) NOT NULL,
+  `type` varchar(50) NOT NULL DEFAULT 'info' COMMENT 'e.g., info, warning, success, reminder',
+  `related_entity_type` varchar(50) DEFAULT NULL,
+  `related_entity_id` int(11) DEFAULT NULL,
   `is_read` tinyint(1) DEFAULT 0,
+  `read_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `notifications`
 --
 
-INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `is_read`, `created_at`) VALUES
-(1, 1, 'New Task Assigned', 'You have been assigned a new task: Complete HR Report', 'task', 0, '2025-04-21 14:57:56'),
-(2, 2, 'System Update', 'IT system maintenance scheduled for next week', 'system', 0, '2025-04-21 14:57:56'),
-(3, 3, 'Meeting Reminder', 'Team meeting tomorrow at 10:00 AM', 'meeting', 0, '2025-04-21 14:57:56'),
-(4, 4, 'Document Review', 'Please review the new financial procedures', 'document', 0, '2025-04-21 14:57:56'),
-(5, 5, 'Training Registration', 'New training session available for registration', 'training', 0, '2025-04-21 14:57:56'),
-(6, 6, 'System Update', 'Operations system maintenance scheduled', 'system', 0, '2025-04-21 14:57:56'),
-(7, 7, 'Task Assignment', 'New HR task assigned: Employee onboarding', 'task', 0, '2025-04-21 14:57:56'),
-(8, 8, 'Training Reminder', 'Software development training tomorrow', 'training', 0, '2025-04-21 14:57:56'),
-(9, 9, 'Document Review', 'Please review Q1 financial reports', 'document', 0, '2025-04-21 14:57:56'),
-(10, 10, 'Meeting Reminder', 'Marketing team meeting at 2 PM', 'meeting', 0, '2025-04-21 14:57:56');
+INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `related_entity_type`, `related_entity_id`, `is_read`, `read_at`, `created_at`) VALUES
+(1, 1, 'Chào mừng', 'Chào mừng bạn đến với hệ thống!', 'info', NULL, NULL, 1, NULL, '2025-04-30 11:56:08'),
+(2, 2, 'Nhắc nhở', 'Vui lòng cập nhật hợp đồng cho nhân viên IT004', 'warning', NULL, NULL, 0, NULL, '2025-04-30 11:56:08'),
+(3, 3, 'Duyệt đơn nghỉ phép', 'Đơn nghỉ phép của employee6 đang chờ duyệt', 'reminder', NULL, NULL, 0, NULL, '2025-04-30 11:56:08'),
+(4, 4, 'Thông báo lương', 'Lương tháng 10 đã được chuyển', 'success', NULL, NULL, 1, NULL, '2025-04-30 11:56:08'),
+(5, 5, 'Lỗi hệ thống', 'Máy chủ IT sẽ bảo trì vào 20/10', 'warning', NULL, NULL, 0, NULL, '2025-04-30 11:56:08'),
+(6, 6, 'Đào tạo', 'Đăng ký khóa học Python trước 30/10', 'info', NULL, NULL, 0, NULL, '2025-04-30 11:56:08'),
+(7, 7, 'Cảnh báo', 'Tài sản ASSET-004 cần bảo trì', 'warning', NULL, NULL, 0, NULL, '2025-04-30 11:56:08'),
+(8, 8, 'Cập nhật', 'Chính sách mới đã được thêm', 'info', NULL, NULL, 1, NULL, '2025-04-30 11:56:08'),
+(9, 9, 'Nhắc nhở', 'Hợp đồng của bạn sắp hết hạn', 'reminder', NULL, NULL, 0, NULL, '2025-04-30 11:56:08'),
+(10, 10, 'Thông báo', 'Dự án CRM đã hoàn thành', 'success', NULL, NULL, 1, NULL, '2025-04-30 11:56:08');
 
 -- --------------------------------------------------------
 
@@ -739,11 +993,29 @@ CREATE TABLE `onboarding` (
   `employee_id` int(11) NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
+  `status` enum('pending','in_progress','completed','cancelled') NOT NULL DEFAULT 'pending',
+  `buddy_employee_id` int(11) DEFAULT NULL COMMENT 'Assigned buddy',
+  `checklist_items_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'JSON array of tasks/items' CHECK (json_valid(`checklist_items_json`)),
   `notes` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `onboarding`
+--
+
+INSERT INTO `onboarding` (`id`, `employee_id`, `start_date`, `end_date`, `status`, `buddy_employee_id`, `checklist_items_json`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 1, '2020-01-01', '2020-01-07', 'completed', 2, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40'),
+(2, 2, '2020-02-01', '2020-02-07', 'completed', 1, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40'),
+(3, 3, '2020-03-01', '2020-03-07', 'completed', 2, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40'),
+(4, 4, '2020-04-01', '2020-04-07', 'completed', 5, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40'),
+(5, 5, '2020-05-01', '2020-05-07', 'completed', 6, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40'),
+(6, 6, '2020-06-01', '2020-06-07', 'completed', 7, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40'),
+(7, 7, '2020-07-01', '2020-07-07', 'completed', 8, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40'),
+(8, 8, '2020-08-01', '2020-08-07', 'completed', 9, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40'),
+(9, 9, '2020-09-01', '2020-09-07', 'completed', 10, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40'),
+(10, 10, '2020-10-01', '2020-10-07', 'completed', 1, NULL, NULL, '2025-04-30 04:58:40', '2025-04-30 04:58:40');
 
 -- --------------------------------------------------------
 
@@ -759,6 +1031,22 @@ CREATE TABLE `password_reset_tokens` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `password_reset_tokens`
+--
+
+INSERT INTO `password_reset_tokens` (`id`, `user_id`, `token`, `expires_at`, `created_at`) VALUES
+(1, 1, 'reset123', '2023-11-01 00:00:00', '2025-04-30 11:59:52'),
+(2, 2, 'reset456', '2023-11-01 00:00:00', '2025-04-30 11:59:52'),
+(3, 3, 'reset789', '2023-11-01 00:00:00', '2025-04-30 11:59:52'),
+(4, 4, 'reset101', '2023-11-01 00:00:00', '2025-04-30 11:59:52'),
+(5, 5, 'reset112', '2023-11-01 00:00:00', '2025-04-30 11:59:52'),
+(6, 6, 'reset131', '2023-11-01 00:00:00', '2025-04-30 11:59:52'),
+(7, 7, 'reset415', '2023-11-01 00:00:00', '2025-04-30 11:59:52'),
+(8, 8, 'reset161', '2023-11-01 00:00:00', '2025-04-30 11:59:52'),
+(9, 9, 'reset718', '2023-11-01 00:00:00', '2025-04-30 11:59:52'),
+(10, 10, 'reset191', '2023-11-01 00:00:00', '2025-04-30 11:59:52');
+
 -- --------------------------------------------------------
 
 --
@@ -767,81 +1055,40 @@ CREATE TABLE `password_reset_tokens` (
 
 CREATE TABLE `payroll` (
   `payroll_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `payroll_month` int(11) NOT NULL CHECK (`payroll_month` between 1 and 12),
-  `payroll_year` int(11) NOT NULL,
-  `work_days_actual` decimal(4,1) NOT NULL,
-  `base_salary_at_time` decimal(15,2) NOT NULL,
+  `employee_id` int(11) NOT NULL,
+  `pay_period_start` date NOT NULL,
+  `pay_period_end` date NOT NULL,
+  `work_days_payable` decimal(4,1) NOT NULL COMMENT 'Days eligible for payment in period',
+  `base_salary_period` decimal(15,2) NOT NULL COMMENT 'Base salary for the pay period',
+  `allowances_total` decimal(15,2) DEFAULT 0.00,
   `bonuses_total` decimal(15,2) DEFAULT 0.00,
-  `social_insurance_deduction` decimal(15,2) NOT NULL,
-  `other_deductions` decimal(15,2) DEFAULT 0.00,
-  `total_salary` decimal(15,2) NOT NULL,
+  `deductions_total` decimal(15,2) DEFAULT 0.00,
+  `gross_salary` decimal(15,2) NOT NULL,
+  `tax_deduction` decimal(15,2) DEFAULT 0.00,
+  `insurance_deduction` decimal(15,2) DEFAULT 0.00,
+  `net_salary` decimal(15,2) NOT NULL COMMENT 'Take-home pay',
+  `payment_date` date DEFAULT NULL,
+  `status` enum('pending','calculated','approved','paid','rejected') DEFAULT 'pending',
   `generated_at` datetime DEFAULT current_timestamp(),
-  `generated_by_user_id` int(11) NOT NULL,
+  `generated_by_user_id` int(11) DEFAULT NULL,
   `notes` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `payroll`
 --
 
-INSERT INTO `payroll` (`payroll_id`, `user_id`, `payroll_month`, `payroll_year`, `work_days_actual`, `base_salary_at_time`, `bonuses_total`, `social_insurance_deduction`, `other_deductions`, `total_salary`, `generated_at`, `generated_by_user_id`, `notes`) VALUES
-(1, 1, 3, 2024, 22.0, 30000000.00, 1000000.00, 1500000.00, 0.00, 29500000.00, '2025-04-21 14:57:56', 1, NULL),
-(2, 2, 3, 2024, 22.0, 25000000.00, 800000.00, 1250000.00, 0.00, 24550000.00, '2025-04-21 14:57:56', 1, NULL),
-(3, 3, 3, 2024, 22.0, 25000000.00, 800000.00, 1250000.00, 0.00, 24550000.00, '2025-04-21 14:57:56', 1, NULL),
-(4, 4, 3, 2024, 22.0, 25000000.00, 800000.00, 1250000.00, 0.00, 24550000.00, '2025-04-21 14:57:56', 1, NULL),
-(5, 5, 3, 2024, 22.0, 25000000.00, 800000.00, 1250000.00, 0.00, 24550000.00, '2025-04-21 14:57:56', 1, NULL),
-(6, 6, 3, 2024, 22.0, 25000000.00, 800000.00, 1250000.00, 0.00, 24550000.00, '2025-04-21 14:57:56', 1, NULL),
-(7, 7, 3, 2024, 22.0, 15000000.00, 500000.00, 750000.00, 0.00, 14750000.00, '2025-04-21 14:57:56', 1, NULL),
-(8, 8, 3, 2024, 22.0, 18000000.00, 600000.00, 900000.00, 0.00, 17700000.00, '2025-04-21 14:57:56', 1, NULL),
-(9, 9, 3, 2024, 22.0, 15000000.00, 500000.00, 750000.00, 0.00, 14750000.00, '2025-04-21 14:57:56', 1, NULL),
-(10, 10, 3, 2024, 22.0, 15000000.00, 500000.00, 750000.00, 0.00, 14750000.00, '2025-04-21 14:57:56', 1, NULL),
-(11, 1, 4, 2024, 22.0, 15000000.00, 2000000.00, 1500000.00, 500000.00, 15000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4'),
-(12, 2, 4, 2024, 22.0, 12000000.00, 1500000.00, 1200000.00, 400000.00, 12000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4'),
-(13, 3, 4, 2024, 22.0, 10000000.00, 1000000.00, 1000000.00, 300000.00, 10000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4'),
-(14, 4, 4, 2024, 22.0, 8000000.00, 800000.00, 800000.00, 200000.00, 8000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4'),
-(15, 5, 4, 2024, 22.0, 7000000.00, 700000.00, 700000.00, 100000.00, 7000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4'),
-(16, 6, 4, 2024, 22.0, 9000000.00, 900000.00, 900000.00, 300000.00, 9000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4'),
-(17, 7, 4, 2024, 22.0, 11000000.00, 1100000.00, 1100000.00, 400000.00, 11000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4'),
-(18, 8, 4, 2024, 22.0, 13000000.00, 1300000.00, 1300000.00, 500000.00, 13000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4'),
-(19, 9, 4, 2024, 22.0, 14000000.00, 1400000.00, 1400000.00, 600000.00, 14000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4'),
-(20, 10, 4, 2024, 22.0, 16000000.00, 1600000.00, 1600000.00, 700000.00, 16000000.00, '2025-04-22 03:20:24', 1, 'LÆ°Æ¡ng thÃ¡ng 4');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `payrolls`
---
-
-CREATE TABLE `payrolls` (
-  `id` int(11) NOT NULL,
-  `employee_id` int(11) NOT NULL,
-  `month` int(11) NOT NULL,
-  `year` int(11) NOT NULL,
-  `basic_salary` decimal(10,2) NOT NULL,
-  `allowances` decimal(10,2) DEFAULT 0.00,
-  `deductions` decimal(10,2) DEFAULT 0.00,
-  `net_salary` decimal(10,2) NOT NULL,
-  `status` enum('pending','approved','rejected') DEFAULT 'pending',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `payrolls`
---
-
-INSERT INTO `payrolls` (`id`, `employee_id`, `month`, `year`, `basic_salary`, `allowances`, `deductions`, `net_salary`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 3, 2024, 30000000.00, 2000000.00, 1500000.00, 30500000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, 3, 2024, 25000000.00, 1500000.00, 1250000.00, 25250000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, 3, 2024, 25000000.00, 1500000.00, 1250000.00, 25250000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, 3, 2024, 25000000.00, 1500000.00, 1250000.00, 25250000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, 3, 2024, 25000000.00, 1500000.00, 1250000.00, 25250000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, 3, 2024, 25000000.00, 1500000.00, 1250000.00, 25250000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, 3, 2024, 15000000.00, 1000000.00, 750000.00, 15250000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, 3, 2024, 18000000.00, 1200000.00, 900000.00, 18300000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, 3, 2024, 15000000.00, 1000000.00, 750000.00, 15250000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, 3, 2024, 15000000.00, 1000000.00, 750000.00, 15250000.00, 'approved', '2025-04-21 14:57:56', '2025-04-21 14:57:56');
+INSERT INTO `payroll` (`payroll_id`, `employee_id`, `pay_period_start`, `pay_period_end`, `work_days_payable`, `base_salary_period`, `allowances_total`, `bonuses_total`, `deductions_total`, `gross_salary`, `tax_deduction`, `insurance_deduction`, `net_salary`, `payment_date`, `status`, `generated_at`, `generated_by_user_id`, `notes`) VALUES
+(1, 1, '2023-10-01', '2023-10-31', 22.0, 25000000.00, 0.00, 0.00, 0.00, 25000000.00, 0.00, 0.00, 22000000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL),
+(2, 2, '2023-10-01', '2023-10-31', 22.0, 20000000.00, 0.00, 0.00, 0.00, 20000000.00, 0.00, 0.00, 17600000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL),
+(3, 3, '2023-10-01', '2023-10-31', 20.0, 18000000.00, 0.00, 0.00, 0.00, 18000000.00, 0.00, 0.00, 15840000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL),
+(4, 4, '2023-10-01', '2023-10-31', 22.0, 15000000.00, 0.00, 0.00, 0.00, 15000000.00, 0.00, 0.00, 13200000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL),
+(5, 5, '2023-10-01', '2023-10-31', 21.0, 15000000.00, 0.00, 0.00, 0.00, 15000000.00, 0.00, 0.00, 13200000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL),
+(6, 6, '2023-10-01', '2023-10-31', 18.0, 5000000.00, 0.00, 0.00, 0.00, 5000000.00, 0.00, 0.00, 4400000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL),
+(7, 7, '2023-10-01', '2023-10-31', 22.0, 18000000.00, 0.00, 0.00, 0.00, 18000000.00, 0.00, 0.00, 15840000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL),
+(8, 8, '2023-10-01', '2023-10-31', 22.0, 20000000.00, 0.00, 0.00, 0.00, 20000000.00, 0.00, 0.00, 17600000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL),
+(9, 9, '2023-10-01', '2023-10-31', 22.0, 16000000.00, 0.00, 0.00, 0.00, 16000000.00, 0.00, 0.00, 14080000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL),
+(10, 10, '2023-10-01', '2023-10-31', 22.0, 17000000.00, 0.00, 0.00, 0.00, 17000000.00, 0.00, 0.00, 14960000.00, NULL, 'paid', '2025-04-30 11:57:25', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -852,17 +1099,36 @@ INSERT INTO `payrolls` (`id`, `employee_id`, `month`, `year`, `basic_salary`, `a
 CREATE TABLE `performances` (
   `id` int(11) NOT NULL,
   `employee_id` int(11) NOT NULL,
-  `reviewer_id` int(11) NOT NULL,
+  `reviewer_user_id` int(11) NOT NULL COMMENT 'User performing the review',
+  `review_period_start` date NOT NULL,
+  `review_period_end` date NOT NULL,
   `review_date` date NOT NULL,
-  `performance_score` decimal(4,2) NOT NULL,
+  `performance_score` decimal(4,2) DEFAULT NULL,
   `strengths` text DEFAULT NULL,
-  `weaknesses` text DEFAULT NULL,
-  `goals` text DEFAULT NULL,
-  `comments` text DEFAULT NULL,
-  `status` varchar(20) DEFAULT 'draft',
+  `areas_for_improvement` text DEFAULT NULL,
+  `employee_comments` text DEFAULT NULL,
+  `reviewer_comments` text DEFAULT NULL,
+  `goals_for_next_period` text DEFAULT NULL,
+  `status` enum('draft','submitted','acknowledged','completed') DEFAULT 'draft',
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `performances`
+--
+
+INSERT INTO `performances` (`id`, `employee_id`, `reviewer_user_id`, `review_period_start`, `review_period_end`, `review_date`, `performance_score`, `strengths`, `areas_for_improvement`, `employee_comments`, `reviewer_comments`, `goals_for_next_period`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, '2023-01-01', '2023-12-31', '2023-12-15', 4.50, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49'),
+(2, 2, 1, '2023-01-01', '2023-12-31', '2023-12-15', 4.20, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49'),
+(3, 3, 1, '2023-01-01', '2023-12-31', '2023-12-15', 4.00, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49'),
+(4, 4, 2, '2023-01-01', '2023-12-31', '2023-12-15', 3.80, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49'),
+(5, 5, 2, '2023-01-01', '2023-12-31', '2023-12-15', 4.10, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49'),
+(6, 6, 3, '2023-01-01', '2023-12-31', '2023-12-15', 3.90, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49'),
+(7, 7, 3, '2023-01-01', '2023-12-31', '2023-12-15', 4.30, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49'),
+(8, 8, 1, '2023-01-01', '2023-12-31', '2023-12-15', 4.00, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49'),
+(9, 9, 2, '2023-01-01', '2023-12-31', '2023-12-15', 3.70, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49'),
+(10, 10, 3, '2023-01-01', '2023-12-31', '2023-12-15', 4.20, NULL, NULL, NULL, NULL, NULL, 'draft', '2025-04-30 11:57:49', '2025-04-30 11:57:49');
 
 -- --------------------------------------------------------
 
@@ -873,36 +1139,26 @@ CREATE TABLE `performances` (
 CREATE TABLE `permissions` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `code` varchar(50) NOT NULL,
+  `code` varchar(50) NOT NULL COMMENT 'Unique code for permission checks',
   `description` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `permissions`
 --
 
 INSERT INTO `permissions` (`id`, `name`, `code`, `description`, `created_at`) VALUES
-(1, 'view_users', 'view_users', 'Xem danh s??ch ng?????i d??ng', '2025-04-23 13:22:15'),
-(2, 'create_users', 'create_users', 'T???o ng?????i d??ng m???i', '2025-04-23 13:22:15'),
-(3, 'edit_users', 'edit_users', 'S???a th??ng tin ng?????i d??ng', '2025-04-23 13:22:15'),
-(4, 'delete_users', 'delete_users', 'X??a ng?????i d??ng', '2025-04-23 13:22:15'),
-(5, 'view_departments', 'view_departments', 'Xem danh s??ch ph??ng ban', '2025-04-23 13:22:15'),
-(6, 'manage_departments', 'manage_departments', 'Qu???n l?? ph??ng ban', '2025-04-23 13:22:15'),
-(7, 'view_salary', 'view_salary', 'Xem th??ng tin l????ng', '2025-04-23 13:22:15'),
-(8, 'manage_salary', 'manage_salary', 'Qu???n l?? l????ng', '2025-04-23 13:22:15'),
-(9, 'view_leaves', 'view_leaves', 'Xem ????n t???', '2025-04-23 13:22:15'),
-(10, 'manage_leaves', 'manage_leaves', 'Qu???n l?? ????n t???', '2025-04-23 13:22:15'),
-(11, 'view_attendance', 'view_attendance', 'Xem ch???m c??ng', '2025-04-23 13:22:15'),
-(12, 'manage_attendance', 'manage_attendance', 'Qu???n l?? ch???m c??ng', '2025-04-23 13:22:15'),
-(13, 'view_documents', 'view_documents', 'Xem t??i li???u', '2025-04-23 13:22:15'),
-(14, 'manage_documents', 'manage_documents', 'Qu???n l?? t??i li???u', '2025-04-23 13:22:15'),
-(15, 'view_evaluations', 'view_evaluations', 'Xem ????nh gi??', '2025-04-23 13:22:15'),
-(16, 'manage_evaluations', 'manage_evaluations', 'Qu???n l?? ????nh gi??', '2025-04-23 13:22:15'),
-(17, 'view_trainings', 'view_trainings', 'Xem ????o t???o', '2025-04-23 13:22:15'),
-(18, 'manage_trainings', 'manage_trainings', 'Qu???n l?? ????o t???o', '2025-04-23 13:22:15'),
-(19, 'view_equipment', 'view_equipment', 'Xem thi???t b???', '2025-04-23 13:22:15'),
-(20, 'manage_equipment', 'manage_equipment', 'Qu???n l?? thi???t b???', '2025-04-23 13:22:15');
+(1, 'Xem nhân viên', 'view_employees', 'Xem thông tin nhân viên', '2025-04-30 04:55:23'),
+(2, 'Thêm nhân viên', 'add_employees', 'Thêm nhân viên mới', '2025-04-30 04:55:23'),
+(3, 'Sửa nhân viên', 'edit_employees', 'Cập nhật thông tin nhân viên', '2025-04-30 04:55:23'),
+(4, 'Xóa nhân viên', 'delete_employees', 'Xóa nhân viên', '2025-04-30 04:55:23'),
+(5, 'Duyệt nghỉ phép', 'approve_leaves', 'Phê duyệt đơn nghỉ phép', '2025-04-30 04:55:23'),
+(6, 'Quản lý lương', 'manage_payroll', 'Tính và quản lý lương', '2025-04-30 04:55:23'),
+(7, 'Quản lý tài sản', 'manage_assets', 'Theo dõi và phân bổ tài sản', '2025-04-30 04:55:23'),
+(8, 'Tạo báo cáo', 'generate_reports', 'Xuất báo cáo hệ thống', '2025-04-30 04:55:23'),
+(9, 'Quản lý đào tạo', 'manage_training', 'Tổ chức khóa đào tạo', '2025-04-30 04:55:23'),
+(10, 'Cấu hình hệ thống', 'configure_system', 'Thay đổi cài đặt hệ thống', '2025-04-30 04:55:23');
 
 -- --------------------------------------------------------
 
@@ -916,10 +1172,27 @@ CREATE TABLE `policies` (
   `description` text DEFAULT NULL,
   `category` varchar(50) NOT NULL,
   `effective_date` date NOT NULL,
-  `status` varchar(20) NOT NULL,
+  `status` varchar(20) NOT NULL COMMENT 'e.g., draft, active, archived',
+  `file_url` varchar(512) DEFAULT NULL COMMENT 'Optional link to policy document',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `policies`
+--
+
+INSERT INTO `policies` (`id`, `title`, `description`, `category`, `effective_date`, `status`, `file_url`, `created_at`, `updated_at`) VALUES
+(1, 'Chính sách nghỉ phép', 'Quy định về nghỉ phép năm', 'HR', '2023-01-01', 'active', 'http://example.com/leave_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30'),
+(2, 'Chính sách bảo mật', 'Quy định bảo mật thông tin', 'IT', '2023-01-01', 'active', 'http://example.com/security_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30'),
+(3, 'Chính sách chống quấy rối', 'Quy định ứng xử tại nơi làm việc', 'HR', '2023-01-01', 'active', 'http://example.com/harassment_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30'),
+(4, 'Chính sách tăng lương', 'Nguyên tắc tăng lương hàng năm', 'Finance', '2023-01-01', 'active', 'http://example.com/salary_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30'),
+(5, 'Chính sách mua sắm', 'Quy trình mua sắm nội bộ', 'Finance', '2023-01-01', 'active', 'http://example.com/procurement_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30'),
+(6, 'Chính sách đào tạo', 'Hỗ trợ đào tạo nhân viên', 'HR', '2023-01-01', 'active', 'http://example.com/training_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30'),
+(7, 'Chính sách làm việc từ xa', 'Quy định WFH', 'HR', '2023-01-01', 'active', 'http://example.com/wfh_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30'),
+(8, 'Chính sách sử dụng tài sản', 'Quản lý thiết bị công ty', 'Admin', '2023-01-01', 'active', 'http://example.com/assets_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30'),
+(9, 'Chính sách an toàn lao động', 'Quy định PCCC', 'Legal', '2023-01-01', 'active', 'http://example.com/safety_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30'),
+(10, 'Chính sách môi trường', 'Giảm thiểu rác thải', 'Admin', '2023-01-01', 'active', 'http://example.com/environment_policy.pdf', '2025-04-30 04:56:30', '2025-04-30 04:56:30');
 
 -- --------------------------------------------------------
 
@@ -932,26 +1205,26 @@ CREATE TABLE `positions` (
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `department_id` int(11) NOT NULL,
+  `salary_grade` varchar(50) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `salary_grade` varchar(20) DEFAULT NULL
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `positions`
 --
 
-INSERT INTO `positions` (`id`, `name`, `description`, `department_id`, `created_at`, `updated_at`, `salary_grade`) VALUES
-(1, 'HR Manager', 'Human Resources Manager', 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'M1'),
-(2, 'HR Specialist', 'Human Resources Specialist', 1, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'S1'),
-(3, 'IT Manager', 'Information Technology Manager', 2, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'M1'),
-(4, 'Software Developer', 'Software Developer', 2, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'S1'),
-(5, 'Finance Manager', 'Finance Manager', 3, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'M1'),
-(6, 'Accountant', 'Accountant', 3, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'S1'),
-(7, 'Marketing Manager', 'Marketing Manager', 4, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'M1'),
-(8, 'Marketing Specialist', 'Marketing Specialist', 4, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'S1'),
-(9, 'Operations Manager', 'Operations Manager', 5, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'M1'),
-(10, 'Operations Coordinator', 'Operations Coordinator', 5, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'S1');
+INSERT INTO `positions` (`id`, `name`, `description`, `department_id`, `salary_grade`, `created_at`, `updated_at`) VALUES
+(1, 'IT Manager', NULL, 1, 'M1', '2025-04-30 11:53:26', '2025-04-30 11:53:26'),
+(2, 'Senior Developer', NULL, 1, 'E4', '2025-04-30 11:53:26', '2025-04-30 11:53:26'),
+(3, 'HR Manager', NULL, 2, 'M1', '2025-04-30 11:53:26', '2025-04-30 11:53:26'),
+(4, 'Recruiter', NULL, 2, 'E2', '2025-04-30 11:53:26', '2025-04-30 11:53:26'),
+(5, 'Finance Manager', NULL, 3, 'M1', '2025-04-30 11:53:26', '2025-04-30 11:53:26'),
+(6, 'Accountant', NULL, 3, 'E3', '2025-04-30 11:53:26', '2025-04-30 11:53:26'),
+(7, 'Marketing Director', NULL, 4, 'M2', '2025-04-30 11:53:26', '2025-04-30 11:53:26'),
+(8, 'Sales Executive', NULL, 5, 'E2', '2025-04-30 11:53:26', '2025-04-30 11:53:26'),
+(9, 'Operations Lead', NULL, 6, 'M1', '2025-04-30 11:53:26', '2025-04-30 11:53:26'),
+(10, 'Legal Advisor', NULL, 7, 'E4', '2025-04-30 11:53:26', '2025-04-30 11:53:26');
 
 -- --------------------------------------------------------
 
@@ -962,14 +1235,32 @@ INSERT INTO `positions` (`id`, `name`, `description`, `department_id`, `created_
 CREATE TABLE `projects` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
+  `project_code` varchar(50) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `start_date` date NOT NULL,
   `end_date` date DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
-  `manager_id` int(11) DEFAULT NULL,
+  `status` enum('planning','active','completed','on_hold','cancelled') NOT NULL DEFAULT 'planning',
+  `manager_employee_id` int(11) DEFAULT NULL,
+  `budget` decimal(15,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `projects`
+--
+
+INSERT INTO `projects` (`id`, `name`, `project_code`, `description`, `start_date`, `end_date`, `status`, `manager_employee_id`, `budget`, `created_at`, `updated_at`) VALUES
+(1, 'Dự án CRM', NULL, NULL, '2023-01-01', '2023-12-31', 'active', 2, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48'),
+(2, 'Nâng cấp hệ thống', NULL, NULL, '2023-02-01', '2023-11-30', 'active', 2, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48'),
+(3, 'Triển khai ERP', NULL, NULL, '2023-03-01', '2024-03-01', 'planning', 2, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48'),
+(4, 'Phát triển App Mobile', NULL, NULL, '2023-04-01', '2023-10-31', 'completed', 4, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48'),
+(5, 'Chiến dịch Marketing Q4', NULL, NULL, '2023-09-01', '2023-12-31', 'active', 8, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48'),
+(6, 'Cải tiến quy trình', NULL, NULL, '2023-05-01', '2023-08-31', 'completed', 6, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48'),
+(7, 'Đào tạo nội bộ', NULL, NULL, '2023-06-01', '2023-12-31', 'active', 3, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48'),
+(8, 'Nghiên cứu AI', NULL, NULL, '2023-07-01', '2024-07-01', 'planning', 2, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48'),
+(9, 'Tối ưu hóa Database', NULL, NULL, '2023-08-01', '2023-09-30', 'completed', 4, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48'),
+(10, 'Xây dựng Website', NULL, NULL, '2023-10-01', '2023-12-31', 'active', 5, NULL, '2025-04-30 04:58:48', '2025-04-30 04:58:48');
 
 -- --------------------------------------------------------
 
@@ -980,14 +1271,31 @@ CREATE TABLE `projects` (
 CREATE TABLE `project_resources` (
   `id` int(11) NOT NULL,
   `project_id` int(11) NOT NULL,
-  `resource_type` varchar(50) NOT NULL,
-  `resource_id` int(11) NOT NULL,
-  `allocation_percentage` int(11) DEFAULT NULL,
+  `resource_type` enum('employee','asset','other') NOT NULL,
+  `resource_id` int(11) NOT NULL COMMENT 'FK to employees.id or assets.id based on type',
+  `role` varchar(100) DEFAULT NULL COMMENT 'Role if employee resource',
+  `allocation_percentage` int(11) DEFAULT NULL COMMENT 'Percentage of time/resource allocated',
   `start_date` date NOT NULL,
   `end_date` date DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project_resources`
+--
+
+INSERT INTO `project_resources` (`id`, `project_id`, `resource_type`, `resource_id`, `role`, `allocation_percentage`, `start_date`, `end_date`, `created_at`, `updated_at`) VALUES
+(1, 1, 'employee', 4, 'Developer', 80, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03'),
+(2, 1, 'employee', 5, 'Developer', 70, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03'),
+(3, 2, 'employee', 4, 'DevOps', 100, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03'),
+(4, 3, 'employee', 2, 'Project Manager', 50, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03'),
+(5, 4, 'employee', 8, 'Designer', 60, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03'),
+(6, 5, 'employee', 8, 'Marketer', 90, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03'),
+(7, 6, 'employee', 6, 'Analyst', 70, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03'),
+(8, 7, 'employee', 3, 'Trainer', 80, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03'),
+(9, 8, 'employee', 4, 'Researcher', 60, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03'),
+(10, 9, 'employee', 4, 'DBA', 75, '0000-00-00', NULL, '2025-04-30 04:59:03', '2025-04-30 04:59:03');
 
 -- --------------------------------------------------------
 
@@ -1000,12 +1308,33 @@ CREATE TABLE `project_tasks` (
   `project_id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  `assigned_to` int(11) DEFAULT NULL,
+  `assigned_to_employee_id` int(11) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
   `due_date` date DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
+  `estimated_hours` decimal(5,2) DEFAULT NULL,
+  `actual_hours` decimal(5,2) DEFAULT NULL,
+  `priority` enum('low','medium','high','critical') DEFAULT 'medium',
+  `status` enum('pending','in_progress','completed','blocked','cancelled') NOT NULL DEFAULT 'pending',
+  `parent_task_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project_tasks`
+--
+
+INSERT INTO `project_tasks` (`id`, `project_id`, `title`, `description`, `assigned_to_employee_id`, `start_date`, `due_date`, `estimated_hours`, `actual_hours`, `priority`, `status`, `parent_task_id`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Thiết kế database', NULL, 4, NULL, '2023-02-01', NULL, NULL, 'medium', 'completed', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56'),
+(2, 1, 'Phát triển API', NULL, 5, NULL, '2023-03-01', NULL, NULL, 'medium', 'completed', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56'),
+(3, 2, 'Nâng cấp server', NULL, 4, NULL, '2023-04-01', NULL, NULL, 'medium', 'in_progress', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56'),
+(4, 3, 'Lập kế hoạch ERP', NULL, 2, NULL, '2023-05-01', NULL, NULL, 'medium', 'pending', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56'),
+(5, 4, 'Thiết kế UI/UX', NULL, 8, NULL, '2023-06-01', NULL, NULL, 'medium', 'completed', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56'),
+(6, 5, 'Chạy quảng cáo', NULL, 8, NULL, '2023-07-01', NULL, NULL, 'medium', 'in_progress', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56'),
+(7, 6, 'Phân tích quy trình', NULL, 6, NULL, '2023-08-01', NULL, NULL, 'medium', 'completed', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56'),
+(8, 7, 'Tổ chức training', NULL, 3, NULL, '2023-09-01', NULL, NULL, 'medium', 'in_progress', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56'),
+(9, 8, 'Nghiên cứu AI', NULL, 4, NULL, '2023-10-01', NULL, NULL, 'medium', 'pending', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56'),
+(10, 9, 'Tối ưu query', NULL, 4, NULL, '2023-11-01', NULL, NULL, 'medium', 'completed', NULL, '2025-04-30 04:58:56', '2025-04-30 04:58:56');
 
 -- --------------------------------------------------------
 
@@ -1022,22 +1351,119 @@ CREATE TABLE `rate_limits` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `rate_limits`
+--
+
+INSERT INTO `rate_limits` (`id`, `ip_address`, `endpoint`, `request_count`, `window_start`, `created_at`) VALUES
+(1, '192.168.1.100', '/api/login', 3, '2023-10-01 09:00:00', '2025-04-30 12:00:23'),
+(2, '192.168.1.101', '/api/users', 5, '2023-10-01 10:00:00', '2025-04-30 12:00:23'),
+(3, '192.168.1.102', '/api/employees', 2, '2023-10-01 11:00:00', '2025-04-30 12:00:23'),
+(4, '192.168.1.103', '/api/payroll', 4, '2023-10-01 12:00:00', '2025-04-30 12:00:23'),
+(5, '192.168.1.104', '/api/documents', 1, '2023-10-01 13:00:00', '2025-04-30 12:00:23'),
+(6, '192.168.1.105', '/api/assets', 6, '2023-10-01 14:00:00', '2025-04-30 12:00:23'),
+(7, '192.168.1.106', '/api/leaves', 3, '2023-10-01 15:00:00', '2025-04-30 12:00:23'),
+(8, '192.168.1.107', '/api/projects', 2, '2023-10-01 16:00:00', '2025-04-30 12:00:23'),
+(9, '192.168.1.108', '/api/training', 4, '2023-10-01 17:00:00', '2025-04-30 12:00:23'),
+(10, '192.168.1.109', '/api/settings', 5, '2023-10-01 18:00:00', '2025-04-30 12:00:23');
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `recruitment`
+-- Table structure for table `recruitment_campaigns`
 --
 
-CREATE TABLE `recruitment` (
+CREATE TABLE `recruitment_campaigns` (
   `id` int(11) NOT NULL,
-  `position_id` int(11) NOT NULL,
-  `department_id` int(11) NOT NULL,
-  `status` varchar(20) NOT NULL,
-  `requirements` text DEFAULT NULL,
-  `responsibilities` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `status` enum('draft','active','closed','cancelled') NOT NULL DEFAULT 'draft',
+  `created_by_user_id` int(11) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `recruitment_campaigns`
+--
+
+INSERT INTO `recruitment_campaigns` (`id`, `title`, `description`, `start_date`, `end_date`, `status`, `created_by_user_id`, `created_at`, `updated_at`) VALUES
+(1, 'Tuyển dụng IT 2023', NULL, '2023-01-01', '2023-12-31', 'closed', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11'),
+(2, 'Tuyển dụng HR Q4', NULL, '2023-10-01', '2023-12-31', 'active', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11'),
+(3, 'Tuyển dụng Sales 2023', NULL, '2023-06-01', '2023-09-30', 'closed', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11'),
+(4, 'Tuyển dụng Marketing', NULL, '2023-07-01', '2023-08-31', 'closed', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11'),
+(5, 'Tuyển dụng Kế toán', NULL, '2023-09-01', '2023-11-30', 'active', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11'),
+(6, 'Tuyển dụng Intern', NULL, '2023-05-01', '2023-05-31', 'closed', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11'),
+(7, 'Tuyển dụng R&D', NULL, '2023-04-01', '2023-06-30', 'closed', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11'),
+(8, 'Tuyển dụng Customer Service', NULL, '2023-08-01', '2023-10-31', 'active', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11'),
+(9, 'Tuyển dụng Legal', NULL, '2023-03-01', '2023-04-30', 'closed', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11'),
+(10, 'Tuyển dụng Logistics', NULL, '2023-02-01', '2023-03-31', 'closed', 3, '2025-04-30 11:58:11', '2025-04-30 11:58:11');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `report_executions`
+--
+
+CREATE TABLE `report_executions` (
+  `id` bigint(20) NOT NULL,
+  `template_id` int(11) NOT NULL,
+  `schedule_id` int(11) DEFAULT NULL COMMENT 'Null if run manually',
+  `parameters_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Parameters used for this execution' CHECK (json_valid(`parameters_json`)),
+  `status` enum('pending','running','completed','failed','cancelled') NOT NULL DEFAULT 'pending',
+  `start_time` datetime DEFAULT NULL,
+  `end_time` datetime DEFAULT NULL,
+  `result_url` varchar(512) DEFAULT NULL COMMENT 'URL to the generated report file',
+  `result_metadata_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'e.g., row count, file size' CHECK (json_valid(`result_metadata_json`)),
+  `error_message` text DEFAULT NULL,
+  `executed_by_user_id` int(11) DEFAULT NULL COMMENT 'User who triggered manual run',
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `report_schedules`
+--
+
+CREATE TABLE `report_schedules` (
+  `id` int(11) NOT NULL,
+  `template_id` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `schedule_type` enum('daily','weekly','monthly','quarterly','yearly','on_demand') NOT NULL,
+  `schedule_time` time DEFAULT NULL COMMENT 'Time of day for scheduled runs',
+  `schedule_day_of_week` tinyint(1) DEFAULT NULL COMMENT '1=Sun, 7=Sat (for weekly)',
+  `schedule_day_of_month` tinyint(2) DEFAULT NULL COMMENT '1-31 (for monthly)',
+  `recipients_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'JSON array of email addresses or user IDs' CHECK (json_valid(`recipients_json`)),
+  `parameters_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'JSON of parameters to run with' CHECK (json_valid(`parameters_json`)),
+  `status` enum('active','inactive','error') NOT NULL DEFAULT 'active',
+  `last_run_at` datetime DEFAULT NULL,
+  `next_run_at` datetime DEFAULT NULL,
+  `created_by_user_id` int(11) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `report_templates`
+--
+
+CREATE TABLE `report_templates` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `template_type` varchar(50) NOT NULL COMMENT 'e.g., SQL, Predefined',
+  `query_or_definition` text NOT NULL COMMENT 'SQL query or definition for predefined reports',
+  `parameters` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'JSON defining required parameters' CHECK (json_valid(`parameters`)),
+  `output_format` enum('csv','pdf','html','json') DEFAULT 'csv',
+  `created_by_user_id` int(11) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1050,17 +1476,23 @@ CREATE TABLE `roles` (
   `name` varchar(50) NOT NULL,
   `description` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `roles`
 --
 
 INSERT INTO `roles` (`id`, `name`, `description`, `created_at`) VALUES
-(1, 'Super Admin', 'Qu???n tr??? vi??n cao c???p - c?? to??n quy???n tr??n h??? th???ng', '2025-04-23 13:22:15'),
-(2, 'HR Manager', 'Qu???n l?? nh??n s??? - qu???n l?? th??ng tin nh??n vi??n v?? c??c quy tr??nh HR', '2025-04-23 13:22:15'),
-(3, 'Department Manager', 'Qu???n l?? ph??ng ban - qu???n l?? nh??n vi??n trong ph??ng ban', '2025-04-23 13:22:15'),
-(4, 'Employee', 'Nh??n vi??n - ng?????i d??ng c?? b???n c???a h??? th???ng', '2025-04-23 13:22:15');
+(1, 'Admin', 'Quản trị hệ thống', '2025-04-30 04:53:07'),
+(2, 'Manager', 'Quản lý phòng ban', '2025-04-30 04:53:07'),
+(3, 'HR', 'Nhân sự', '2025-04-30 04:53:07'),
+(4, 'Employee', 'Nhân viên', '2025-04-30 04:53:07'),
+(5, 'Auditor', 'Kiểm toán nội bộ', '2025-04-30 04:53:07'),
+(6, 'Developer', 'Lập trình viên', '2025-04-30 04:53:07'),
+(7, 'Accountant', 'Kế toán', '2025-04-30 04:53:07'),
+(8, 'Designer', 'Thiết kế đồ họa', '2025-04-30 04:53:07'),
+(9, 'Support', 'Hỗ trợ khách hàng', '2025-04-30 04:53:07'),
+(10, 'Intern', 'Thực tập sinh', '2025-04-30 04:53:07');
 
 -- --------------------------------------------------------
 
@@ -1072,73 +1504,32 @@ CREATE TABLE `role_permissions` (
   `role_id` int(11) NOT NULL,
   `permission_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `role_permissions`
 --
 
 INSERT INTO `role_permissions` (`role_id`, `permission_id`, `created_at`) VALUES
-(1, 1, '2025-04-23 13:22:15'),
-(1, 2, '2025-04-23 13:22:15'),
-(1, 3, '2025-04-23 13:22:15'),
-(1, 4, '2025-04-23 13:22:15'),
-(1, 5, '2025-04-23 13:22:15'),
-(1, 6, '2025-04-23 13:22:15'),
-(1, 7, '2025-04-23 13:22:15'),
-(1, 8, '2025-04-23 13:22:15'),
-(1, 9, '2025-04-23 13:22:15'),
-(1, 10, '2025-04-23 13:22:15'),
-(1, 11, '2025-04-23 13:22:15'),
-(1, 12, '2025-04-23 13:22:15'),
-(1, 13, '2025-04-23 13:22:15'),
-(1, 14, '2025-04-23 13:22:15'),
-(1, 15, '2025-04-23 13:22:15'),
-(1, 16, '2025-04-23 13:22:15'),
-(1, 17, '2025-04-23 13:22:15'),
-(1, 18, '2025-04-23 13:22:15'),
-(1, 19, '2025-04-23 13:22:15'),
-(1, 20, '2025-04-23 13:22:15'),
-(2, 1, '2025-04-23 13:22:15'),
-(2, 2, '2025-04-23 13:22:15'),
-(2, 3, '2025-04-23 13:22:15'),
-(2, 5, '2025-04-23 13:22:15'),
-(2, 6, '2025-04-23 13:22:15'),
-(2, 7, '2025-04-23 13:22:15'),
-(2, 8, '2025-04-23 13:22:15'),
-(2, 9, '2025-04-23 13:22:15'),
-(2, 10, '2025-04-23 13:22:15'),
-(2, 11, '2025-04-23 13:22:15'),
-(2, 12, '2025-04-23 13:22:15'),
-(2, 13, '2025-04-23 13:22:15'),
-(2, 14, '2025-04-23 13:22:15'),
-(2, 15, '2025-04-23 13:22:15'),
-(2, 16, '2025-04-23 13:22:15'),
-(2, 17, '2025-04-23 13:22:15'),
-(2, 18, '2025-04-23 13:22:15'),
-(2, 19, '2025-04-23 13:22:15'),
-(2, 20, '2025-04-23 13:22:15'),
-(3, 1, '2025-04-23 13:22:15'),
-(3, 5, '2025-04-23 13:22:15'),
-(3, 7, '2025-04-23 13:22:15'),
-(3, 9, '2025-04-23 13:22:15'),
-(3, 10, '2025-04-23 13:22:15'),
-(3, 11, '2025-04-23 13:22:15'),
-(3, 12, '2025-04-23 13:22:15'),
-(3, 13, '2025-04-23 13:22:15'),
-(3, 15, '2025-04-23 13:22:15'),
-(3, 16, '2025-04-23 13:22:15'),
-(3, 17, '2025-04-23 13:22:15'),
-(3, 19, '2025-04-23 13:22:15'),
-(4, 1, '2025-04-23 13:22:15'),
-(4, 5, '2025-04-23 13:22:15'),
-(4, 7, '2025-04-23 13:22:15'),
-(4, 9, '2025-04-23 13:22:15'),
-(4, 11, '2025-04-23 13:22:15'),
-(4, 13, '2025-04-23 13:22:15'),
-(4, 15, '2025-04-23 13:22:15'),
-(4, 17, '2025-04-23 13:22:15'),
-(4, 19, '2025-04-23 13:22:15');
+(1, 1, '2025-04-30 04:55:32'),
+(1, 2, '2025-04-30 04:55:32'),
+(1, 3, '2025-04-30 04:55:32'),
+(1, 4, '2025-04-30 04:55:32'),
+(1, 5, '2025-04-30 04:55:32'),
+(1, 6, '2025-04-30 04:55:32'),
+(1, 7, '2025-04-30 04:55:32'),
+(1, 8, '2025-04-30 04:55:32'),
+(1, 9, '2025-04-30 04:55:32'),
+(1, 10, '2025-04-30 04:55:32'),
+(2, 1, '2025-04-30 04:55:32'),
+(2, 5, '2025-04-30 04:55:32'),
+(2, 6, '2025-04-30 04:55:32'),
+(2, 8, '2025-04-30 04:55:32'),
+(3, 1, '2025-04-30 04:55:32'),
+(3, 2, '2025-04-30 04:55:32'),
+(3, 5, '2025-04-30 04:55:32'),
+(3, 9, '2025-04-30 04:55:32'),
+(4, 1, '2025-04-30 04:55:32');
 
 -- --------------------------------------------------------
 
@@ -1148,32 +1539,32 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`, `created_at`) VALUES
 
 CREATE TABLE `salary_history` (
   `salary_history_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `employee_id` int(11) NOT NULL,
   `effective_date` date NOT NULL,
-  `job_position` varchar(255) DEFAULT NULL,
-  `department` varchar(255) DEFAULT NULL,
-  `salary_coefficient` decimal(10,2) NOT NULL,
-  `salary_level` varchar(50) NOT NULL,
+  `previous_salary` decimal(15,2) DEFAULT NULL,
+  `new_salary` decimal(15,2) NOT NULL,
+  `salary_currency` varchar(3) NOT NULL DEFAULT 'VND',
+  `reason` text DEFAULT NULL COMMENT 'Reason for change (e.g., Promotion, Annual Review)',
   `decision_attachment_url` varchar(512) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `recorded_by_user_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `recorded_by_user_id` int(11) DEFAULT NULL COMMENT 'User who recorded the change',
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `salary_history`
 --
 
-INSERT INTO `salary_history` (`salary_history_id`, `user_id`, `effective_date`, `job_position`, `department`, `salary_coefficient`, `salary_level`, `decision_attachment_url`, `created_at`, `recorded_by_user_id`) VALUES
-(1, 1, '2023-01-01', 'HR Manager', 'Human Resources', 3.00, 'Senior', NULL, '2025-04-21 14:57:56', NULL),
-(2, 2, '2023-01-01', 'HR Manager', 'Human Resources', 2.50, 'Mid', NULL, '2025-04-21 14:57:56', NULL),
-(3, 3, '2023-01-01', 'IT Manager', 'Information Technology', 3.00, 'Senior', NULL, '2025-04-21 14:57:56', NULL),
-(4, 4, '2023-01-01', 'Finance Manager', 'Finance', 3.00, 'Senior', NULL, '2025-04-21 14:57:56', NULL),
-(5, 5, '2023-01-01', 'Marketing Manager', 'Marketing', 3.00, 'Senior', NULL, '2025-04-21 14:57:56', NULL),
-(6, 6, '2023-01-01', 'Operations Manager', 'Operations', 3.00, 'Senior', NULL, '2025-04-21 14:57:56', NULL),
-(7, 7, '2023-01-01', 'HR Specialist', 'Human Resources', 2.00, 'Junior', NULL, '2025-04-21 14:57:56', NULL),
-(8, 8, '2023-01-01', 'Software Developer', 'Information Technology', 2.00, 'Junior', NULL, '2025-04-21 14:57:56', NULL),
-(9, 9, '2023-01-01', 'Accountant', 'Finance', 2.00, 'Junior', NULL, '2025-04-21 14:57:56', NULL),
-(10, 10, '2023-01-01', 'Marketing Specialist', 'Marketing', 2.00, 'Junior', NULL, '2025-04-21 14:57:56', NULL);
+INSERT INTO `salary_history` (`salary_history_id`, `employee_id`, `effective_date`, `previous_salary`, `new_salary`, `salary_currency`, `reason`, `decision_attachment_url`, `recorded_by_user_id`, `created_at`) VALUES
+(1, 1, '2021-01-01', 25000000.00, 30000000.00, 'VND', 'Thăng chức', NULL, NULL, '2025-04-30 11:54:16'),
+(2, 2, '2021-02-01', 20000000.00, 25000000.00, 'VND', 'Tăng lương định kỳ', NULL, NULL, '2025-04-30 11:54:16'),
+(3, 3, '2021-03-01', 18000000.00, 22000000.00, 'VND', 'Hoàn thành dự án', NULL, NULL, '2025-04-30 11:54:16'),
+(4, 4, '2021-04-01', 12000000.00, 15000000.00, 'VND', 'Ký hợp đồng mới', NULL, NULL, '2025-04-30 11:54:16'),
+(5, 5, '2021-05-01', 12000000.00, 15000000.00, 'VND', 'Ký hợp đồng mới', NULL, NULL, '2025-04-30 11:54:16'),
+(6, 6, '2021-06-01', NULL, 5000000.00, 'VND', 'Bắt đầu thực tập', NULL, NULL, '2025-04-30 11:54:16'),
+(7, 7, '2021-07-01', 15000000.00, 18000000.00, 'VND', 'Tăng lương', NULL, NULL, '2025-04-30 11:54:16'),
+(8, 8, '2021-08-01', 18000000.00, 20000000.00, 'VND', 'Thăng chức', NULL, NULL, '2025-04-30 11:54:16'),
+(9, 9, '2021-09-01', 14000000.00, 16000000.00, 'VND', 'Điều chỉnh lương', NULL, NULL, '2025-04-30 11:54:16'),
+(10, 10, '2021-10-01', 15000000.00, 17000000.00, 'VND', 'Tăng lương', NULL, NULL, '2025-04-30 11:54:16');
 
 -- --------------------------------------------------------
 
@@ -1185,14 +1576,75 @@ CREATE TABLE `sessions` (
   `session_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `expires` int(11) UNSIGNED NOT NULL,
   `data` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `sessions`
+-- Table structure for table `system_logs`
 --
 
-INSERT INTO `sessions` (`session_id`, `expires`, `data`) VALUES
-('edNB58r8bE929FZODxkFlUnw81X0rb4r', 1745486529, '{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2025-04-24T07:01:36.470Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"user\":{\"id\":4,\"username\":\"hr\",\"role_id\":4,\"full_name\":\"HR Staff\"}}');
+CREATE TABLE `system_logs` (
+  `id` bigint(20) NOT NULL,
+  `log_type` varchar(50) NOT NULL COMMENT 'e.g., Application, Database, Security',
+  `log_level` enum('debug','info','notice','warning','error','critical','alert','emergency') NOT NULL,
+  `message` text NOT NULL,
+  `context` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Additional context as JSON' CHECK (json_valid(`context`)),
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL COMMENT 'User associated with the event, if applicable',
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `system_logs`
+--
+
+INSERT INTO `system_logs` (`id`, `log_type`, `log_level`, `message`, `context`, `ip_address`, `user_agent`, `user_id`, `created_at`) VALUES
+(1, 'Application', 'info', 'Khởi động hệ thống', NULL, NULL, NULL, NULL, '2025-04-30 12:00:07'),
+(2, 'Database', 'warning', 'Truy vấn chậm', NULL, NULL, NULL, NULL, '2025-04-30 12:00:07'),
+(3, 'Security', 'error', 'Đăng nhập thất bại', NULL, NULL, NULL, 1, '2025-04-30 12:00:07'),
+(4, 'Application', 'info', 'Cập nhật phiên bản mới', NULL, NULL, NULL, NULL, '2025-04-30 12:00:07'),
+(5, 'Database', 'error', 'Lỗi kết nối', NULL, NULL, NULL, NULL, '2025-04-30 12:00:07'),
+(6, 'Security', 'warning', 'Truy cập trái phép', NULL, NULL, NULL, 2, '2025-04-30 12:00:07'),
+(7, 'Application', 'debug', 'Kiểm tra API', NULL, NULL, NULL, 3, '2025-04-30 12:00:07'),
+(8, 'Database', 'info', 'Sao lưu thành công', NULL, NULL, NULL, NULL, '2025-04-30 12:00:07'),
+(9, 'Security', 'info', 'Đổi mật khẩu thành công', NULL, NULL, NULL, 4, '2025-04-30 12:00:07'),
+(10, 'Application', 'error', 'Lỗi xử lý đơn nghỉ phép', NULL, NULL, NULL, 5, '2025-04-30 12:00:07');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `system_settings`
+--
+
+CREATE TABLE `system_settings` (
+  `id` int(11) NOT NULL,
+  `setting_key` varchar(100) NOT NULL,
+  `setting_value` text NOT NULL,
+  `setting_type` enum('string','integer','boolean','json','array') NOT NULL DEFAULT 'string',
+  `description` text DEFAULT NULL,
+  `is_public` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 if readable by non-admins (e.g., site name)',
+  `created_by_user_id` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `system_settings`
+--
+
+INSERT INTO `system_settings` (`id`, `setting_key`, `setting_value`, `setting_type`, `description`, `is_public`, `created_by_user_id`, `created_at`, `updated_at`) VALUES
+(1, 'company_name', 'Công ty ABC', 'string', 'Tên công ty', 1, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53'),
+(2, 'default_currency', 'VND', 'string', 'Đơn vị tiền tệ mặc định', 1, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53'),
+(3, 'max_login_attempts', '5', 'integer', 'Số lần đăng nhập sai tối đa', 0, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53'),
+(4, 'password_expiry_days', '90', 'integer', 'Thời hạn đổi mật khẩu (ngày)', 0, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53'),
+(5, 'smtp_host', 'smtp.company.com', 'string', 'Máy chủ SMTP', 0, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53'),
+(6, 'smtp_port', '587', 'integer', 'Cổng SMTP', 0, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53'),
+(7, 'annual_leave_days', '12', 'integer', 'Số ngày nghỉ phép năm', 1, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53'),
+(8, 'tax_rate', '0.1', '', 'Thuế thu nhập cá nhân', 1, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53'),
+(9, 'overtime_rate', '1.5', '', 'Hệ số tăng ca', 1, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53'),
+(10, 'theme_color', 'blue', 'string', 'Màu sắc giao diện', 1, NULL, '2025-04-30 11:55:53', '2025-04-30 11:55:53');
 
 -- --------------------------------------------------------
 
@@ -1204,57 +1656,32 @@ CREATE TABLE `tasks` (
   `id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  `assigned_to` int(11) NOT NULL,
-  `assigned_by` int(11) NOT NULL,
+  `assigned_to_employee_id` int(11) DEFAULT NULL,
+  `assigned_by_user_id` int(11) NOT NULL,
   `due_date` date DEFAULT NULL,
-  `priority` varchar(20) DEFAULT 'medium',
-  `status` varchar(20) DEFAULT 'pending',
+  `priority` enum('low','medium','high','critical') DEFAULT 'medium',
+  `status` enum('pending','in_progress','completed','blocked','cancelled') DEFAULT 'pending',
+  `related_entity_type` varchar(50) DEFAULT NULL COMMENT 'e.g., employee, onboarding, performance',
+  `related_entity_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `tasks`
 --
 
-INSERT INTO `tasks` (`id`, `title`, `description`, `assigned_to`, `assigned_by`, `due_date`, `priority`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Complete HR Report', 'Monthly HR performance report', 1, 1, '2024-04-15', 'high', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 'Update IT System', 'System maintenance and updates', 2, 1, '2024-04-20', 'medium', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 'Review Financial Statements', 'Q1 financial review', 3, 1, '2024-04-25', 'high', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 'Marketing Campaign', 'New product launch campaign', 4, 1, '2024-04-30', 'high', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 'Operations Review', 'Monthly operations review', 5, 1, '2024-04-28', 'medium', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 'Employee Training', 'New employee orientation', 6, 1, '2024-04-22', 'high', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 'System Development', 'New feature development', 7, 1, '2024-04-18', 'high', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 'Budget Planning', 'Q2 budget planning', 8, 1, '2024-04-17', 'high', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 'Social Media Campaign', 'Social media marketing campaign', 9, 1, '2024-04-19', 'medium', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 'Process Improvement', 'Operations process improvement', 10, 1, '2024-04-21', 'high', 'pending', '2025-04-21 14:57:56', '2025-04-21 14:57:56');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `trainings`
---
-
-CREATE TABLE `trainings` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `description` text DEFAULT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `location` varchar(255) DEFAULT NULL,
-  `trainer` varchar(255) DEFAULT NULL,
-  `status` varchar(20) DEFAULT 'planned',
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `trainings`
---
-
-INSERT INTO `trainings` (`id`, `name`, `description`, `start_date`, `end_date`, `location`, `trainer`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'New HR Policies', 'Training on updated HR policies and procedures', '2024-04-10', '2024-04-11', 'Training Room A', 'External Trainer', 'planned', '2025-04-15 13:53:46', '2025-04-15 13:53:46'),
-(2, 'IT Security', 'Basic IT security training', '2024-04-15', '2024-04-16', 'Online', 'Internal IT Team', 'planned', '2025-04-15 13:53:46', '2025-04-15 13:53:46');
+INSERT INTO `tasks` (`id`, `title`, `description`, `assigned_to_employee_id`, `assigned_by_user_id`, `due_date`, `priority`, `status`, `related_entity_type`, `related_entity_id`, `created_at`, `updated_at`) VALUES
+(1, 'Kiểm tra hợp đồng', NULL, 3, 1, '2023-10-05', 'medium', 'completed', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10'),
+(2, 'Cập nhật thông tin nhân viên', NULL, 3, 1, '2023-10-06', 'medium', 'in_progress', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10'),
+(3, 'Duyệt đơn nghỉ phép', NULL, 3, 1, '2023-10-07', 'medium', 'pending', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10'),
+(4, 'Bảo trì server', NULL, 4, 2, '2023-10-08', 'medium', 'completed', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10'),
+(5, 'Thiết kế poster', NULL, 8, 8, '2023-10-09', 'medium', 'in_progress', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10'),
+(6, 'Chuẩn bị báo cáo tài chính', NULL, 7, 7, '2023-10-10', 'medium', 'pending', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10'),
+(7, 'Tuyển dụng nhân sự', NULL, 3, 3, '2023-10-11', 'medium', 'completed', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10'),
+(8, 'Đào tạo nhân viên mới', NULL, 3, 3, '2023-10-12', 'medium', 'in_progress', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10'),
+(9, 'Kiểm kho thiết bị', NULL, 4, 2, '2023-10-13', 'medium', 'pending', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10'),
+(10, 'Gửi thông báo lương', NULL, 1, 1, '2023-10-14', 'medium', 'completed', NULL, NULL, '2025-04-30 11:59:10', '2025-04-30 11:59:10');
 
 -- --------------------------------------------------------
 
@@ -1266,12 +1693,28 @@ CREATE TABLE `training_courses` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  `duration` int(11) DEFAULT NULL,
+  `duration` int(11) DEFAULT NULL COMMENT 'e.g., in hours or days',
   `cost` decimal(10,2) DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'active' COMMENT 'e.g., active, inactive, draft',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `training_courses`
+--
+
+INSERT INTO `training_courses` (`id`, `name`, `description`, `duration`, `cost`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Qu?n lý d? án Agile', 'Khóa h?c Agile c? b?n', 16, 5000000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50'),
+(2, 'L?p trình Python', 'Khóa h?c Python nâng cao', 24, 7000000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50'),
+(3, 'K? n?ng giao ti?p', '?ào t?o k? n?ng m?m', 8, 3000000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50'),
+(4, 'Qu?n lý tài chính', 'Khóa h?c cho qu?n lý', 12, 6000000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50'),
+(5, 'Marketing Digital', 'Chi?n l??c ti?p th? s?', 20, 8000000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50'),
+(6, 'An toàn thông tin', 'B?o m?t h? th?ng', 10, 4000000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50'),
+(7, 'Excel chuyên nghi?p', 'K? n?ng Excel nâng cao', 8, 2000000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50'),
+(8, 'Thi?t k? UI/UX', 'Nguyên t?c thi?t k?', 15, 5500000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50'),
+(9, 'Qu?n tr? c? s? d? li?u', 'SQL và NoSQL', 18, 6500000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50'),
+(10, 'K? n?ng lãnh ??o', 'Dành cho qu?n lý', 10, 4500000.00, 'active', '2025-04-30 04:54:50', '2025-04-30 04:54:50');
 
 -- --------------------------------------------------------
 
@@ -1281,14 +1724,32 @@ CREATE TABLE `training_courses` (
 
 CREATE TABLE `training_evaluations` (
   `id` int(11) NOT NULL,
-  `registration_id` int(11) NOT NULL,
-  `evaluator_id` int(11) NOT NULL,
+  `registration_id` int(11) NOT NULL COMMENT 'Link to the specific registration being evaluated',
+  `evaluator_employee_id` int(11) NOT NULL COMMENT 'Employee providing the evaluation',
   `evaluation_date` date NOT NULL,
-  `score` int(11) DEFAULT NULL,
+  `rating_content` int(11) DEFAULT NULL COMMENT 'Scale (e.g., 1-5)',
+  `rating_instructor` int(11) DEFAULT NULL COMMENT 'Scale (e.g., 1-5)',
+  `rating_materials` int(11) DEFAULT NULL COMMENT 'Scale (e.g., 1-5)',
   `comments` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `training_evaluations`
+--
+
+INSERT INTO `training_evaluations` (`id`, `registration_id`, `evaluator_employee_id`, `evaluation_date`, `rating_content`, `rating_instructor`, `rating_materials`, `comments`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, '2023-10-01', 5, 4, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03'),
+(2, 2, 1, '2023-10-01', 4, 4, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03'),
+(3, 3, 3, '2023-10-01', 3, 5, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03'),
+(4, 4, 2, '2023-10-01', 5, 5, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03'),
+(5, 5, 1, '2023-10-01', 4, 3, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03'),
+(6, 6, 3, '2023-10-01', 4, 4, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03'),
+(7, 7, 2, '2023-10-01', 5, 5, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03'),
+(8, 8, 1, '2023-10-01', 3, 4, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03'),
+(9, 9, 3, '2023-10-01', 4, 4, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03'),
+(10, 10, 2, '2023-10-01', 5, 5, NULL, NULL, '2025-04-30 04:58:03', '2025-04-30 04:58:03');
 
 -- --------------------------------------------------------
 
@@ -1301,10 +1762,29 @@ CREATE TABLE `training_registrations` (
   `employee_id` int(11) NOT NULL,
   `course_id` int(11) NOT NULL,
   `registration_date` date NOT NULL,
-  `status` varchar(20) NOT NULL,
+  `status` enum('registered','attended','completed','failed','cancelled') NOT NULL DEFAULT 'registered',
+  `completion_date` date DEFAULT NULL,
+  `score` decimal(5,2) DEFAULT NULL,
+  `feedback` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `training_registrations`
+--
+
+INSERT INTO `training_registrations` (`id`, `employee_id`, `course_id`, `registration_date`, `status`, `completion_date`, `score`, `feedback`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, '2023-09-01', 'completed', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06'),
+(2, 2, 2, '2023-09-05', 'attended', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06'),
+(3, 3, 3, '2023-09-10', 'registered', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06'),
+(4, 4, 4, '2023-09-15', 'completed', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06'),
+(5, 5, 5, '2023-09-20', 'attended', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06'),
+(6, 6, 6, '2023-09-25', 'registered', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06'),
+(7, 7, 7, '2023-10-01', 'completed', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06'),
+(8, 8, 8, '2023-10-05', 'attended', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06'),
+(9, 9, 9, '2023-10-10', 'registered', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06'),
+(10, 10, 10, '2023-10-15', 'completed', NULL, NULL, NULL, '2025-04-30 04:55:06', '2025-04-30 04:55:06');
 
 -- --------------------------------------------------------
 
@@ -1319,50 +1799,32 @@ CREATE TABLE `users` (
   `password_hash` varchar(255) NOT NULL,
   `password_salt` varchar(64) DEFAULT NULL,
   `role_id` int(11) NOT NULL,
-  `is_active` tinyint(1) DEFAULT 1,
-  `requires_password_change` tinyint(1) DEFAULT 0,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `department_id` int(11) DEFAULT NULL,
-  `position_id` int(11) DEFAULT NULL,
-  `hire_date` date DEFAULT NULL,
-  `status` varchar(20) DEFAULT 'active',
-  `employee_code` varchar(20) DEFAULT NULL,
-  `contract_type` varchar(50) DEFAULT NULL,
-  `contract_start_date` date DEFAULT NULL,
-  `contract_end_date` date DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1 COMMENT '0=Inactive, 1=Active',
+  `requires_password_change` tinyint(1) DEFAULT 0 COMMENT '1=Must change password on next login',
   `last_login` datetime DEFAULT NULL,
   `login_attempts` int(11) DEFAULT 0,
   `last_attempt` datetime DEFAULT NULL,
   `remember_token` varchar(64) DEFAULT NULL,
-  `remember_token_expiry` datetime DEFAULT NULL
+  `remember_token_expiry` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `username`, `email`, `password_hash`, `password_salt`, `role_id`, `is_active`, `requires_password_change`, `created_at`, `updated_at`, `department_id`, `position_id`, `hire_date`, `status`, `employee_code`, `contract_type`, `contract_start_date`, `contract_end_date`, `last_login`, `login_attempts`, `last_attempt`, `remember_token`, `remember_token_expiry`) VALUES
-(1, 'admin', 'admin@example.com', 'admin123', NULL, 1, 1, 0, '2025-04-22 16:57:14', '2025-04-23 16:12:45', NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, '2025-04-23 16:12:45', 0, NULL, NULL, NULL),
-(2, 'manager', 'manager@example.com', 'manager123', NULL, 2, 1, 0, '2025-04-22 16:57:14', '2025-04-23 16:12:45', NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, '2025-04-23 16:12:45', 0, NULL, NULL, NULL),
-(3, 'employee', 'employee@example.com', 'employee123', NULL, 3, 1, 0, '2025-04-22 16:57:15', '2025-04-23 16:12:45', NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, '2025-04-23 16:12:45', 0, NULL, NULL, NULL),
-(4, 'hr', 'hr@example.com', 'hr123', NULL, 4, 1, 0, '2025-04-22 16:57:15', '2025-04-23 16:12:45', NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, '2025-04-23 16:12:45', 0, NULL, NULL, NULL),
-(5, 'employee3', 'employee3@company.com', '123456', NULL, 4, 1, 0, '2025-04-21 14:57:56', '2025-04-23 09:47:42', 4, 7, NULL, 'active', 'EMP005', 'full_time', '2023-01-01', '2025-12-31', NULL, 0, NULL, NULL, NULL),
-(6, 'employee4', 'employee4@company.com', '123456', NULL, 4, 1, 0, '2025-04-21 14:57:56', '2025-04-23 09:47:58', 5, 9, NULL, 'active', 'EMP006', 'full_time', '2023-01-01', '2025-12-31', NULL, 0, NULL, NULL, NULL),
-(7, 'employee5', 'employee5@company.com', '123456', NULL, 4, 1, 0, '2025-04-21 14:57:56', '2025-04-23 09:48:05', 1, 2, NULL, 'active', 'EMP007', 'full_time', '2023-01-01', '2025-12-31', NULL, 0, NULL, NULL, NULL),
-(8, 'employee6', 'employee6@company.com', '123456', NULL, 4, 1, 0, '2025-04-21 14:57:56', '2025-04-23 09:48:13', 2, 4, NULL, 'active', 'EMP008', 'full_time', '2023-01-01', '2025-12-31', NULL, 0, NULL, NULL, NULL),
-(9, 'employee7', 'employee7@company.com', '123456\r\n', NULL, 4, 1, 0, '2025-04-21 14:57:56', '2025-04-23 09:48:22', 3, 6, NULL, 'active', 'EMP009', 'full_time', '2023-01-01', '2025-12-31', NULL, 0, NULL, NULL, NULL),
-(10, 'employee8', 'employee8@company.com', '123456', NULL, 4, 1, 0, '2025-04-21 14:57:56', '2025-04-23 09:48:33', 4, 8, NULL, 'active', 'EMP010', 'full_time', '2023-01-01', '2025-12-31', NULL, 0, NULL, NULL, NULL);
-
---
--- Triggers `users`
---
-DELIMITER $$
-CREATE TRIGGER `update_users_timestamp` BEFORE UPDATE ON `users` FOR EACH ROW BEGIN
-    SET NEW.updated_at = CURRENT_TIMESTAMP;
-END
-$$
-DELIMITER ;
+INSERT INTO `users` (`user_id`, `username`, `email`, `password_hash`, `password_salt`, `role_id`, `is_active`, `requires_password_change`, `last_login`, `login_attempts`, `last_attempt`, `remember_token`, `remember_token_expiry`, `created_at`, `updated_at`) VALUES
+(1, 'admin', 'admin@company.com', 'hashed_password', NULL, 1, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34'),
+(2, 'manager_it', 'manager.it@company.com', 'hashed_password', NULL, 2, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34'),
+(3, 'hr_manager', 'hr@company.com', 'hashed_password', NULL, 3, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34'),
+(4, 'employee1', 'employee1@company.com', 'hashed_password', NULL, 4, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34'),
+(5, 'employee2', 'employee2@company.com', 'hashed_password', NULL, 4, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34'),
+(6, 'employee3', 'employee3@company.com', 'hashed_password', NULL, 4, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34'),
+(7, 'employee4', 'employee4@company.com', 'hashed_password', NULL, 4, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34'),
+(8, 'employee5', 'employee5@company.com', 'hashed_password', NULL, 4, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34'),
+(9, 'employee6', 'employee6@company.com', 'hashed_password', NULL, 4, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34'),
+(10, 'employee7', 'employee7@company.com', 'hashed_password', NULL, 4, 1, 0, NULL, 0, NULL, NULL, NULL, '2025-04-30 11:53:34', '2025-04-30 11:53:34');
 
 -- --------------------------------------------------------
 
@@ -1376,79 +1838,41 @@ CREATE TABLE `user_profiles` (
   `full_name` varchar(255) NOT NULL,
   `avatar_url` varchar(512) DEFAULT NULL,
   `date_of_birth` date DEFAULT NULL,
-  `permanent_address` text DEFAULT NULL,
-  `current_workplace` varchar(255) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `gender` varchar(10) DEFAULT NULL,
+  `gender` enum('Male','Female','Other','Prefer not to say') DEFAULT NULL,
   `phone_number` varchar(20) DEFAULT NULL,
-  `emergency_contact` varchar(255) DEFAULT NULL,
-  `bank_account` varchar(50) DEFAULT NULL,
+  `permanent_address` text DEFAULT NULL,
+  `current_address` text DEFAULT NULL,
+  `emergency_contact_name` varchar(255) DEFAULT NULL,
+  `emergency_contact_phone` varchar(20) DEFAULT NULL,
+  `bank_account_number` varchar(50) DEFAULT NULL,
+  `bank_name` varchar(100) DEFAULT NULL,
   `tax_code` varchar(20) DEFAULT NULL,
   `nationality` varchar(100) DEFAULT NULL,
   `ethnicity` varchar(100) DEFAULT NULL,
   `religion` varchar(100) DEFAULT NULL,
-  `marital_status` varchar(20) DEFAULT NULL,
+  `marital_status` enum('Single','Married','Divorced','Widowed') DEFAULT NULL,
   `id_card_number` varchar(20) DEFAULT NULL,
   `id_card_issue_date` date DEFAULT NULL,
-  `id_card_issue_place` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `id_card_issue_place` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `user_profiles`
 --
 
-INSERT INTO `user_profiles` (`profile_id`, `user_id`, `full_name`, `avatar_url`, `date_of_birth`, `permanent_address`, `current_workplace`, `created_at`, `updated_at`, `gender`, `phone_number`, `emergency_contact`, `bank_account`, `tax_code`, `nationality`, `ethnicity`, `religion`, `marital_status`, `id_card_number`, `id_card_issue_date`, `id_card_issue_place`) VALUES
-(1, 1, 'Admin User', NULL, '1990-01-01', '123 Main St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456789', 'Jane Doe', '1234567890', '123456789', 'Vietnamese', 'Kinh', 'None', 'Single', '123456789', '2010-01-01', 'Hanoi'),
-(2, 2, 'HR Manager', NULL, '1985-05-15', '456 Park Ave, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456788', 'John Smith', '0987654321', '987654321', 'Vietnamese', 'Kinh', 'None', 'Married', '987654321', '2012-05-15', 'Hanoi'),
-(3, 3, 'IT Manager', NULL, '1988-08-20', '789 Oak St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456787', 'Mary Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Married', '567890123', '2008-08-20', 'Hanoi'),
-(4, 4, 'Finance Manager', NULL, '1987-03-10', '321 Pine St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456786', 'Sarah Brown', '4321098765', '432109876', 'Vietnamese', 'Kinh', 'None', 'Single', '432109876', '2007-03-10', 'Hanoi'),
-(5, 5, 'Marketing Manager', NULL, '1986-11-25', '654 Elm St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456785', 'David Lee', '8765432109', '876543210', 'Vietnamese', 'Kinh', 'None', 'Married', '876543210', '2006-11-25', 'Hanoi'),
-(6, 6, 'Operations Manager', NULL, '1989-07-30', '987 Maple St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456784', 'Lisa Chen', '2345678901', '234567890', 'Vietnamese', 'Kinh', 'None', 'Single', '234567890', '2009-07-30', 'Hanoi'),
-(7, 7, 'HR Specialist', NULL, '1992-02-14', '147 Cedar St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456783', 'Mike Johnson', '3456789012', '345678901', 'Vietnamese', 'Kinh', 'None', 'Single', '345678901', '2012-02-14', 'Hanoi'),
-(8, 8, 'Software Developer', NULL, '1991-09-05', '258 Birch St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456782', 'Anna Davis', '4567890123', '456789012', 'Vietnamese', 'Kinh', 'None', 'Married', '456789012', '2011-09-05', 'Hanoi'),
-(9, 9, 'Accountant', NULL, '1993-04-20', '369 Spruce St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456781', 'Tom Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Single', '567890123', '2013-04-20', 'Hanoi'),
-(10, 10, 'Marketing Specialist', NULL, '1990-12-15', '741 Walnut St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456780', 'Peter Brown', '6789012345', '678901234', 'Vietnamese', 'Kinh', 'None', 'Married', '678901234', '2010-12-15', 'Hanoi'),
-(1, 1, 'Admin User', NULL, '1990-01-01', '123 Main St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456789', 'Jane Doe', '1234567890', '123456789', 'Vietnamese', 'Kinh', 'None', 'Single', '123456789', '2010-01-01', 'Hanoi'),
-(2, 2, 'HR Manager', NULL, '1985-05-15', '456 Park Ave, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456788', 'John Smith', '0987654321', '987654321', 'Vietnamese', 'Kinh', 'None', 'Married', '987654321', '2012-05-15', 'Hanoi'),
-(3, 3, 'IT Manager', NULL, '1988-08-20', '789 Oak St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456787', 'Mary Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Married', '567890123', '2008-08-20', 'Hanoi'),
-(4, 4, 'Finance Manager', NULL, '1987-03-10', '321 Pine St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456786', 'Sarah Brown', '4321098765', '432109876', 'Vietnamese', 'Kinh', 'None', 'Single', '432109876', '2007-03-10', 'Hanoi'),
-(5, 5, 'Marketing Manager', NULL, '1986-11-25', '654 Elm St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456785', 'David Lee', '8765432109', '876543210', 'Vietnamese', 'Kinh', 'None', 'Married', '876543210', '2006-11-25', 'Hanoi'),
-(6, 6, 'Operations Manager', NULL, '1989-07-30', '987 Maple St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456784', 'Lisa Chen', '2345678901', '234567890', 'Vietnamese', 'Kinh', 'None', 'Single', '234567890', '2009-07-30', 'Hanoi'),
-(7, 7, 'HR Specialist', NULL, '1992-02-14', '147 Cedar St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456783', 'Mike Johnson', '3456789012', '345678901', 'Vietnamese', 'Kinh', 'None', 'Single', '345678901', '2012-02-14', 'Hanoi'),
-(8, 8, 'Software Developer', NULL, '1991-09-05', '258 Birch St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456782', 'Anna Davis', '4567890123', '456789012', 'Vietnamese', 'Kinh', 'None', 'Married', '456789012', '2011-09-05', 'Hanoi'),
-(9, 9, 'Accountant', NULL, '1993-04-20', '369 Spruce St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456781', 'Tom Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Single', '567890123', '2013-04-20', 'Hanoi'),
-(10, 10, 'Marketing Specialist', NULL, '1990-12-15', '741 Walnut St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456780', 'Peter Brown', '6789012345', '678901234', 'Vietnamese', 'Kinh', 'None', 'Married', '678901234', '2010-12-15', 'Hanoi'),
-(1, 1, 'Admin User', NULL, '1990-01-01', '123 Main St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456789', 'Jane Doe', '1234567890', '123456789', 'Vietnamese', 'Kinh', 'None', 'Single', '123456789', '2010-01-01', 'Hanoi'),
-(2, 2, 'HR Manager', NULL, '1985-05-15', '456 Park Ave, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456788', 'John Smith', '0987654321', '987654321', 'Vietnamese', 'Kinh', 'None', 'Married', '987654321', '2012-05-15', 'Hanoi'),
-(3, 3, 'IT Manager', NULL, '1988-08-20', '789 Oak St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456787', 'Mary Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Married', '567890123', '2008-08-20', 'Hanoi'),
-(4, 4, 'Finance Manager', NULL, '1987-03-10', '321 Pine St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456786', 'Sarah Brown', '4321098765', '432109876', 'Vietnamese', 'Kinh', 'None', 'Single', '432109876', '2007-03-10', 'Hanoi'),
-(5, 5, 'Marketing Manager', NULL, '1986-11-25', '654 Elm St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456785', 'David Lee', '8765432109', '876543210', 'Vietnamese', 'Kinh', 'None', 'Married', '876543210', '2006-11-25', 'Hanoi'),
-(6, 6, 'Operations Manager', NULL, '1989-07-30', '987 Maple St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456784', 'Lisa Chen', '2345678901', '234567890', 'Vietnamese', 'Kinh', 'None', 'Single', '234567890', '2009-07-30', 'Hanoi'),
-(7, 7, 'HR Specialist', NULL, '1992-02-14', '147 Cedar St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456783', 'Mike Johnson', '3456789012', '345678901', 'Vietnamese', 'Kinh', 'None', 'Single', '345678901', '2012-02-14', 'Hanoi'),
-(8, 8, 'Software Developer', NULL, '1991-09-05', '258 Birch St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456782', 'Anna Davis', '4567890123', '456789012', 'Vietnamese', 'Kinh', 'None', 'Married', '456789012', '2011-09-05', 'Hanoi'),
-(9, 9, 'Accountant', NULL, '1993-04-20', '369 Spruce St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456781', 'Tom Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Single', '567890123', '2013-04-20', 'Hanoi'),
-(10, 10, 'Marketing Specialist', NULL, '1990-12-15', '741 Walnut St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456780', 'Peter Brown', '6789012345', '678901234', 'Vietnamese', 'Kinh', 'None', 'Married', '678901234', '2010-12-15', 'Hanoi'),
-(1, 1, 'Admin User', NULL, '1990-01-01', '123 Main St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456789', 'Jane Doe', '1234567890', '123456789', 'Vietnamese', 'Kinh', 'None', 'Single', '123456789', '2010-01-01', 'Hanoi'),
-(2, 2, 'HR Manager', NULL, '1985-05-15', '456 Park Ave, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456788', 'John Smith', '0987654321', '987654321', 'Vietnamese', 'Kinh', 'None', 'Married', '987654321', '2012-05-15', 'Hanoi'),
-(3, 3, 'IT Manager', NULL, '1988-08-20', '789 Oak St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456787', 'Mary Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Married', '567890123', '2008-08-20', 'Hanoi'),
-(4, 4, 'Finance Manager', NULL, '1987-03-10', '321 Pine St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456786', 'Sarah Brown', '4321098765', '432109876', 'Vietnamese', 'Kinh', 'None', 'Single', '432109876', '2007-03-10', 'Hanoi'),
-(5, 5, 'Marketing Manager', NULL, '1986-11-25', '654 Elm St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456785', 'David Lee', '8765432109', '876543210', 'Vietnamese', 'Kinh', 'None', 'Married', '876543210', '2006-11-25', 'Hanoi'),
-(6, 6, 'Operations Manager', NULL, '1989-07-30', '987 Maple St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456784', 'Lisa Chen', '2345678901', '234567890', 'Vietnamese', 'Kinh', 'None', 'Single', '234567890', '2009-07-30', 'Hanoi'),
-(7, 7, 'HR Specialist', NULL, '1992-02-14', '147 Cedar St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456783', 'Mike Johnson', '3456789012', '345678901', 'Vietnamese', 'Kinh', 'None', 'Single', '345678901', '2012-02-14', 'Hanoi'),
-(8, 8, 'Software Developer', NULL, '1991-09-05', '258 Birch St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456782', 'Anna Davis', '4567890123', '456789012', 'Vietnamese', 'Kinh', 'None', 'Married', '456789012', '2011-09-05', 'Hanoi'),
-(9, 9, 'Accountant', NULL, '1993-04-20', '369 Spruce St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456781', 'Tom Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Single', '567890123', '2013-04-20', 'Hanoi'),
-(10, 10, 'Marketing Specialist', NULL, '1990-12-15', '741 Walnut St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456780', 'Peter Brown', '6789012345', '678901234', 'Vietnamese', 'Kinh', 'None', 'Married', '678901234', '2010-12-15', 'Hanoi'),
-(1, 1, 'Admin User', NULL, '1990-01-01', '123 Main St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456789', 'Jane Doe', '1234567890', '123456789', 'Vietnamese', 'Kinh', 'None', 'Single', '123456789', '2010-01-01', 'Hanoi'),
-(2, 2, 'HR Manager', NULL, '1985-05-15', '456 Park Ave, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456788', 'John Smith', '0987654321', '987654321', 'Vietnamese', 'Kinh', 'None', 'Married', '987654321', '2012-05-15', 'Hanoi'),
-(3, 3, 'IT Manager', NULL, '1988-08-20', '789 Oak St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456787', 'Mary Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Married', '567890123', '2008-08-20', 'Hanoi'),
-(4, 4, 'Finance Manager', NULL, '1987-03-10', '321 Pine St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456786', 'Sarah Brown', '4321098765', '432109876', 'Vietnamese', 'Kinh', 'None', 'Single', '432109876', '2007-03-10', 'Hanoi'),
-(5, 5, 'Marketing Manager', NULL, '1986-11-25', '654 Elm St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456785', 'David Lee', '8765432109', '876543210', 'Vietnamese', 'Kinh', 'None', 'Married', '876543210', '2006-11-25', 'Hanoi'),
-(6, 6, 'Operations Manager', NULL, '1989-07-30', '987 Maple St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456784', 'Lisa Chen', '2345678901', '234567890', 'Vietnamese', 'Kinh', 'None', 'Single', '234567890', '2009-07-30', 'Hanoi'),
-(7, 7, 'HR Specialist', NULL, '1992-02-14', '147 Cedar St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456783', 'Mike Johnson', '3456789012', '345678901', 'Vietnamese', 'Kinh', 'None', 'Single', '345678901', '2012-02-14', 'Hanoi'),
-(8, 8, 'Software Developer', NULL, '1991-09-05', '258 Birch St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Male', '0123456782', 'Anna Davis', '4567890123', '456789012', 'Vietnamese', 'Kinh', 'None', 'Married', '456789012', '2011-09-05', 'Hanoi'),
-(9, 9, 'Accountant', NULL, '1993-04-20', '369 Spruce St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456781', 'Tom Wilson', '5678901234', '567890123', 'Vietnamese', 'Kinh', 'None', 'Single', '567890123', '2013-04-20', 'Hanoi'),
-(10, 10, 'Marketing Specialist', NULL, '1990-12-15', '741 Walnut St, Hanoi', NULL, '2025-04-21 14:57:56', '2025-04-21 14:57:56', 'Female', '0123456780', 'Peter Brown', '6789012345', '678901234', 'Vietnamese', 'Kinh', 'None', 'Married', '678901234', '2010-12-15', 'Hanoi');
+INSERT INTO `user_profiles` (`profile_id`, `user_id`, `full_name`, `avatar_url`, `date_of_birth`, `gender`, `phone_number`, `permanent_address`, `current_address`, `emergency_contact_name`, `emergency_contact_phone`, `bank_account_number`, `bank_name`, `tax_code`, `nationality`, `ethnicity`, `religion`, `marital_status`, `id_card_number`, `id_card_issue_date`, `id_card_issue_place`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Nguyễn Văn Admin', NULL, '1985-01-01', 'Male', '0912345678', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53'),
+(2, 2, 'Trần Quản Lý IT', NULL, '1990-05-15', 'Male', '0912345679', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53'),
+(3, 3, 'Lê Thị HR', NULL, '1992-08-20', 'Female', '0912345680', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53'),
+(4, 4, 'Phạm Nhân Viên 1', NULL, '1995-03-10', 'Male', '0912345681', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53'),
+(5, 5, 'Hoàng Nhân Viên 2', NULL, '1996-07-25', 'Male', '0912345682', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53'),
+(6, 6, 'Võ Thị Nhân Viên 3', NULL, '1994-11-05', 'Female', '0912345683', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53'),
+(7, 7, 'Đặng Nhân Viên 4', NULL, '1993-09-12', 'Female', '0912345684', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53'),
+(8, 8, 'Bùi Kế Toán 1', NULL, '1997-04-18', 'Male', '0912345685', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53'),
+(9, 9, 'Mai Kế Toán 2', NULL, '1998-02-22', 'Female', '0912345686', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53'),
+(10, 10, 'Lý Kế Toán 3', NULL, '1999-06-30', 'Female', '0912345687', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-04-30 11:53:53', '2025-04-30 11:53:53');
 
 -- --------------------------------------------------------
 
@@ -1462,66 +1886,28 @@ CREATE TABLE `work_schedules` (
   `work_date` date NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `schedule_type` varchar(20) DEFAULT 'normal',
+  `break_duration_minutes` int(11) DEFAULT 0,
+  `schedule_type` enum('normal','overtime','shift','flexible') DEFAULT 'normal',
+  `notes` text DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `work_schedules`
 --
 
-INSERT INTO `work_schedules` (`id`, `employee_id`, `work_date`, `start_time`, `end_time`, `schedule_type`, `created_at`, `updated_at`) VALUES
-(1, 1, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(1, 1, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(1, 1, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(1, 1, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(1, 1, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(2, 2, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(3, 3, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(4, 4, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(5, 5, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(6, 6, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(7, 7, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(8, 8, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(9, 9, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56'),
-(10, 10, '2024-03-18', '08:00:00', '17:00:00', 'normal', '2025-04-21 14:57:56', '2025-04-21 14:57:56');
+INSERT INTO `work_schedules` (`id`, `employee_id`, `work_date`, `start_time`, `end_time`, `break_duration_minutes`, `schedule_type`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 1, '2023-10-01', '08:00:00', '17:00:00', 0, 'normal', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41'),
+(2, 2, '2023-10-01', '08:00:00', '17:00:00', 0, 'normal', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41'),
+(3, 3, '2023-10-01', '09:00:00', '18:00:00', 0, 'shift', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41'),
+(4, 4, '2023-10-01', '08:30:00', '17:30:00', 0, 'flexible', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41'),
+(5, 5, '2023-10-01', '08:00:00', '17:00:00', 0, 'normal', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41'),
+(6, 6, '2023-10-01', '10:00:00', '19:00:00', 0, 'overtime', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41'),
+(7, 7, '2023-10-01', '08:00:00', '17:00:00', 0, 'normal', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41'),
+(8, 8, '2023-10-01', '08:00:00', '17:00:00', 0, 'normal', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41'),
+(9, 9, '2023-10-01', '08:00:00', '17:00:00', 0, 'normal', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41'),
+(10, 10, '2023-10-01', '08:00:00', '17:00:00', 0, 'normal', NULL, '2025-04-30 11:57:41', '2025-04-30 11:57:41');
 
 --
 -- Indexes for dumped tables
@@ -1532,25 +1918,66 @@ INSERT INTO `work_schedules` (`id`, `employee_id`, `work_date`, `start_time`, `e
 --
 ALTER TABLE `activities`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `activities_user_id_foreign` (`user_id`);
+  ADD KEY `fk_activities_user_idx` (`user_id`),
+  ADD KEY `idx_activities_type` (`type`),
+  ADD KEY `idx_activities_target` (`target_entity`,`target_entity_id`),
+  ADD KEY `idx_activities_created_at` (`created_at`);
+
+--
+-- Indexes for table `assets`
+--
+ALTER TABLE `assets`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_asset_code` (`asset_code`),
+  ADD KEY `idx_asset_status` (`status`),
+  ADD KEY `idx_asset_category` (`category`);
+
+--
+-- Indexes for table `asset_assignments`
+--
+ALTER TABLE `asset_assignments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_assetassign_asset_idx` (`asset_id`),
+  ADD KEY `fk_assetassign_employee_idx` (`employee_id`),
+  ADD KEY `fk_assetassign_assigner_idx` (`assigned_by_user_id`),
+  ADD KEY `fk_assetassign_receiver_idx` (`returned_to_user_id`),
+  ADD KEY `idx_assetassign_status` (`status`);
+
+--
+-- Indexes for table `asset_maintenance`
+--
+ALTER TABLE `asset_maintenance`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_assetmaint_asset_idx` (`asset_id`),
+  ADD KEY `fk_assetmaint_creator_idx` (`created_by_user_id`);
 
 --
 -- Indexes for table `attendance`
 --
 ALTER TABLE `attendance`
   ADD PRIMARY KEY (`attendance_id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `idx_attendance_date_user` (`attendance_date`,`user_id`);
+  ADD UNIQUE KEY `uq_attendance_employee_date` (`employee_id`,`attendance_date`),
+  ADD KEY `fk_attendance_employee_idx` (`employee_id`),
+  ADD KEY `idx_attendance_date` (`attendance_date`);
 
 --
 -- Indexes for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
   ADD PRIMARY KEY (`log_id`),
-  ADD KEY `idx_audit_logs_user_id` (`user_id`),
-  ADD KEY `idx_audit_logs_timestamp` (`timestamp`),
-  ADD KEY `idx_audit_logs_action_type` (`action_type`),
-  ADD KEY `idx_audit_logs_target` (`target_entity`,`target_entity_id`);
+  ADD KEY `idx_audit_user_id` (`user_id`),
+  ADD KEY `idx_audit_timestamp` (`timestamp`),
+  ADD KEY `idx_audit_action_type` (`action_type`),
+  ADD KEY `idx_audit_target` (`target_entity`,`target_entity_id`);
+
+--
+-- Indexes for table `backup_logs`
+--
+ALTER TABLE `backup_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_backuplog_creator_idx` (`created_by_user_id`),
+  ADD KEY `idx_backuplog_status` (`status`),
+  ADD KEY `idx_backuplog_created_at` (`created_at`);
 
 --
 -- Indexes for table `benefits`
@@ -1563,121 +1990,93 @@ ALTER TABLE `benefits`
 --
 ALTER TABLE `bonuses`
   ADD PRIMARY KEY (`bonus_id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `added_by_user_id` (`added_by_user_id`);
-
---
--- Indexes for table `candidates`
---
-ALTER TABLE `candidates`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `position_id` (`position_id`);
+  ADD KEY `fk_bonuses_employee_idx` (`employee_id`),
+  ADD KEY `fk_bonuses_approver_idx` (`approved_by_user_id`),
+  ADD KEY `fk_bonuses_payroll_idx` (`payroll_id`);
 
 --
 -- Indexes for table `certificates`
 --
 ALTER TABLE `certificates`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`);
+  ADD KEY `fk_certificates_employee_idx` (`employee_id`);
 
 --
 -- Indexes for table `contracts`
 --
 ALTER TABLE `contracts`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`);
+  ADD KEY `fk_contracts_employee_idx` (`employee_id`),
+  ADD KEY `idx_contract_status` (`status`),
+  ADD KEY `idx_contract_end_date` (`end_date`);
 
 --
 -- Indexes for table `degrees`
 --
 ALTER TABLE `degrees`
   ADD PRIMARY KEY (`degree_id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD KEY `fk_degrees_employee_idx` (`employee_id`);
 
 --
 -- Indexes for table `departments`
 --
 ALTER TABLE `departments`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `manager_id` (`manager_id`);
+  ADD UNIQUE KEY `uq_department_name` (`name`),
+  ADD KEY `idx_dept_manager_id` (`manager_id`),
+  ADD KEY `idx_dept_parent_id` (`parent_id`);
 
 --
 -- Indexes for table `documents`
 --
 ALTER TABLE `documents`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `uploaded_by` (`uploaded_by`),
-  ADD KEY `department_id` (`department_id`);
+  ADD KEY `fk_docs_uploader_idx` (`uploaded_by_user_id`),
+  ADD KEY `fk_docs_department_idx` (`department_id`);
 
 --
 -- Indexes for table `document_versions`
 --
 ALTER TABLE `document_versions`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `document_id` (`document_id`),
-  ADD KEY `created_by` (`created_by`);
+  ADD UNIQUE KEY `uq_docver_doc_version` (`document_id`,`version_number`),
+  ADD KEY `fk_docver_document_idx` (`document_id`),
+  ADD KEY `fk_docver_creator_idx` (`created_by_user_id`);
 
 --
 -- Indexes for table `email_verification_tokens`
 --
 ALTER TABLE `email_verification_tokens`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `token` (`token`),
-  ADD KEY `user_id` (`user_id`);
+  ADD UNIQUE KEY `uq_emailver_token` (`token`),
+  ADD KEY `fk_emailver_user_idx` (`user_id`);
 
 --
 -- Indexes for table `employees`
 --
 ALTER TABLE `employees`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `employee_code` (`employee_code`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `department_id` (`department_id`),
-  ADD KEY `position_id` (`position_id`);
+  ADD UNIQUE KEY `uq_employee_user_id` (`user_id`),
+  ADD UNIQUE KEY `uq_employee_code` (`employee_code`),
+  ADD KEY `fk_employees_department_idx` (`department_id`),
+  ADD KEY `fk_employees_position_idx` (`position_id`);
 
 --
 -- Indexes for table `employee_positions`
 --
 ALTER TABLE `employee_positions`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`),
-  ADD KEY `position_id` (`position_id`);
-
---
--- Indexes for table `employee_trainings`
---
-ALTER TABLE `employee_trainings`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`),
-  ADD KEY `training_id` (`training_id`);
-
---
--- Indexes for table `equipment`
---
-ALTER TABLE `equipment`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `equipment_assignments`
---
-ALTER TABLE `equipment_assignments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`);
-
---
--- Indexes for table `evaluations`
---
-ALTER TABLE `evaluations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`),
-  ADD KEY `evaluator_id` (`evaluator_id`);
+  ADD KEY `fk_emppos_employee_idx` (`employee_id`),
+  ADD KEY `fk_emppos_position_idx` (`position_id`),
+  ADD KEY `fk_emppos_department_idx` (`department_id`),
+  ADD KEY `idx_emppos_current_employee` (`employee_id`,`is_current`);
 
 --
 -- Indexes for table `family_members`
 --
 ALTER TABLE `family_members`
   ADD PRIMARY KEY (`family_member_id`),
-  ADD KEY `profile_id` (`profile_id`);
+  ADD KEY `fk_family_employee_idx` (`employee_id`);
 
 --
 -- Indexes for table `holidays`
@@ -1690,97 +2089,114 @@ ALTER TABLE `holidays`
 --
 ALTER TABLE `insurance`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`);
+  ADD KEY `fk_insurance_employee_idx` (`employee_id`);
 
 --
 -- Indexes for table `interviews`
 --
 ALTER TABLE `interviews`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `interviewer_id` (`interviewer_id`);
+  ADD KEY `fk_interviews_application_idx` (`job_application_id`),
+  ADD KEY `fk_interviews_interviewer_idx` (`interviewer_employee_id`);
+
+--
+-- Indexes for table `job_applications`
+--
+ALTER TABLE `job_applications`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_application_email_job` (`email`,`job_position_id`),
+  ADD KEY `fk_jobapp_jobpos_idx` (`job_position_id`),
+  ADD KEY `idx_jobapp_status` (`status`);
 
 --
 -- Indexes for table `job_positions`
 --
 ALTER TABLE `job_positions`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `department_id` (`department_id`);
+  ADD KEY `fk_jobpos_campaign_idx` (`campaign_id`),
+  ADD KEY `fk_jobpos_position_idx` (`position_id`),
+  ADD KEY `fk_jobpos_department_idx` (`department_id`),
+  ADD KEY `fk_jobpos_manager_idx` (`hiring_manager_user_id`),
+  ADD KEY `idx_jobpos_status` (`status`);
 
 --
 -- Indexes for table `kpi`
 --
 ALTER TABLE `kpi`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`);
+  ADD KEY `fk_kpi_employee_idx` (`employee_id`),
+  ADD KEY `idx_kpi_period` (`period_start`,`period_end`);
 
 --
 -- Indexes for table `leaves`
 --
 ALTER TABLE `leaves`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`),
-  ADD KEY `approved_by` (`approved_by`),
-  ADD KEY `idx_leave_status` (`status`,`employee_id`);
+  ADD KEY `fk_leaves_employee_idx` (`employee_id`),
+  ADD KEY `fk_leaves_approver_idx` (`approved_by_user_id`),
+  ADD KEY `idx_leave_status_employee` (`employee_id`,`status`),
+  ADD KEY `idx_leave_dates` (`start_date`,`end_date`);
 
 --
 -- Indexes for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `ip_address` (`ip_address`);
+  ADD KEY `idx_loginatt_ip_time` (`ip_address`,`attempt_time`),
+  ADD KEY `idx_loginatt_user_time` (`username_attempted`,`attempt_time`);
 
 --
 -- Indexes for table `notifications`
 --
 ALTER TABLE `notifications`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD KEY `fk_notifications_user_idx` (`user_id`),
+  ADD KEY `idx_notifications_read_user` (`user_id`,`is_read`);
 
 --
 -- Indexes for table `onboarding`
 --
 ALTER TABLE `onboarding`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`);
+  ADD UNIQUE KEY `uq_onboarding_employee` (`employee_id`),
+  ADD KEY `fk_onboarding_employee_idx` (`employee_id`),
+  ADD KEY `fk_onboarding_buddy_idx` (`buddy_employee_id`);
 
 --
 -- Indexes for table `password_reset_tokens`
 --
 ALTER TABLE `password_reset_tokens`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `token` (`token`),
-  ADD KEY `user_id` (`user_id`);
+  ADD UNIQUE KEY `uq_pwdreset_token` (`token`),
+  ADD KEY `fk_pwdreset_user_idx` (`user_id`);
 
 --
 -- Indexes for table `payroll`
 --
 ALTER TABLE `payroll`
   ADD PRIMARY KEY (`payroll_id`),
-  ADD UNIQUE KEY `uq_payroll_user_month_year` (`user_id`,`payroll_month`,`payroll_year`),
-  ADD KEY `generated_by_user_id` (`generated_by_user_id`),
-  ADD KEY `idx_payroll_month_year` (`payroll_month`,`payroll_year`);
-
---
--- Indexes for table `payrolls`
---
-ALTER TABLE `payrolls`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`);
+  ADD UNIQUE KEY `uq_payroll_employee_period` (`employee_id`,`pay_period_start`,`pay_period_end`),
+  ADD KEY `fk_payroll_employee_idx` (`employee_id`),
+  ADD KEY `fk_payroll_generator_idx` (`generated_by_user_id`),
+  ADD KEY `idx_payroll_period` (`pay_period_start`,`pay_period_end`),
+  ADD KEY `idx_payroll_status` (`status`);
 
 --
 -- Indexes for table `performances`
 --
 ALTER TABLE `performances`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`),
-  ADD KEY `reviewer_id` (`reviewer_id`);
+  ADD KEY `fk_perf_employee_idx` (`employee_id`),
+  ADD KEY `fk_perf_reviewer_idx` (`reviewer_user_id`),
+  ADD KEY `idx_perf_period` (`review_period_start`,`review_period_end`);
 
 --
 -- Indexes for table `permissions`
 --
 ALTER TABLE `permissions`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_code` (`code`);
+  ADD UNIQUE KEY `uq_permission_code` (`code`),
+  ADD UNIQUE KEY `uq_permission_name` (`name`);
 
 --
 -- Indexes for table `policies`
@@ -1793,85 +2209,139 @@ ALTER TABLE `policies`
 --
 ALTER TABLE `positions`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `department_id` (`department_id`);
+  ADD UNIQUE KEY `uq_position_name_dept` (`name`,`department_id`),
+  ADD KEY `fk_positions_department_idx` (`department_id`);
 
 --
 -- Indexes for table `projects`
 --
 ALTER TABLE `projects`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `manager_id` (`manager_id`);
+  ADD UNIQUE KEY `uq_project_code` (`project_code`),
+  ADD KEY `fk_projects_manager_idx` (`manager_employee_id`);
 
 --
 -- Indexes for table `project_resources`
 --
 ALTER TABLE `project_resources`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `project_id` (`project_id`);
+  ADD UNIQUE KEY `uq_projres_project_res` (`project_id`,`resource_type`,`resource_id`),
+  ADD KEY `fk_projres_project_idx` (`project_id`),
+  ADD KEY `idx_projres_resource` (`resource_type`,`resource_id`);
 
 --
 -- Indexes for table `project_tasks`
 --
 ALTER TABLE `project_tasks`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `project_id` (`project_id`),
-  ADD KEY `assigned_to` (`assigned_to`);
+  ADD KEY `fk_projtasks_project_idx` (`project_id`),
+  ADD KEY `fk_projtasks_assignee_idx` (`assigned_to_employee_id`),
+  ADD KEY `fk_projtasks_parent_idx` (`parent_task_id`),
+  ADD KEY `idx_projtasks_status` (`status`),
+  ADD KEY `idx_projtasks_due_date` (`due_date`);
 
 --
 -- Indexes for table `rate_limits`
 --
 ALTER TABLE `rate_limits`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_ip_endpoint` (`ip_address`,`endpoint`);
+  ADD UNIQUE KEY `uq_ratelimit_ip_endpoint_window` (`ip_address`,`endpoint`,`window_start`);
 
 --
--- Indexes for table `recruitment`
+-- Indexes for table `recruitment_campaigns`
 --
-ALTER TABLE `recruitment`
+ALTER TABLE `recruitment_campaigns`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `position_id` (`position_id`),
-  ADD KEY `department_id` (`department_id`);
+  ADD KEY `fk_reccamp_creator_idx` (`created_by_user_id`),
+  ADD KEY `idx_reccamp_status` (`status`),
+  ADD KEY `idx_reccamp_dates` (`start_date`,`end_date`);
+
+--
+-- Indexes for table `report_executions`
+--
+ALTER TABLE `report_executions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_repexec_template_idx` (`template_id`),
+  ADD KEY `fk_repexec_schedule_idx` (`schedule_id`),
+  ADD KEY `fk_repexec_executor_idx` (`executed_by_user_id`),
+  ADD KEY `idx_repexec_status` (`status`),
+  ADD KEY `idx_repexec_created_at` (`created_at`);
+
+--
+-- Indexes for table `report_schedules`
+--
+ALTER TABLE `report_schedules`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_repsched_template_idx` (`template_id`),
+  ADD KEY `fk_repsched_creator_idx` (`created_by_user_id`),
+  ADD KEY `idx_repsched_next_run` (`next_run_at`),
+  ADD KEY `idx_repsched_status` (`status`);
+
+--
+-- Indexes for table `report_templates`
+--
+ALTER TABLE `report_templates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_reptemp_creator_idx` (`created_by_user_id`);
 
 --
 -- Indexes for table `roles`
 --
 ALTER TABLE `roles`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_role_name` (`name`);
 
 --
 -- Indexes for table `role_permissions`
 --
 ALTER TABLE `role_permissions`
   ADD PRIMARY KEY (`role_id`,`permission_id`),
-  ADD KEY `permission_id` (`permission_id`);
+  ADD KEY `fk_roleperm_permission_idx` (`permission_id`);
 
 --
 -- Indexes for table `salary_history`
 --
 ALTER TABLE `salary_history`
   ADD PRIMARY KEY (`salary_history_id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `recorded_by_user_id` (`recorded_by_user_id`);
+  ADD KEY `fk_salaryhist_employee_idx` (`employee_id`),
+  ADD KEY `fk_salaryhist_recorder_idx` (`recorded_by_user_id`),
+  ADD KEY `idx_salaryhist_effective_date` (`effective_date`);
 
 --
 -- Indexes for table `sessions`
 --
 ALTER TABLE `sessions`
-  ADD PRIMARY KEY (`session_id`);
+  ADD PRIMARY KEY (`session_id`),
+  ADD KEY `idx_sessions_expires` (`expires`);
+
+--
+-- Indexes for table `system_logs`
+--
+ALTER TABLE `system_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_syslog_type` (`log_type`),
+  ADD KEY `idx_syslog_level` (`log_level`),
+  ADD KEY `fk_syslog_user_idx` (`user_id`),
+  ADD KEY `idx_syslog_created_at` (`created_at`);
+
+--
+-- Indexes for table `system_settings`
+--
+ALTER TABLE `system_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_setting_key` (`setting_key`),
+  ADD KEY `fk_sysset_creator_idx` (`created_by_user_id`);
 
 --
 -- Indexes for table `tasks`
 --
 ALTER TABLE `tasks`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `assigned_to` (`assigned_to`),
-  ADD KEY `assigned_by` (`assigned_by`);
-
---
--- Indexes for table `trainings`
---
-ALTER TABLE `trainings`
-  ADD PRIMARY KEY (`id`);
+  ADD KEY `fk_tasks_assignee_idx` (`assigned_to_employee_id`),
+  ADD KEY `fk_tasks_assigner_idx` (`assigned_by_user_id`),
+  ADD KEY `idx_tasks_status` (`status`),
+  ADD KEY `idx_tasks_due_date` (`due_date`),
+  ADD KEY `idx_tasks_related_entity` (`related_entity_type`,`related_entity_id`);
 
 --
 -- Indexes for table `training_courses`
@@ -1884,34 +2354,42 @@ ALTER TABLE `training_courses`
 --
 ALTER TABLE `training_evaluations`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `registration_id` (`registration_id`),
-  ADD KEY `evaluator_id` (`evaluator_id`);
+  ADD UNIQUE KEY `uq_eval_registration_evaluator` (`registration_id`,`evaluator_employee_id`),
+  ADD KEY `fk_eval_registration_idx` (`registration_id`),
+  ADD KEY `fk_eval_evaluator_idx` (`evaluator_employee_id`);
 
 --
 -- Indexes for table `training_registrations`
 --
 ALTER TABLE `training_registrations`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `employee_id` (`employee_id`),
-  ADD KEY `course_id` (`course_id`);
+  ADD UNIQUE KEY `uq_reg_employee_course` (`employee_id`,`course_id`),
+  ADD KEY `fk_reg_employee_idx` (`employee_id`),
+  ADD KEY `fk_reg_course_idx` (`course_id`);
 
 --
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`);
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `uq_username` (`username`),
+  ADD UNIQUE KEY `uq_email` (`email`),
+  ADD KEY `fk_users_role_idx` (`role_id`);
 
 --
 -- Indexes for table `user_profiles`
 --
 ALTER TABLE `user_profiles`
-  ADD KEY `fk_user_profiles_user` (`user_id`);
+  ADD PRIMARY KEY (`profile_id`),
+  ADD UNIQUE KEY `uq_user_profiles_user_id` (`user_id`);
 
 --
 -- Indexes for table `work_schedules`
 --
 ALTER TABLE `work_schedules`
-  ADD KEY `fk_work_schedules_employee` (`employee_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_schedule_employee_date` (`employee_id`,`work_date`),
+  ADD KEY `fk_worksch_employee_idx` (`employee_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -1924,34 +2402,70 @@ ALTER TABLE `activities`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `assets`
+--
+ALTER TABLE `assets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `asset_assignments`
+--
+ALTER TABLE `asset_assignments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `asset_maintenance`
+--
+ALTER TABLE `asset_maintenance`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT for table `attendance`
 --
 ALTER TABLE `attendance`
-  MODIFY `attendance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `attendance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+
+--
+-- AUTO_INCREMENT for table `audit_logs`
+--
+ALTER TABLE `audit_logs`
+  MODIFY `log_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `backup_logs`
+--
+ALTER TABLE `backup_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `benefits`
 --
 ALTER TABLE `benefits`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `candidates`
+-- AUTO_INCREMENT for table `bonuses`
 --
-ALTER TABLE `candidates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `bonuses`
+  MODIFY `bonus_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `certificates`
 --
 ALTER TABLE `certificates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `contracts`
 --
 ALTER TABLE `contracts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `degrees`
+--
+ALTER TABLE `degrees`
+  MODIFY `degree_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `departments`
@@ -1960,10 +2474,22 @@ ALTER TABLE `departments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `documents`
+--
+ALTER TABLE `documents`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT for table `document_versions`
 --
 ALTER TABLE `document_versions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `email_verification_tokens`
+--
+ALTER TABLE `email_verification_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -1972,40 +2498,52 @@ ALTER TABLE `employees`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `equipment`
+-- AUTO_INCREMENT for table `employee_positions`
 --
-ALTER TABLE `equipment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `employee_positions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `evaluations`
+-- AUTO_INCREMENT for table `family_members`
 --
-ALTER TABLE `evaluations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `family_members`
+  MODIFY `family_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `holidays`
+--
+ALTER TABLE `holidays`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `insurance`
 --
 ALTER TABLE `insurance`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `interviews`
 --
 ALTER TABLE `interviews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `job_applications`
+--
+ALTER TABLE `job_applications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `job_positions`
 --
 ALTER TABLE `job_positions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `kpi`
 --
 ALTER TABLE `kpi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `leaves`
@@ -2014,34 +2552,52 @@ ALTER TABLE `leaves`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `login_attempts`
+--
+ALTER TABLE `login_attempts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT for table `onboarding`
 --
 ALTER TABLE `onboarding`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `payroll`
 --
 ALTER TABLE `payroll`
-  MODIFY `payroll_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `payroll_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `payrolls`
+-- AUTO_INCREMENT for table `performances`
 --
-ALTER TABLE `payrolls`
+ALTER TABLE `performances`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `policies`
 --
 ALTER TABLE `policies`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `positions`
@@ -2053,252 +2609,426 @@ ALTER TABLE `positions`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `project_resources`
 --
 ALTER TABLE `project_resources`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `project_tasks`
 --
 ALTER TABLE `project_tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `recruitment`
+-- AUTO_INCREMENT for table `rate_limits`
 --
-ALTER TABLE `recruitment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `rate_limits`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `recruitment_campaigns`
+--
+ALTER TABLE `recruitment_campaigns`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `report_executions`
+--
+ALTER TABLE `report_executions`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `report_schedules`
+--
+ALTER TABLE `report_schedules`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `report_templates`
+--
+ALTER TABLE `report_templates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `salary_history`
+--
+ALTER TABLE `salary_history`
+  MODIFY `salary_history_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `system_logs`
+--
+ALTER TABLE `system_logs`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `system_settings`
+--
+ALTER TABLE `system_settings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `tasks`
+--
+ALTER TABLE `tasks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `training_courses`
 --
 ALTER TABLE `training_courses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `training_evaluations`
 --
 ALTER TABLE `training_evaluations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `training_registrations`
 --
 ALTER TABLE `training_registrations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `user_profiles`
+--
+ALTER TABLE `user_profiles`
+  MODIFY `profile_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `work_schedules`
+--
+ALTER TABLE `work_schedules`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
 --
 
 --
+-- Constraints for table `activities`
+--
+ALTER TABLE `activities`
+  ADD CONSTRAINT `fk_activities_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `asset_assignments`
+--
+ALTER TABLE `asset_assignments`
+  ADD CONSTRAINT `fk_assetassign_asset` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_assetassign_assigner` FOREIGN KEY (`assigned_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_assetassign_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_assetassign_receiver` FOREIGN KEY (`returned_to_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `asset_maintenance`
+--
+ALTER TABLE `asset_maintenance`
+  ADD CONSTRAINT `fk_assetmaint_asset` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_assetmaint_creator` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE;
+
+--
 -- Constraints for table `attendance`
 --
 ALTER TABLE `attendance`
-  ADD CONSTRAINT `fk_attendance_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `fk_attendance_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `audit_logs`
+--
+ALTER TABLE `audit_logs`
+  ADD CONSTRAINT `fk_audit_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `backup_logs`
+--
+ALTER TABLE `backup_logs`
+  ADD CONSTRAINT `fk_backuplog_creator` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `bonuses`
 --
 ALTER TABLE `bonuses`
-  ADD CONSTRAINT `fk_bonuses_added_by` FOREIGN KEY (`added_by_user_id`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `fk_bonuses_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
-
---
--- Constraints for table `candidates`
---
-ALTER TABLE `candidates`
-  ADD CONSTRAINT `candidates_ibfk_1` FOREIGN KEY (`position_id`) REFERENCES `positions` (`id`);
+  ADD CONSTRAINT `fk_bonuses_approver` FOREIGN KEY (`approved_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_bonuses_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_bonuses_payroll` FOREIGN KEY (`payroll_id`) REFERENCES `payroll` (`payroll_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `certificates`
 --
 ALTER TABLE `certificates`
-  ADD CONSTRAINT `certificates_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_certificates_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `contracts`
 --
 ALTER TABLE `contracts`
-  ADD CONSTRAINT `contracts_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_contracts_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `degrees`
+--
+ALTER TABLE `degrees`
+  ADD CONSTRAINT `fk_degrees_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `departments`
 --
 ALTER TABLE `departments`
-  ADD CONSTRAINT `fk_departments_manager` FOREIGN KEY (`manager_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `fk_departments_manager` FOREIGN KEY (`manager_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_departments_parent` FOREIGN KEY (`parent_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `documents`
+--
+ALTER TABLE `documents`
+  ADD CONSTRAINT `fk_docs_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_docs_uploader` FOREIGN KEY (`uploaded_by_user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `document_versions`
 --
 ALTER TABLE `document_versions`
-  ADD CONSTRAINT `document_versions_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`),
-  ADD CONSTRAINT `document_versions_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_docver_creator` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_docver_document` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `email_verification_tokens`
+--
+ALTER TABLE `email_verification_tokens`
+  ADD CONSTRAINT `fk_emailver_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `employees`
 --
 ALTER TABLE `employees`
-  ADD CONSTRAINT `employees_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `employees_ibfk_2` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `employees_ibfk_3` FOREIGN KEY (`position_id`) REFERENCES `positions` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `fk_employees_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_employees_position` FOREIGN KEY (`position_id`) REFERENCES `positions` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_employees_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `equipment_assignments`
+-- Constraints for table `employee_positions`
 --
-ALTER TABLE `equipment_assignments`
-  ADD CONSTRAINT `fk_equipment_assignments_employee` FOREIGN KEY (`employee_id`) REFERENCES `users` (`user_id`);
+ALTER TABLE `employee_positions`
+  ADD CONSTRAINT `fk_emppos_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_emppos_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_emppos_position` FOREIGN KEY (`position_id`) REFERENCES `positions` (`id`) ON UPDATE CASCADE;
 
 --
--- Constraints for table `evaluations`
+-- Constraints for table `family_members`
 --
-ALTER TABLE `evaluations`
-  ADD CONSTRAINT `evaluations_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`),
-  ADD CONSTRAINT `evaluations_ibfk_2` FOREIGN KEY (`evaluator_id`) REFERENCES `employees` (`id`);
+ALTER TABLE `family_members`
+  ADD CONSTRAINT `fk_family_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `insurance`
 --
 ALTER TABLE `insurance`
-  ADD CONSTRAINT `insurance_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_insurance_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `interviews`
 --
 ALTER TABLE `interviews`
-  ADD CONSTRAINT `interviews_ibfk_1` FOREIGN KEY (`interviewer_id`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_interviews_application` FOREIGN KEY (`job_application_id`) REFERENCES `job_applications` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_interviews_interviewer` FOREIGN KEY (`interviewer_employee_id`) REFERENCES `employees` (`id`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `job_applications`
+--
+ALTER TABLE `job_applications`
+  ADD CONSTRAINT `fk_jobapp_jobpos` FOREIGN KEY (`job_position_id`) REFERENCES `job_positions` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `job_positions`
 --
 ALTER TABLE `job_positions`
-  ADD CONSTRAINT `job_positions_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
+  ADD CONSTRAINT `fk_jobpos_campaign` FOREIGN KEY (`campaign_id`) REFERENCES `recruitment_campaigns` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_jobpos_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_jobpos_manager` FOREIGN KEY (`hiring_manager_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_jobpos_position` FOREIGN KEY (`position_id`) REFERENCES `positions` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `kpi`
 --
 ALTER TABLE `kpi`
-  ADD CONSTRAINT `kpi_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_kpi_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `leaves`
 --
 ALTER TABLE `leaves`
-  ADD CONSTRAINT `fk_leaves_approved_by` FOREIGN KEY (`approved_by`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `fk_leaves_employee` FOREIGN KEY (`employee_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `fk_leaves_approver` FOREIGN KEY (`approved_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_leaves_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `notifications`
 --
 ALTER TABLE `notifications`
-  ADD CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `onboarding`
 --
 ALTER TABLE `onboarding`
-  ADD CONSTRAINT `onboarding_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_onboarding_buddy` FOREIGN KEY (`buddy_employee_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_onboarding_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD CONSTRAINT `fk_pwdreset_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `payroll`
 --
 ALTER TABLE `payroll`
-  ADD CONSTRAINT `fk_payroll_generated_by` FOREIGN KEY (`generated_by_user_id`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `fk_payroll_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `fk_payroll_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_payroll_generator` FOREIGN KEY (`generated_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Constraints for table `payrolls`
+-- Constraints for table `performances`
 --
-ALTER TABLE `payrolls`
-  ADD CONSTRAINT `payrolls_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE;
+ALTER TABLE `performances`
+  ADD CONSTRAINT `fk_perf_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_perf_reviewer` FOREIGN KEY (`reviewer_user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `positions`
 --
 ALTER TABLE `positions`
-  ADD CONSTRAINT `fk_positions_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_positions_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `projects`
 --
 ALTER TABLE `projects`
-  ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`manager_id`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_projects_manager` FOREIGN KEY (`manager_employee_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `project_resources`
 --
 ALTER TABLE `project_resources`
-  ADD CONSTRAINT `project_resources_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`);
+  ADD CONSTRAINT `fk_projres_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `project_tasks`
 --
 ALTER TABLE `project_tasks`
-  ADD CONSTRAINT `project_tasks_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-  ADD CONSTRAINT `project_tasks_ibfk_2` FOREIGN KEY (`assigned_to`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_projtasks_assignee` FOREIGN KEY (`assigned_to_employee_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_projtasks_parent` FOREIGN KEY (`parent_task_id`) REFERENCES `project_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_projtasks_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `recruitment`
+-- Constraints for table `recruitment_campaigns`
 --
-ALTER TABLE `recruitment`
-  ADD CONSTRAINT `recruitment_ibfk_1` FOREIGN KEY (`position_id`) REFERENCES `positions` (`id`),
-  ADD CONSTRAINT `recruitment_ibfk_2` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
+ALTER TABLE `recruitment_campaigns`
+  ADD CONSTRAINT `fk_reccamp_creator` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `report_executions`
+--
+ALTER TABLE `report_executions`
+  ADD CONSTRAINT `fk_repexec_executor` FOREIGN KEY (`executed_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_repexec_schedule` FOREIGN KEY (`schedule_id`) REFERENCES `report_schedules` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_repexec_template` FOREIGN KEY (`template_id`) REFERENCES `report_templates` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `report_schedules`
+--
+ALTER TABLE `report_schedules`
+  ADD CONSTRAINT `fk_repsched_creator` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_repsched_template` FOREIGN KEY (`template_id`) REFERENCES `report_templates` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `report_templates`
+--
+ALTER TABLE `report_templates`
+  ADD CONSTRAINT `fk_reptemp_creator` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `role_permissions`
 --
 ALTER TABLE `role_permissions`
-  ADD CONSTRAINT `role_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `role_permissions_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_roleperm_permission` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_roleperm_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `salary_history`
 --
 ALTER TABLE `salary_history`
-  ADD CONSTRAINT `fk_salary_history_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `fk_salaryhist_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_salaryhist_recorder` FOREIGN KEY (`recorded_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `system_logs`
+--
+ALTER TABLE `system_logs`
+  ADD CONSTRAINT `fk_syslog_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `system_settings`
+--
+ALTER TABLE `system_settings`
+  ADD CONSTRAINT `fk_sysset_creator` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `tasks`
 --
 ALTER TABLE `tasks`
-  ADD CONSTRAINT `fk_tasks_assigned_by` FOREIGN KEY (`assigned_by`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `fk_tasks_assigned_to` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `fk_tasks_assignee` FOREIGN KEY (`assigned_to_employee_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_tasks_assigner` FOREIGN KEY (`assigned_by_user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `training_evaluations`
 --
 ALTER TABLE `training_evaluations`
-  ADD CONSTRAINT `training_evaluations_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `training_registrations` (`id`),
-  ADD CONSTRAINT `training_evaluations_ibfk_2` FOREIGN KEY (`evaluator_id`) REFERENCES `employees` (`id`);
+  ADD CONSTRAINT `fk_eval_evaluator` FOREIGN KEY (`evaluator_employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_eval_registration` FOREIGN KEY (`registration_id`) REFERENCES `training_registrations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `training_registrations`
 --
 ALTER TABLE `training_registrations`
-  ADD CONSTRAINT `training_registrations_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`),
-  ADD CONSTRAINT `training_registrations_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `training_courses` (`id`);
+  ADD CONSTRAINT `fk_reg_course` FOREIGN KEY (`course_id`) REFERENCES `training_courses` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reg_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_users_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `user_profiles`
 --
 ALTER TABLE `user_profiles`
-  ADD CONSTRAINT `fk_user_profiles_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `fk_user_profiles_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `work_schedules`
 --
 ALTER TABLE `work_schedules`
-  ADD CONSTRAINT `fk_work_schedules_employee` FOREIGN KEY (`employee_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `fk_worksch_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

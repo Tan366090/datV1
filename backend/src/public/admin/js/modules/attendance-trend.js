@@ -1,7 +1,7 @@
 class AttendanceTrend {
     constructor() {
+        this.period = 'month';
         this.chart = null;
-        this.period = 'week';
         this.initialize();
     }
 
@@ -36,22 +36,15 @@ class AttendanceTrend {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-
-            if (!data.success) {
-                console.error('Error loading attendance data:', data.error);
-                this.showNoData();
-                return;
-            }
-
-            if (!data.data || data.data.length === 0) {
-                this.showNoData();
-                return;
-            }
-
-            this.updateChart(data.data);
+            
+            // Kiểm tra và chuyển đổi dữ liệu thành mảng nếu cần
+            const attendanceData = Array.isArray(data) ? data : [data];
+            
+            this.updateChart(attendanceData);
         } catch (error) {
             console.error('Error loading attendance data:', error);
-            this.showNoData();
+            // Hiển thị biểu đồ trống nếu có lỗi
+            this.updateChart([]);
         }
     }
 
@@ -110,137 +103,60 @@ class AttendanceTrend {
     }
 
     updateChart(data) {
-        const ctx = document.getElementById('attendanceTrendChart');
-        if (!ctx) return;
-
+        const ctx = document.getElementById('attendanceTrendChart').getContext('2d');
+        
         if (this.chart) {
             this.chart.destroy();
         }
 
-        // Group attendance data by type
-        const groupedData = {
-            working: [], // P, NN
-            paidLeave: [], // Ô, Cô, TS, T, P, 1/2P
-            unpaidLeave: [], // 1/2K, K
-            holiday: [], // CN, NL, NB
-            stopped: [] // N
-        };
-
-        data.forEach(record => {
-            const date = record.date;
-            
-            // Working
-            groupedData.working.push({
-                x: date,
-                y: record.present + record.half_day_work
-            });
-
-            // Paid Leave
-            groupedData.paidLeave.push({
-                x: date,
-                y: record.sick + record.child_care + record.maternity + 
-                   record.work_accident + record.half_day_leave
-            });
-
-            // Unpaid Leave
-            groupedData.unpaidLeave.push({
-                x: date,
-                y: record.half_day_unpaid + record.unpaid
-            });
-
-            // Holiday
-            groupedData.holiday.push({
-                x: date,
-                y: record.sunday + record.holiday + record.compensatory
-            });
-
-            // Stopped
-            groupedData.stopped.push({
-                x: date,
-                y: record.stopped
-            });
-        });
-
         this.chart = new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: data.map(record => record.date),
+                labels: data.map(item => item.date),
                 datasets: [
                     {
-                        label: 'Làm việc (P, NN)',
-                        data: groupedData.working,
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        label: 'Có mặt',
+                        data: data.map(item => item.present || 0),
                         borderColor: 'rgb(75, 192, 192)',
-                        borderWidth: 1
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.1
                     },
                     {
-                        label: 'Nghỉ có lương (Ô, Cô, TS, T, P, 1/2P)',
-                        data: groupedData.paidLeave,
-                        backgroundColor: 'rgba(255, 159, 64, 0.5)',
-                        borderColor: 'rgb(255, 159, 64)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Nghỉ không lương (1/2K, K)',
-                        data: groupedData.unpaidLeave,
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        label: 'Vắng mặt',
+                        data: data.map(item => item.absent || 0),
                         borderColor: 'rgb(255, 99, 132)',
-                        borderWidth: 1
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        tension: 0.1
                     },
                     {
-                        label: 'Nghỉ lễ (CN, NL, NB)',
-                        data: groupedData.holiday,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgb(54, 162, 235)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Ngừng làm việc (N)',
-                        data: groupedData.stopped,
-                        backgroundColor: 'rgba(153, 102, 255, 0.5)',
-                        borderColor: 'rgb(153, 102, 255)',
-                        borderWidth: 1
+                        label: 'Đi muộn',
+                        data: data.map(item => item.late || 0),
+                        borderColor: 'rgb(255, 205, 86)',
+                        backgroundColor: 'rgba(255, 205, 86, 0.1)',
+                        tension: 0.1
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        stacked: true,
-                        title: {
-                            display: true,
-                            text: 'Ngày'
-                        }
-                    },
-                    y: {
-                        stacked: true,
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Số nhân viên'
-                        }
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Xu hướng chấm công'
                     }
                 },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.parsed.y} nhân viên`;
-                            }
-                        }
-                    },
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 12,
-                            padding: 20
-                        }
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
             }
         });
+    }
+
+    setPeriod(period) {
+        this.period = period;
+        this.loadData();
     }
 }
 

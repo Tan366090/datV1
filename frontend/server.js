@@ -15,12 +15,12 @@ app.use('/public', express.static(path.join(__dirname, '..', 'backend', 'src', '
 
 // Main route - serve dashboard directly
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'backend', 'src', 'public', 'admin', 'dashboard_admin_V1.html'));
+  res.sendFile(path.join(__dirname, '..', 'backend', 'src', 'public', 'admin', 'dashboard_admin_V1.php'));
 });
 
 // Catch all other routes and serve dashboard
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'backend', 'src', 'public', 'admin', 'dashboard_admin_V1.html'));
+  res.sendFile(path.join(__dirname, '..', 'backend', 'src', 'public', 'admin', 'dashboard_admin_V1.php'));
 });
 
 app.listen(port, () => {

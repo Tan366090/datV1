@@ -1,4 +1,5 @@
-Options -Indexes
+Options +Indexes +FollowSymLinks
+Require all granted
 DirectoryIndex test_dashboard.html
 
 <IfModule mod_headers.c>

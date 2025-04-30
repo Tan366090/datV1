@@ -1,71 +1,95 @@
 <?php
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Set headers
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 
-require_once __DIR__ . '/../config/database.php';
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 try {
-    $db = new Database();
-    $conn = $db->getConnection();
+    // Include database configuration
+    require_once '../../config/database.php';
+    
+    // Get database connection
+    $database = new Database();
+    $db = $database->getConnection();
 
-    // Get department stats
-    $query = "SELECT 
-                d.department_id,
-                d.department_name,
-                COUNT(e.id) as employee_count,
-                COUNT(CASE WHEN e.status = 'active' THEN 1 END) as active_employees,
-                COUNT(CASE WHEN e.status = 'inactive' THEN 1 END) as inactive_employees
-            FROM departments d
-            LEFT JOIN employees e ON d.department_id = e.department_id
-            GROUP BY d.department_id
-            ORDER BY d.department_name";
-
-    $stmt = $conn->prepare($query);
+    // Get total employees count
+    $query = "SELECT COUNT(*) as total FROM employees e 
+              JOIN users u ON e.user_id = u.user_id 
+              WHERE e.status = 'active' AND u.role_id != 1";
+    $stmt = $db->prepare($query);
     $stmt->execute();
-    $departmentStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $totalEmployees = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Get position stats
-    $query = "SELECT 
-                p.position_id,
-                p.position_name,
-                COUNT(e.id) as employee_count
-            FROM positions p
-            LEFT JOIN employees e ON p.position_id = e.position_id
-            GROUP BY p.position_id
-            ORDER BY p.position_name";
+    // Get today's date
+    $today = date('Y-m-d');
 
-    $stmt = $conn->prepare($query);
+    // Get present employees count for today
+    $query = "SELECT COUNT(DISTINCT employee_id) as present FROM attendance 
+              WHERE DATE(attendance_date) = :today AND attendance_symbol = 'P'";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':today', $today);
     $stmt->execute();
-    $positionStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $presentToday = $stmt->fetch(PDO::FETCH_ASSOC)['present'];
 
-    // Get total stats
-    $query = "SELECT 
-                COUNT(*) as total_employees,
-                COUNT(CASE WHEN status = 'active' THEN 1 END) as active_employees,
-                COUNT(CASE WHEN status = 'inactive' THEN 1 END) as inactive_employees,
-                COUNT(DISTINCT department_id) as total_departments,
-                COUNT(DISTINCT position_id) as total_positions
-            FROM employees";
-
-    $stmt = $conn->prepare($query);
+    // Get absent employees count for today
+    $query = "SELECT COUNT(DISTINCT employee_id) as absent FROM attendance 
+              WHERE DATE(attendance_date) = :today AND attendance_symbol = 'A'";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':today', $today);
     $stmt->execute();
-    $totalStats = $stmt->fetch(PDO::FETCH_ASSOC);
+    $absentToday = $stmt->fetch(PDO::FETCH_ASSOC)['absent'];
 
-    echo json_encode([
+    // Get on-time percentage (employees who arrived on time today)
+    $query = "SELECT 
+                COALESCE(
+                    (COUNT(CASE WHEN TIME(check_in_time) <= '09:00:00' THEN 1 END) * 100.0 / 
+                    NULLIF(COUNT(*), 0)),
+                    0
+                ) as on_time_percentage 
+              FROM attendance 
+              WHERE DATE(attendance_date) = :today AND attendance_symbol = 'P'";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':today', $today);
+    $stmt->execute();
+    $onTimePercentage = round($stmt->fetch(PDO::FETCH_ASSOC)['on_time_percentage'], 1);
+
+    // Prepare response
+    $response = [
         'success' => true,
         'data' => [
-            'departments' => $departmentStats,
-            'positions' => $positionStats,
-            'totals' => $totalStats
+            'totalEmployees' => (int)$totalEmployees,
+            'presentToday' => (int)$presentToday,
+            'absentToday' => (int)$absentToday,
+            'onTimePercentage' => (float)$onTimePercentage
         ]
-    ]);
+    ];
+
+    echo json_encode($response);
+
 } catch (PDOException $e) {
+    error_log("Database Error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'Database error: ' . $e->getMessage()
+    ]);
+} catch (Exception $e) {
+    error_log("General Error: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Server error: ' . $e->getMessage()
     ]);
 }
 ?> 

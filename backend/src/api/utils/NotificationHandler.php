@@ -12,12 +12,13 @@ class NotificationHandler {
         // Initialize email
         self::$mailer = new PHPMailer(true);
         self::$mailer->isSMTP();
-        self::$mailer->Host = $_ENV['SMTP_HOST'];
+        self::$mailer->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
         self::$mailer->SMTPAuth = true;
-        self::$mailer->Username = $_ENV['SMTP_USERNAME'];
-        self::$mailer->Password = $_ENV['SMTP_PASSWORD'];
+        self::$mailer->Username = getenv('SMTP_USERNAME');
+        self::$mailer->Password = getenv('SMTP_PASSWORD');
         self::$mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        self::$mailer->Port = $_ENV['SMTP_PORT'];
+        self::$mailer->Port = getenv('SMTP_PORT') ?: 587;
+        self::$mailer->CharSet = 'UTF-8';
         
         // Initialize Pusher for realtime notifications
         self::$pusher = new \Pusher\Pusher(
@@ -34,7 +35,7 @@ class NotificationHandler {
                 self::init();
             }
             
-            self::$mailer->setFrom($_ENV['SMTP_FROM_EMAIL'], $_ENV['SMTP_FROM_NAME']);
+            self::$mailer->setFrom(getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME') ?: 'HR System');
             self::$mailer->addAddress($to);
             self::$mailer->isHTML(true);
             self::$mailer->Subject = $subject;

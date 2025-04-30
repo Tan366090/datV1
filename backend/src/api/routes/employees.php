@@ -1,12 +1,140 @@
 <?php
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
+
+require_once __DIR__ . '/../../config/database.php';
+
+try {
+    $action = $_GET['action'] ?? '';
+    
+    switch ($action) {
+        case 'get_departments':
+            getDepartments();
+            break;
+        case 'get_positions':
+            getPositions();
+            break;
+        case 'get_document_categories':
+            getDocumentCategories();
+            break;
+        default:
+            throw new Exception('Invalid action');
+    }
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
+}
+
+function getDepartments() {
+    global $conn;
+    
+    try {
+        $query = "SELECT 
+                    d.id,
+                    d.name,
+                    d.code,
+                    d.description,
+                    d.parent_id,
+                    d.manager_id,
+                    e.name as manager_name,
+                    parent.name as parent_name
+                FROM departments d
+                LEFT JOIN employees e ON d.manager_id = e.id
+                LEFT JOIN departments parent ON d.parent_id = parent.id
+                ORDER BY d.name";
+        
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $departments = [];
+        while ($row = $result->fetch_assoc()) {
+            $departments[] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'code' => $row['code'],
+                'description' => $row['description'],
+                'parent_id' => $row['parent_id'],
+                'parent_name' => $row['parent_name'],
+                'manager_id' => $row['manager_id'],
+                'manager_name' => $row['manager_name']
+            ];
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $departments
+        ]);
+        
+    } catch (Exception $e) {
+        throw new Exception('Error fetching departments: ' . $e->getMessage());
+    }
+}
+
+function getPositions() {
+    global $conn;
+    
+    try {
+        $stmt = $conn->query("SELECT id, name FROM positions");
+        $positions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $positions
+        ]);
+    } catch (Exception $e) {
+        throw new Exception('Error fetching positions: ' . $e->getMessage());
+    }
+}
+
+function getDocumentCategories() {
+    global $conn;
+    
+    try {
+        $stmt = $conn->query("SELECT id, name FROM document_categories");
+        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $categories
+        ]);
+    } catch (Exception $e) {
+        throw new Exception('Error fetching document categories: ' . $e->getMessage());
+    }
+}
+
 // Get request method
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Handle different HTTP methods
 switch ($method) {
     case 'GET':
-        // Get all employees or specific employee
-        if (isset($uri[4])) {
+        // Check for action parameter
+        if (isset($_GET['action'])) {
+            switch ($_GET['action']) {
+                case 'get_departments':
+                    getDepartments();
+                    break;
+                    
+                case 'get_positions':
+                    getPositions();
+                    break;
+                    
+                case 'get_document_categories':
+                    getDocumentCategories();
+                    break;
+                    
+                default:
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Invalid action'
+                    ]);
+                    break;
+            }
+        } else if (isset($uri[4])) {
             // Get specific employee
             $employee_id = $uri[4];
             $stmt = $conn->prepare("SELECT * FROM employees WHERE id = ?");

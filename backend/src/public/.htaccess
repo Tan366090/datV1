@@ -6,9 +6,16 @@ Header set Access-Control-Allow-Headers "Content-Type, Authorization"
 # Enable rewrite engine
 RewriteEngine On
 
-# If the request is not for a file or directory
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Set base directory
+RewriteBase /
+
+# If the request is for a file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Rewrite API requests to the API directory
+RewriteRule ^api/(.*)$ api/$1 [QSA,L]
 
 # Rewrite all other URLs to index.php
 RewriteRule ^(.*)$ index.php [QSA,L]
@@ -23,23 +30,6 @@ AddDefaultCharset UTF-8
 php_flag display_errors on
 php_value error_reporting E_ALL
 
-# Enable rewriting
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^api/(.*)$ api/index.php [QSA,L]
-
-# Prevent direct access to .php files
-<FilesMatch "\.php$">
-    Order Allow,Deny
-    Deny from all
-</FilesMatch>
-
-# Allow specific PHP files
-<FilesMatch "^(index|api)\.php$">
-    Order Allow,Deny
-    Allow from all
-</FilesMatch>
-
 # Security headers
 Header set X-Content-Type-Options "nosniff"
 Header set X-Frame-Options "SAMEORIGIN"
@@ -51,34 +41,18 @@ Header set Referrer-Policy "strict-origin-when-cross-origin"
     Header set Cache-Control "max-age=31536000, public"
 </FilesMatch>
 
-# Protect sensitive files
-<FilesMatch "^\.">
+# Prevent access to sensitive files
+<FilesMatch "^(\.htaccess|\.htpasswd|\.git|\.svn|\.env|composer\.json|composer\.lock|package\.json|package-lock\.json)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
-
-<FilesMatch "^(composer\.json|composer\.lock|package\.json|package-lock\.json|README\.md)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# Set base directory
-RewriteBase /qlnhansu_V2/backend/src/public/
 
 # Set default directory index
 DirectoryIndex login_new.html index.html index.php
 
-# Handle directory requests
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-
-# Handle file requests
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^ - [L]
-
 # Custom error documents
-ErrorDocument 404 /QLNhanSu/backend/src/public/404.html
-ErrorDocument 500 /QLNhanSu/backend/src/public/500.html
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
 
 # Allow access to HTML, JavaScript, and CSS files
 <FilesMatch "\.(html|js|css)$">
@@ -95,28 +69,5 @@ ErrorDocument 500 /QLNhanSu/backend/src/public/500.html
 RewriteRule ^(admin|manager|hr|employee)/dashboard\.html$ $1/dashboard.html [L]
 
 # Check session for dashboard pages
-RewriteCond %{REQUEST_URI} ^/QLNhanSu/backend/src/public/(admin|manager|hr|employee)/dashboard\.html$
+RewriteCond %{REQUEST_URI} ^/(admin|manager|hr|employee)/dashboard\.html$
 RewriteRule ^(.*)$ middleware/auth.php [L]
-
-# Allow access to all HTML files
-<FilesMatch "\.html$">
-    Order Allow,Deny
-    Allow from all
-</FilesMatch>
-
-# Allow access to all JavaScript files
-<FilesMatch "\.js$">
-    Order Allow,Deny
-    Allow from all
-</FilesMatch>
-
-# Allow access to all CSS files
-<FilesMatch "\.css$">
-    Order Allow,Deny
-    Allow from all
-</FilesMatch>
-
-# Handle frontend routes
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.html [L]

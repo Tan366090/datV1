@@ -137,7 +137,7 @@ function checkResourceErrors() {
 function checkHTMLErrors() {
     $errors = [];
     
-    $htmlFile = 'dashboard_admin_V1.html';
+    $htmlFile = 'dashboard_admin_V1.php';
     $content = file_get_contents($htmlFile);
     
     // Kiểm tra các thẻ HTML cần thiết
