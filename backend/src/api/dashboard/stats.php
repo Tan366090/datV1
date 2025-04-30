@@ -18,10 +18,10 @@ try {
     $stmt = $conn->query("SELECT COUNT(*) as total FROM departments");
     $totalDepartments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Lấy hiệu suất trung bình từ bảng performance_evaluations
+    // Lấy hiệu suất trung bình từ bảng performances
     $stmt = $conn->query("
         SELECT AVG(performance_score) as avg_score 
-        FROM performance_evaluations pe 
+        FROM performances pe 
         JOIN employees e ON pe.employee_id = e.id
     ");
     $avgPerformance = round($stmt->fetch(PDO::FETCH_ASSOC)['avg_score'] ?? 0, 2);
@@ -59,7 +59,7 @@ try {
                COALESCE(AVG(pe.performance_score), 0) as avg_score
         FROM departments d
         LEFT JOIN employees e ON d.id = e.department_id
-        LEFT JOIN performance_evaluations pe ON e.id = pe.employee_id
+        LEFT JOIN performances pe ON e.id = pe.employee_id
         GROUP BY d.id, d.name
     ");
     $performanceStats = $stmt->fetchAll(PDO::FETCH_ASSOC);

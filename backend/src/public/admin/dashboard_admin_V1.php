@@ -900,6 +900,23 @@
         .nav-link:hover {
             text-decoration: none;
         }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+            text-decoration: none !important;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            text-decoration: none !important;
+        }
     </style>
 </head>
 <body class="theme-transition">
@@ -1337,100 +1354,52 @@
                     </div>
                 </div>
 
-                <!-- Charts Section -->
-                <div class="charts-grid d-grid gap-4">
-                    <!-- Attendance Chart -->
-                    <div class="chart-card card shadow-sm">
-                        <div class="card-header bg-transparent border-bottom-0">
-                            <h3 class="chart-title text-primary mb-0">Tổng quan chấm công</h3>
-                        </div>
-                        <div class="card-body p-3">
-                            <div class="chart-container" style="position: relative; height: 300px;">
-                                <canvas id="attendanceChart"></canvas>
+                <!-- New Charts Section -->
+                <div class="row mt-4">
+                    <!-- HR Chart -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Biểu đồ nhân sự</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="hrChart"></canvas>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Department Distribution Chart -->
-                    <div class="chart-card card shadow-sm">
-                        <div class="card-header bg-transparent border-bottom-0">
-                            <h3 class="chart-title text-primary mb-0">Phân bố phòng ban</h3>
-                        </div>
-                        <div class="card-body p-3">
-                            <div class="chart-container" style="position: relative; height: 300px;">
-                                <canvas id="departmentChart"></canvas>
+                    <!-- Finance Chart -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Biểu đồ tài chính</h5>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Performance Chart -->
-                    <div class="chart-card card shadow-sm">
-                        <div class="card-header bg-transparent border-bottom-0">
-                            <h3 class="chart-title text-primary mb-0">Hiệu suất nhân viên</h3>
-                        </div>
-                        <div class="card-body p-3">
-                            <div class="chart-container" style="position: relative; height: 300px;">
-                                <canvas id="performanceChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Salary Chart -->
-                    <div class="chart-card card shadow-sm">
-                        <div class="card-header bg-transparent border-bottom-0">
-                            <h3 class="chart-title text-primary mb-0">Chi phí lương</h3>
-                        </div>
-                        <div class="card-body p-3">
-                            <div class="chart-container" style="position: relative; height: 300px;">
-                                <canvas id="salaryChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Leave Chart -->
-                    <div class="chart-card card shadow-sm">
-                        <div class="card-header bg-transparent border-bottom-0">
-                            <h3 class="chart-title text-primary mb-0">Thống kê nghỉ phép</h3>
-                        </div>
-                        <div class="card-body p-3">
-                            <div class="chart-container" style="position: relative; height: 300px;">
-                                <canvas id="leaveChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recruitment Chart -->
-                    <div class="chart-card card shadow-sm">
-                        <div class="card-header bg-transparent border-bottom-0">
-                            <h3 class="chart-title text-primary mb-0">Tuyển dụng</h3>
-                        </div>
-                        <div class="card-body p-3">
-                            <div class="chart-container" style="position: relative; height: 300px;">
-                                <canvas id="recruitmentChart"></canvas>
+                            <div class="card-body">
+                                <canvas id="financeChart"></canvas>
                             </div>
                         </div>
                     </div>
 
                     <!-- Training Chart -->
-                    <div class="chart-card card shadow-sm">
-                        <div class="card-header bg-transparent border-bottom-0">
-                            <h3 class="chart-title text-primary mb-0">Đào tạo</h3>
-                        </div>
-                        <div class="card-body p-3">
-                            <div class="chart-container" style="position: relative; height: 300px;">
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Biểu đồ đào tạo</h5>
+                            </div>
+                            <div class="card-body">
                                 <canvas id="trainingChart"></canvas>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Assets Chart -->
-                    <div class="chart-card card shadow-sm">
-                        <div class="card-header bg-transparent border-bottom-0">
-                            <h3 class="chart-title text-primary mb-0">Quản lý tài sản</h3>
-                        </div>
-                        <div class="card-body p-3">
-                            <div class="chart-container" style="position: relative; height: 300px;">
-                                <canvas id="assetsChart"></canvas>
+                    <!-- Recruitment Chart -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Biểu đồ tuyển dụng</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="recruitmentChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -1519,7 +1488,7 @@
                 <p>&copy; 2023 VNPT. All rights reserved.</p>
             </footer>
         </main>
-    </div>
+                                </div>
 
     <!-- Form thêm nhân viên -->
     <div id="addEmployeeModal" class="modal-overlay">
@@ -1527,7 +1496,7 @@
             <div class="modal-header">
                 <h3 class="modal-title">Thêm nhân viên mới</h3>
                 <button style="color: brown;" type="button" class="modal-close-btn" onclick="closeAddEmployeeModal()">&times;</button>
-            </div>
+                                </div>
             <div class="modal-body">
                 <form id="addEmployeeForm" class="employee-form" enctype="multipart/form-data">
                     <div class="form-grid">
@@ -1535,7 +1504,7 @@
                         <div class="form-group">
                             <label class="form-label required">Họ</label>
                             <input type="text" class="form-control" name="first_name" required>
-                        </div>
+                            </div>
                         <div class="form-group">
                             <label class="form-label required">Tên</label>
                             <input type="text" class="form-control" name="last_name" required>
@@ -1543,23 +1512,23 @@
                         <div class="form-group">
                             <label class="form-label required">Email</label>
                             <input type="email" class="form-control" name="email" required>
-                        </div>
+                    </div>
                         <div class="form-group">
                             <label class="form-label required">Số điện thoại</label>
                             <input type="tel" class="form-control" name="phone" required>
-                        </div>
+                                </div>
                         <div class="form-group">
                             <label class="form-label required">Phòng ban</label>
                             <select class="form-select" name="department_id" required>
                                 <option value="">Chọn phòng ban</option>
                             </select>
-                        </div>
+                                </div>
                         <div class="form-group">
                             <label class="form-label required">Vị trí</label>
                             <select class="form-select" name="position_id" required>
                                 <option value="">Chọn vị trí</option>
                             </select>
-                        </div>
+                            </div>
                         <div class="form-group">
                             <label class="form-label required">Ngày bắt đầu</label>
                             <input type="date" class="form-control" name="hire_date" required>
@@ -1567,7 +1536,7 @@
                         <div class="form-group">
                             <label class="form-label required">Mức lương</label>
                             <input type="number" class="form-control" name="salary" required>
-                        </div>
+                    </div>
                         <div class="form-group">
                             <label class="form-label">Trạng thái</label>
                             <select class="form-select" name="status">
@@ -1597,8 +1566,8 @@
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
+                </div>
+            </div>
 
     <!-- Modal chấm công -->
     <div id="attendanceModal" class="modal-overlay">
@@ -1919,6 +1888,7 @@
         margin-bottom: 15px;
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
+    text-decoration: none;
 }
 
 /* Style cho tìm kiếm nhân viên */
@@ -2130,76 +2100,6 @@ function toggleTheme() {
 
 // Initialize all charts
 function initCharts() {
-    // Attendance Chart
-    const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
-    new Chart(attendanceCtx, {
-        type: 'line',
-        data: {
-            labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'],
-            datasets: [{
-                label: 'Tỷ lệ đi làm',
-                data: [85, 90, 88, 92, 95, 80, 75],
-                borderColor: '#4CAF50',
-                backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                tension: 0.1,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // Department Chart
-    const departmentCtx = document.getElementById('departmentChart').getContext('2d');
-    new Chart(departmentCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['IT', 'HR', 'Tài chính', 'Marketing', 'Vận hành'],
-            datasets: [{
-                data: [30, 20, 15, 25, 10],
-                backgroundColor: [
-                    '#4CAF50',
-                    '#2196F3',
-                    '#FFC107',
-                    '#9C27B0',
-                    '#F44336'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                }
-            }
-        }
-    });
-
     // Performance Chart
     const performanceCtx = document.getElementById('performanceChart').getContext('2d');
     new Chart(performanceCtx, {
@@ -2769,6 +2669,341 @@ document.addEventListener('DOMContentLoaded', updateDashboardStats);
 
 // Update stats every 5 minutes
 setInterval(updateDashboardStats, 300000);
+
+// Function to fetch chart data
+async function fetchChartData() {
+    try {
+        const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/dashboard_charts.php');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data.data;
+    } catch (error) {
+        console.error('Error fetching chart data:', error);
+        return null;
+    }
+}
+
+// Initialize all charts with real data
+async function initCharts() {
+    const chartData = await fetchChartData();
+    if (!chartData) return;
+
+    // 1. Performance Chart
+    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    const performanceLabels = chartData.performance.map(item => `Q${item.quarter}`);
+    const performanceData = chartData.performance.map(item => item.avg_score);
+
+    new Chart(performanceCtx, {
+        type: 'bar',
+        data: {
+            labels: performanceLabels,
+            datasets: [{
+                label: 'Hiệu suất trung bình',
+                data: performanceData,
+                backgroundColor: '#2196F3',
+                borderColor: '#1976D2',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 2. Salary Chart
+    const salaryCtx = document.getElementById('salaryChart').getContext('2d');
+    const salaryLabels = chartData.salary.map(item => item.month);
+    const salaryData = chartData.salary.map(item => item.total_salary);
+
+    new Chart(salaryCtx, {
+        type: 'line',
+        data: {
+            labels: salaryLabels,
+            datasets: [{
+                label: 'Tổng chi phí lương',
+                data: salaryData,
+                borderColor: '#FFC107',
+                backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + 'đ';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 3. Leave Chart
+    const leaveCtx = document.getElementById('leaveChart').getContext('2d');
+    const leaveLabels = chartData.leaves.map(item => item.leave_type);
+    const leaveData = chartData.leaves.map(item => item.count);
+
+    new Chart(leaveCtx, {
+        type: 'bar',
+        data: {
+            labels: leaveLabels,
+            datasets: [{
+                data: leaveData,
+                backgroundColor: [
+                    '#4CAF50',
+                    '#2196F3',
+                    '#FFC107'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // 4. Recruitment Chart
+    const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
+    const recruitmentLabels = chartData.recruitment.map(item => item.status);
+    const recruitmentData = chartData.recruitment.map(item => item.count);
+
+    new Chart(recruitmentCtx, {
+        type: 'doughnut',
+        data: {
+            labels: recruitmentLabels,
+            datasets: [{
+                data: recruitmentData,
+                backgroundColor: [
+                    '#4CAF50',
+                    '#2196F3',
+                    '#F44336',
+                    '#FFC107'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // 5. Training Chart
+    const trainingCtx = document.getElementById('trainingChart').getContext('2d');
+    const trainingLabels = chartData.training.map(item => item.category);
+    const trainingData = chartData.training.map(item => item.participant_count);
+
+    new Chart(trainingCtx, {
+        type: 'bar',
+        data: {
+            labels: trainingLabels,
+            datasets: [{
+                label: 'Số người tham gia',
+                data: trainingData,
+                backgroundColor: '#9C27B0'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // 6. Assets Chart
+    const assetsCtx = document.getElementById('assetsChart').getContext('2d');
+    const assetsLabels = chartData.assets.map(item => item.status);
+    const assetsData = chartData.assets.map(item => item.count);
+
+    new Chart(assetsCtx, {
+        type: 'pie',
+        data: {
+            labels: assetsLabels,
+            datasets: [{
+                data: assetsData,
+                backgroundColor: [
+                    '#4CAF50',
+                    '#2196F3',
+                    '#F44336',
+                    '#FFC107'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+    
+    // Refresh charts every 5 minutes
+    setInterval(initCharts, 300000);
+});
+
+// Function to fetch new chart data
+function fetchNewChartData() {
+    fetch('/qlnhansu_V2/backend/src/public/admin/api/new_charts.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                initNewCharts(data.data);
+            }
+        })
+        .catch(error => console.error('Error fetching chart data:', error));
+}
+
+// Function to initialize new charts
+function initNewCharts(chartData) {
+    // HR Chart (Pie)
+    const hrCtx = document.getElementById('hrChart').getContext('2d');
+    new Chart(hrCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Đang làm việc', 'Nghỉ việc', 'Thử việc'],
+            datasets: [{
+                data: [
+                    chartData.hr.active,
+                    chartData.hr.inactive,
+                    chartData.hr.probation
+                ],
+                backgroundColor: ['#4e73df', '#e74a3b', '#f6c23e']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Finance Chart (Bar)
+    const financeCtx = document.getElementById('financeChart').getContext('2d');
+    new Chart(financeCtx, {
+        type: 'bar',
+        data: {
+            labels: chartData.finance.map(item => `Tháng ${item.month}`),
+            datasets: [{
+                label: 'Tổng lương (VND)',
+                data: chartData.finance.map(item => item.total_salary),
+                backgroundColor: '#1cc88a'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + ' VND';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Training Chart (Line)
+    const trainingCtx = document.getElementById('trainingChart').getContext('2d');
+    new Chart(trainingCtx, {
+        type: 'line',
+        data: {
+            labels: chartData.training.map(item => `Tháng ${item.month}`),
+            datasets: [
+                {
+                    label: 'Số khóa học',
+                    data: chartData.training.map(item => item.total_courses),
+                    borderColor: '#36b9cc',
+                    fill: false
+                },
+                {
+                    label: 'Số người tham gia',
+                    data: chartData.training.map(item => item.total_participants),
+                    borderColor: '#f6c23e',
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Recruitment Chart (Bar)
+    const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
+    new Chart(recruitmentCtx, {
+        type: 'bar',
+        data: {
+            labels: chartData.recruitment.map(item => `Tháng ${item.month}`),
+            datasets: [
+                {
+                    label: 'Tổng đơn ứng tuyển',
+                    data: chartData.recruitment.map(item => item.total_applications),
+                    backgroundColor: '#4e73df'
+                },
+                {
+                    label: 'Đã phỏng vấn',
+                    data: chartData.recruitment.map(item => item.interviewed),
+                    backgroundColor: '#1cc88a'
+                },
+                {
+                    label: 'Đã tuyển dụng',
+                    data: chartData.recruitment.map(item => item.hired),
+                    backgroundColor: '#36b9cc'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Fetch chart data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    fetchNewChartData();
+    // Refresh chart data every 5 minutes
+    setInterval(fetchNewChartData, 300000);
+});
 </script>
 
     </div>

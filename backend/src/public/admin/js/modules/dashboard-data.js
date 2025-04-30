@@ -144,80 +144,29 @@ class DashboardData {
         const ctx = document.getElementById('departmentChart');
         if (!ctx) return;
 
-        // Group department data by status
-        const groupedData = {
-            active: [],
-            probation: [],
-            inactive: [],
-            onLeave: []
-        };
-
-        this.data.department_distribution.forEach(record => {
-            const department = record.department;
-            
-            // Active employees
-            groupedData.active.push({
-                x: department,
-                y: record.employee_count
-            });
-
-            // Probation employees
-            groupedData.probation.push({
-                x: department,
-                y: record.probation_employees
-            });
-
-            // Inactive employees
-            groupedData.inactive.push({
-                x: department,
-                y: record.inactive_employees
-            });
-
-            // On leave employees
-            groupedData.onLeave.push({
-                x: department,
-                y: record.on_leave_employees
-            });
-        });
+        // Process department data for pie chart
+        const labels = this.data.department_distribution.map(record => record.department);
+        const data = this.data.department_distribution.map(record => record.employee_count);
 
         if (window.departmentChart) {
             window.departmentChart.destroy();
         }
 
         window.departmentChart = new Chart(ctx, {
-            type: 'bar',
+            type: 'pie',
             data: {
-                labels: this.data.department_distribution.map(record => record.department),
-                datasets: [
-                    {
-                        label: 'Đang làm việc',
-                        data: groupedData.active,
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                        borderColor: 'rgb(75, 192, 192)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Thử việc',
-                        data: groupedData.probation,
-                        backgroundColor: 'rgba(255, 159, 64, 0.5)',
-                        borderColor: 'rgb(255, 159, 64)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Đã nghỉ việc',
-                        data: groupedData.inactive,
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Đang nghỉ phép',
-                        data: groupedData.onLeave,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgb(54, 162, 235)',
-                        borderWidth: 1
-                    }
-                ]
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        '#3498db',
+                        '#2ecc71',
+                        '#f1c40f',
+                        '#e74c3c',
+                        '#9b59b6',
+                        '#1abc9c'
+                    ]
+                }]
             },
             options: {
                 responsive: true,
@@ -225,6 +174,17 @@ class DashboardData {
                 plugins: {
                     legend: {
                         position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
                     }
                 }
             }

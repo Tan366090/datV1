@@ -42,15 +42,11 @@ class ChartsAPI {
     public function getDepartmentDistribution() {
         $query = "SELECT 
                     d.name as department,
-                    COUNT(DISTINCT e.id) as total_employees,
-                    COUNT(DISTINCT CASE WHEN e.status = 'active' THEN e.id END) as active_employees,
-                    COUNT(DISTINCT CASE WHEN e.status = 'inactive' THEN e.id END) as inactive_employees,
-                    COUNT(DISTINCT CASE WHEN e.status = 'terminated' THEN e.id END) as terminated_employees,
-                    COUNT(DISTINCT CASE WHEN e.status = 'on_leave' THEN e.id END) as on_leave_employees
+                    COUNT(DISTINCT e.id) as employee_count
                 FROM departments d
                 LEFT JOIN employees e ON d.id = e.department_id
                 GROUP BY d.id, d.name
-                ORDER BY total_employees DESC";
+                ORDER BY employee_count DESC";
 
         $result = $this->conn->query($query);
         
