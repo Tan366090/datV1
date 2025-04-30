@@ -9,25 +9,31 @@
     position: fixed;
     top: 20px;
     right: 20px;
-    padding: 15px 20px;
-    border-radius: 4px;
+    padding: 12px 25px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-width: 300px;
-    max-width: 500px;
+    min-width: 450px;
+    max-width: 650px;
     z-index: 9999;
     animation: slideIn 0.3s ease-in-out;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .notification-content {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
 }
 
 .notification i {
-    font-size: 20px;
+    font-size: 18px;
+    flex-shrink: 0;
 }
 
 .notification-header {
@@ -50,8 +56,12 @@
 
 .notification p {
     margin: 0;
-    font-size: 13px;
+    font-size: 14px;
     color: #333;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .notification-link {

@@ -305,3 +305,221 @@ Stack trace:
 #0 C:\xampp\htdocs\qlnhansu_V2\backend\src\public\admin\add_missing_columns.php(92): PDO->rollBack()
 #1 {main}
   thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\admin\add_missing_columns.php on line 92
+[30-Apr-2025 17:42:05 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method Database::getInstance() in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\activities.php:30
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\activities.php on line 30
+[30-Apr-2025 17:42:56 Europe/Berlin] Query: SELECT a.*, COALESCE(up.full_name, u.username) as userName 
+              FROM activities a 
+              LEFT JOIN users u ON a.user_id = u.user_id 
+              LEFT JOIN user_profiles up ON u.user_id = up.user_id 
+              WHERE 1=1 ORDER BY a.created_at DESC LIMIT ? OFFSET ?
+[30-Apr-2025 17:42:56 Europe/Berlin] Params: Array
+(
+    [0] => 10
+    [1] => 0
+)
+
+[30-Apr-2025 17:42:56 Europe/Berlin] Fetched activities: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [user_id] => 1
+            [type] => LOGIN
+            [description] => Đăng nhập thành công
+            [target_entity] => User
+            [target_entity_id] => 1
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Nguyễn Văn Admin
+        )
+
+    [1] => Array
+        (
+            [id] => 2
+            [user_id] => 2
+            [type] => UPDATE_PROFILE
+            [description] => Cập nhật thông tin cá nhân
+            [target_entity] => UserProfile
+            [target_entity_id] => 2
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Trần Quản Lý IT
+        )
+
+    [2] => Array
+        (
+            [id] => 3
+            [user_id] => 3
+            [type] => CREATE_LEAVE
+            [description] => Tạo đơn nghỉ phép
+            [target_entity] => Leave
+            [target_entity_id] => 3
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Lê Thị HR
+        )
+
+    [3] => Array
+        (
+            [id] => 4
+            [user_id] => 4
+            [type] => UPLOAD_DOCUMENT
+            [description] => Tải lên tài liệu mới
+            [target_entity] => Document
+            [target_entity_id] => 4
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Phạm Nhân Viên 1
+        )
+
+    [4] => Array
+        (
+            [id] => 5
+            [user_id] => 5
+            [type] => APPROVE_LEAVE
+            [description] => Duyệt đơn nghỉ phép
+            [target_entity] => Leave
+            [target_entity_id] => 5
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Hoàng Nhân Viên 2
+        )
+
+    [5] => Array
+        (
+            [id] => 6
+            [user_id] => 6
+            [type] => ASSIGN_ASSET
+            [description] => Phân bổ tài sản
+            [target_entity] => AssetAssignment
+            [target_entity_id] => 6
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Võ Thị Nhân Viên 3
+        )
+
+    [6] => Array
+        (
+            [id] => 7
+            [user_id] => 7
+            [type] => GENERATE_REPORT
+            [description] => Xuất báo cáo lương
+            [target_entity] => Payroll
+            [target_entity_id] => 7
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Đặng Nhân Viên 4
+        )
+
+    [7] => Array
+        (
+            [id] => 8
+            [user_id] => 8
+            [type] => CREATE_PROJECT
+            [description] => Tạo dự án mới
+            [target_entity] => Project
+            [target_entity_id] => 8
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Bùi Kế Toán 1
+        )
+
+    [8] => Array
+        (
+            [id] => 9
+            [user_id] => 9
+            [type] => COMPLETE_TASK
+            [description] => Hoàn thành công việc
+            [target_entity] => Task
+            [target_entity_id] => 9
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Mai Kế Toán 2
+        )
+
+    [9] => Array
+        (
+            [id] => 10
+            [user_id] => 10
+            [type] => LOGOUT
+            [description] => Đăng xuất hệ thống
+            [target_entity] => User
+            [target_entity_id] => 10
+            [status] => info
+            [user_agent] => 
+            [ip_address] => 
+            [created_at] => 2025-04-30 12:00:00
+            [userName] => Lý Kế Toán 3
+        )
+
+)
+
+[30-Apr-2025 17:42:56 Europe/Berlin] Count Query: SELECT COUNT(*) as total 
+                  FROM activities a 
+                  LEFT JOIN users u ON a.user_id = u.user_id 
+                  LEFT JOIN user_profiles up ON u.user_id = up.user_id 
+                  WHERE 1=1
+[30-Apr-2025 17:42:56 Europe/Berlin] Count Params: Array
+(
+)
+
+[30-Apr-2025 17:42:56 Europe/Berlin] Total count: 10
+[30-Apr-2025 17:44:57 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function getActivityIcon() in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\activities.php:79
+Stack trace:
+#0 [internal function]: {closure}()
+#1 C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\activities.php(71): array_map()
+#2 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\activities.php on line 79
+[30-Apr-2025 17:49:45 Europe/Berlin] Error in activities.php: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'p.title' in 'field list'
+[30-Apr-2025 17:49:45 Europe/Berlin] Stack trace: #0 C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\activities.php(77): PDO->prepare()
+#1 {main}
+[30-Apr-2025 17:50:46 Europe/Berlin] Error in activities.php: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'up.department_id' in 'on clause'
+[30-Apr-2025 17:50:46 Europe/Berlin] Stack trace: #0 C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\activities.php(69): PDO->prepare()
+#1 {main}
+[30-Apr-2025 17:54:54 Europe/Berlin] Total activities in database: 10
+[30-Apr-2025 17:54:54 Europe/Berlin] Number of activities fetched: 10
+[30-Apr-2025 17:54:54 Europe/Berlin] First activity: {"id":1,"user_id":1,"type":"LOGIN","description":"\u0110\u0103ng nh\u1eadp th\u00e0nh c\u00f4ng","target_entity":"User","target_entity_id":1,"status":"info","user_agent":null,"ip_address":null,"created_at":"2025-04-30 12:00:00","username":"admin","email":"admin@company.com","full_name":"Nguy\u1ec5n V\u0103n Admin"}
+[30-Apr-2025 17:54:54 Europe/Berlin] Statistics: {"total_activities":10,"total_users":10,"login_count":1,"logout_count":1,"profile_update_count":1,"leave_request_count":1,"leave_approval_count":1,"document_upload_count":1,"asset_assignment_count":1,"report_generation_count":1,"project_creation_count":1,"task_completion_count":1}
+[30-Apr-2025 17:54:58 Europe/Berlin] Total activities in database: 10
+[30-Apr-2025 17:54:58 Europe/Berlin] Number of activities fetched: 10
+[30-Apr-2025 17:54:58 Europe/Berlin] First activity: {"id":1,"user_id":1,"type":"LOGIN","description":"\u0110\u0103ng nh\u1eadp th\u00e0nh c\u00f4ng","target_entity":"User","target_entity_id":1,"status":"info","user_agent":null,"ip_address":null,"created_at":"2025-04-30 12:00:00","username":"admin","email":"admin@company.com","full_name":"Nguy\u1ec5n V\u0103n Admin"}
+[30-Apr-2025 17:54:58 Europe/Berlin] Statistics: {"total_activities":10,"total_users":10,"login_count":1,"logout_count":1,"profile_update_count":1,"leave_request_count":1,"leave_approval_count":1,"document_upload_count":1,"asset_assignment_count":1,"report_generation_count":1,"project_creation_count":1,"task_completion_count":1}
+[30-Apr-2025 17:55:30 Europe/Berlin] Total activities in database: 10
+[30-Apr-2025 17:55:30 Europe/Berlin] Number of activities fetched: 10
+[30-Apr-2025 17:55:30 Europe/Berlin] First activity: {"id":1,"user_id":1,"type":"LOGIN","description":"\u0110\u0103ng nh\u1eadp th\u00e0nh c\u00f4ng","target_entity":"User","target_entity_id":1,"status":"info","user_agent":null,"ip_address":null,"created_at":"2025-04-30 12:00:00","username":"admin","email":"admin@company.com","full_name":"Nguy\u1ec5n V\u0103n Admin"}
+[30-Apr-2025 17:55:30 Europe/Berlin] Statistics: {"total_activities":10,"total_users":10,"login_count":1,"logout_count":1,"profile_update_count":1,"leave_request_count":1,"leave_approval_count":1,"document_upload_count":1,"asset_assignment_count":1,"report_generation_count":1,"project_creation_count":1,"task_completion_count":1}
+[30-Apr-2025 17:55:51 Europe/Berlin] Total activities in database: 10
+[30-Apr-2025 17:55:51 Europe/Berlin] Number of activities fetched: 10
+[30-Apr-2025 17:55:51 Europe/Berlin] First activity: {"id":1,"user_id":1,"type":"LOGIN","description":"\u0110\u0103ng nh\u1eadp th\u00e0nh c\u00f4ng","target_entity":"User","target_entity_id":1,"status":"info","user_agent":null,"ip_address":null,"created_at":"2025-04-30 12:00:00","username":"admin","email":"admin@company.com","full_name":"Nguy\u1ec5n V\u0103n Admin"}
+[30-Apr-2025 17:55:51 Europe/Berlin] Statistics: {"total_activities":10,"total_users":10,"login_count":1,"logout_count":1,"profile_update_count":1,"leave_request_count":1,"leave_approval_count":1,"document_upload_count":1,"asset_assignment_count":1,"report_generation_count":1,"project_creation_count":1,"task_completion_count":1}
+[30-Apr-2025 19:23:46 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\test_database.php:24
+Stack trace:
+#0 C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\test_database.php(72): testDatabaseConnection()
+#1 C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\test_database.php(236): runAllTests()
+#2 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\test_database.php on line 24
+[30-Apr-2025 19:30:38 Europe/Berlin] PHP Warning:  Undefined variable $conn in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\database.php on line 18
+[30-Apr-2025 19:30:38 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\database.php:18
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\qlnhansu_V2\backend\src\public\api\database.php on line 18

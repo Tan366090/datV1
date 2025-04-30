@@ -1,173 +1,164 @@
 <?php
-header('Content-Type: application/json');
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Đảm bảo không có output nào trước khi set header
+ob_start();
+
+// Bắt đầu session nếu chưa có
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Tắt hiển thị lỗi
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// Kiểm tra file cấu hình database
+if (!file_exists(__DIR__ . '/../../config/database.php')) {
+    ob_end_clean();
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database configuration file not found'
+    ]);
+    exit;
+}
+
+// Include file cấu hình database
+require_once __DIR__ . '/../../config/database.php';
 
 try {
-    require_once '../../config/database.php';
-    
-    // Get database connection using singleton pattern
-    $db = Database::getInstance();
-    $conn = $db->getConnection();
-
-    if (!$conn) {
-        throw new Exception('Database connection failed');
+    // Kiểm tra kết nối database
+    if (!$db) {
+        throw new Exception("Database connection failed");
     }
 
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    // Kiểm tra bảng activities
+    $checkTable = $db->query("SHOW TABLES LIKE 'activities'");
+    if ($checkTable->rowCount() == 0) {
+        throw new Exception("Activities table does not exist");
+    }
+
+    // Lấy tham số từ request
+    $recent = isset($_GET['recent']) ? (int)$_GET['recent'] : 0;
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
-    $offset = ($page - 1) * $limit;
-    
-    // Get filter parameters
-    $type = isset($_GET['type']) ? $_GET['type'] : null;
-    $date = isset($_GET['date']) ? $_GET['date'] : null;
-    $search = isset($_GET['search']) ? $_GET['search'] : null;
-    
-    // Build query with proper join to user_profiles
-    $query = "SELECT a.*, COALESCE(up.full_name, u.username) as userName 
-              FROM activities a 
-              LEFT JOIN users u ON a.user_id = u.user_id 
-              LEFT JOIN user_profiles up ON u.user_id = up.user_id 
-              WHERE 1=1";
-    
-    $params = array();
-    
-    if ($type && $type !== 'all') {
-        $query .= " AND a.type = ?";
-        $params[] = $type;
-    }
-    
-    if ($date) {
-        $query .= " AND DATE(a.created_at) = ?";
-        $params[] = $date;
-    }
-    
-    if ($search) {
-        $query .= " AND (up.full_name LIKE ? OR u.username LIKE ?)";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-    }
-    
-    // Add sorting
-    $query .= " ORDER BY a.created_at DESC";
-    
-    // Add pagination
-    $query .= " LIMIT ? OFFSET ?";
-    $params[] = $limit;
-    $params[] = $offset;
-    
-    error_log("Query: " . $query);
-    error_log("Params: " . print_r($params, true));
-    
-    // Prepare and execute query
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        error_log("Prepare failed: " . print_r($conn->errorInfo(), true));
-        throw new Exception("Prepare failed: " . print_r($conn->errorInfo(), true));
-    }
-    
-    // Bind parameters
-    if ($params) {
-        foreach ($params as $i => $param) {
-            $paramType = is_int($param) ? PDO::PARAM_INT : PDO::PARAM_STR;
-            $stmt->bindValue($i + 1, $param, $paramType);
-        }
-    }
-    
-    if (!$stmt->execute()) {
-        error_log("Execute failed: " . print_r($stmt->errorInfo(), true));
-        throw new Exception("Execute failed: " . print_r($stmt->errorInfo(), true));
-    }
-    
+
+    // Query để lấy hoạt động gần đây
+    $query = "SELECT 
+                id,
+                user_id,
+                type,
+                description,
+                target_entity,
+                target_entity_id,
+                status,
+                user_agent,
+                ip_address,
+                created_at
+            FROM activities
+            ORDER BY created_at DESC
+            LIMIT :limit";
+
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    $stmt->execute();
     $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    error_log("Fetched activities: " . print_r($activities, true));
-    
-    // Get total count for pagination
-    $countQuery = "SELECT COUNT(*) as total 
-                  FROM activities a 
-                  LEFT JOIN users u ON a.user_id = u.user_id 
-                  LEFT JOIN user_profiles up ON u.user_id = up.user_id 
-                  WHERE 1=1";
-    $countParams = array();
-    
-    if ($type && $type !== 'all') {
-        $countQuery .= " AND a.type = ?";
-        $countParams[] = $type;
-    }
-    if ($date) {
-        $countQuery .= " AND DATE(a.created_at) = ?";
-        $countParams[] = $date;
-    }
-    if ($search) {
-        $countQuery .= " AND (up.full_name LIKE ? OR u.username LIKE ?)";
-        $countParams[] = "%$search%";
-        $countParams[] = "%$search%";
-    }
-    
-    error_log("Count Query: " . $countQuery);
-    error_log("Count Params: " . print_r($countParams, true));
-    
-    $totalStmt = $conn->prepare($countQuery);
-    if (!$totalStmt) {
-        error_log("Prepare count failed: " . print_r($conn->errorInfo(), true));
-        throw new Exception("Prepare count failed: " . print_r($conn->errorInfo(), true));
-    }
-    
-    // Bind parameters for count query
-    if ($countParams) {
-        foreach ($countParams as $i => $param) {
-            $paramType = is_int($param) ? PDO::PARAM_INT : PDO::PARAM_STR;
-            $totalStmt->bindValue($i + 1, $param, $paramType);
-        }
-    }
-    
-    if (!$totalStmt->execute()) {
-        error_log("Execute count failed: " . print_r($totalStmt->errorInfo(), true));
-        throw new Exception("Execute count failed: " . print_r($totalStmt->errorInfo(), true));
-    }
-    
-    $total = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
-    error_log("Total count: " . $total);
-    
-    // Format activities for display
+
+    // Format activities
     $formattedActivities = array_map(function($activity) {
         return [
             'id' => $activity['id'],
-            'userName' => $activity['userName'],
+            'user' => [
+                'id' => $activity['user_id']
+            ],
             'type' => $activity['type'],
-            'description' => $activity['description'] ?? '',
-            'userAgent' => $activity['user_agent'] ?? '',
-            'ipAddress' => $activity['ip_address'] ?? '',
-            'status' => $activity['status'] ?? 'active',
+            'description' => $activity['description'],
+            'target' => [
+                'entity' => $activity['target_entity'],
+                'id' => $activity['target_entity_id']
+            ],
+            'status' => $activity['status'],
+            'userAgent' => $activity['user_agent'],
+            'ipAddress' => $activity['ip_address'],
+            'icon' => getActivityIcon($activity['type']),
+            'timeAgo' => getTimeAgo($activity['created_at']),
             'timestamp' => $activity['created_at']
         ];
     }, $activities);
 
+    // Lấy thống kê
+    $statsQuery = "SELECT 
+        COUNT(*) as total_activities,
+        COUNT(DISTINCT user_id) as total_users,
+        SUM(CASE WHEN type = 'LOGIN' THEN 1 ELSE 0 END) as login_count,
+        SUM(CASE WHEN type = 'CREATE_PROJECT' THEN 1 ELSE 0 END) as created_projects,
+        SUM(CASE WHEN type = 'COMPLETE_TASK' THEN 1 ELSE 0 END) as completed_tasks
+    FROM activities";
+    
+    $stats = $db->query($statsQuery)->fetch(PDO::FETCH_ASSOC);
+
+    // Xóa output buffer và trả về JSON
+    ob_end_clean();
+    header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'activities' => $formattedActivities,
-        'pagination' => [
-            'current_page' => $page,
-            'total_pages' => ceil($total / $limit),
-            'total_items' => $total,
-            'limit' => $limit
+        'statistics' => [
+            'totalActivities' => (int)$stats['total_activities'],
+            'totalUsers' => (int)$stats['total_users'],
+            'loginCount' => (int)$stats['login_count'],
+            'createdProjects' => (int)$stats['created_projects'],
+            'completedTasks' => (int)$stats['completed_tasks']
         ]
     ]);
+    exit;
 
-} catch (PDOException $e) {
-    error_log("Database error in activities.php: " . $e->getMessage());
-    error_log("Stack trace: " . $e->getTraceAsString());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Database error occurred: ' . $e->getMessage()
-    ]);
 } catch (Exception $e) {
-    error_log("General error in activities.php: " . $e->getMessage());
-    error_log("Stack trace: " . $e->getTraceAsString());
-    http_response_code(500);
+    // Xóa output buffer và trả về lỗi JSON
+    ob_end_clean();
+    header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
-        'message' => 'An unexpected error occurred: ' . $e->getMessage()
+        'message' => 'An error occurred: ' . $e->getMessage()
     ]);
-} 
+    exit;
+}
+
+// Helper function to get activity icon
+function getActivityIcon($type) {
+    $icons = [
+        'LOGIN' => 'fa-sign-in-alt',
+        'LOGOUT' => 'fa-sign-out-alt',
+        'UPDATE_PROFILE' => 'fa-user-edit',
+        'CREATE_LEAVE' => 'fa-calendar-plus',
+        'APPROVE_LEAVE' => 'fa-calendar-check',
+        'UPLOAD_DOCUMENT' => 'fa-file-upload',
+        'ASSIGN_ASSET' => 'fa-box',
+        'GENERATE_REPORT' => 'fa-file-alt',
+        'CREATE_PROJECT' => 'fa-project-diagram',
+        'COMPLETE_TASK' => 'fa-check-circle'
+    ];
+    return $icons[$type] ?? 'fa-info-circle';
+}
+
+// Helper function to get time ago
+function getTimeAgo($timestamp) {
+    $time = strtotime($timestamp);
+    $now = time();
+    $diff = $now - $time;
+
+    if ($diff < 60) {
+        return 'Vừa xong';
+    } elseif ($diff < 3600) {
+        $minutes = floor($diff / 60);
+        return $minutes . ' phút trước';
+    } elseif ($diff < 86400) {
+        $hours = floor($diff / 3600);
+        return $hours . ' giờ trước';
+    } elseif ($diff < 2592000) {
+        $days = floor($diff / 86400);
+        return $days . ' ngày trước';
+    } else {
+        $months = floor($diff / 2592000);
+        return $months . ' tháng trước';
+    }
+}
+?> 

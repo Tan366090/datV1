@@ -1,24 +1,158 @@
 <?php include 'headers.php'; ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer">
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://code.jquery.com; img-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;"> -->
-    <title>Admin Dashboard</title>
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://code.jquery.com; img-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data: https://use.fontawesome.com;"> -->
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
-    <!-- Custom Admin Dashboard CSS -->
-    <link href="dashboard_admin.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:;">
+    <title>Quản lý nhân sự - Dashboard</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/notifications.css">
+    <link rel="stylesheet" href="/assets/css/loading.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <!-- Thêm CSS cho hệ thống thông báo -->
+    <style>
+        .notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 25px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 450px;
+    max-width: 650px;
+    z-index: 9999;
+    animation: slideIn 0.3s ease-in-out;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.notification i {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.notification-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: #666;
+}
+
+.notification p {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-link {
+    display: inline-block;
+    margin-top: 8px;
+    color: #1a73e8;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.notification-link:hover {
+    text-decoration: underline;
+}
+
+.notification.success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.notification.error {
+    background-color:rgb(231, 136, 144);
+    border-color:rgb(116, 7, 18);
+    color:rgb(12, 7, 8);
+}
+
+.notification.warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+.notification.info {
+    background-color: #cce5ff;
+    border-color: #b8daff;
+    color: #004085;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 15px;
+}
+
+.close-btn:hover {
+    opacity: 0.7;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+} 
+    </style>
     <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -320,10 +454,53 @@
             margin: 0;
         }
 
+        /* Header Controls Styles */
         .header-controls {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            white-space: nowrap;
+            overflow-x: auto;
+            padding: 5px 0;
+        }
+
+        .header-controls .btn,
+        .header-controls .form-select {
+            flex-shrink: 0;
+        }
+
+        .header-controls .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .header-controls .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+        }
+
+        .header-controls .form-select {
+            width: auto;
+            min-width: 120px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-controls {
+                gap: 5px;
+            }
+            
+            .header-controls .btn-warning span {
+                display: none;
+            }
+            
+            .header-controls .btn-warning i {
+                margin: 0;
+            }
         }
 
         /* Search Styles */
@@ -645,39 +822,45 @@
         /* Statistics Cards Styles */
         .statistics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .stat-card {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 8px;
             transition: all 0.3s ease;
             overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 90px;
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .stat-content {
             display: flex;
             align-items: center;
-            padding: 1.5rem;
+            padding: 1rem;
             gap: 1rem;
+            height: 100%;
         }
 
         .stat-icon-wrapper {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
 
         .stat-card:nth-child(1) .stat-icon-wrapper {
@@ -698,14 +881,19 @@
 
         .stat-info {
             flex: 1;
+            min-width: 0;
         }
 
         .stat-title {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: #5a5c69;
             margin: 0;
             margin-bottom: 0.25rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .stat-value {
@@ -713,11 +901,32 @@
             font-weight: 700;
             color: #2e3a59;
             margin: 0;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stat-trend {
+            font-size: 0.7rem;
+            margin-top: 0.15rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-trend.positive {
+            color: #1cc88a;
+        }
+
+        .stat-trend.negative {
+            color: #e74a3b;
         }
 
         /* Dark Mode Support */
         [data-theme="dark"] .stat-card {
             background: #2d2d2d;
+            border-color: rgba(255,255,255,0.1);
         }
 
         [data-theme="dark"] .stat-title {
@@ -729,23 +938,29 @@
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
+            .statistics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
             .statistics-grid {
                 grid-template-columns: 1fr;
             }
             
             .stat-content {
-                padding: 1rem;
+                padding: 0.75rem;
             }
             
             .stat-icon-wrapper {
                 width: 40px;
                 height: 40px;
-                font-size: 1.25rem;
+                font-size: 1.1rem;
             }
             
             .stat-title {
-                font-size: 0.8rem;
+                font-size: 0.75rem;
             }
             
             .stat-value {
@@ -917,6 +1132,499 @@
             border-bottom: 1px solid #eee;
             text-decoration: none !important;
         }
+
+        .dashboard-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-card .card-header {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .dashboard-card .card-body {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .trend-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .department-stats, .sentiment-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+            flex-shrink: 0;
+        }
+
+        .sentiment-chart-container {
+            position: relative;
+            flex: 1;
+            min-height: 150px;
+            margin: 10px 0;
+        }
+
+        .trend-items-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .view-more {
+            text-align: center;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+
+        .trend-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e3f2fd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: #1976d2;
+            font-size: 0.8rem;
+        }
+
+        .trend-content {
+            flex: 1;
+        }
+
+        .trend-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .trend-value {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .trend-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .trend-badge.positive {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .department-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .department-item {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .department-name {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+
+        .department-count {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1976d2;
+        }
+
+        .department-percentage {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .sentiment-chart-container {
+            position: relative;
+            height: 200px;
+            margin-top: 10px;
+        }
+
+        .view-more {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .view-more a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .sentiment-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .sentiment-item {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .sentiment-label {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+
+        .sentiment-value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .sentiment-value.positive {
+            color: #2e7d32;
+        }
+
+        .sentiment-value.neutral {
+            color: #f57c00;
+        }
+
+        .sentiment-value.negative {
+            color: #c62828;
+        }
+
+        .sentiment-chart-container {
+            position: relative;
+            height: 150px;
+            margin: 10px 0;
+        }
+
+        .activity-section {
+            margin-top: 2rem;
+        }
+
+        .activity-section .card {
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .activity-section .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 1rem 1.5rem;
+        }
+
+        .activity-section .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .activity-section .card-body {
+            padding: 1.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .activity-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-item .icon-wrapper {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-right: 0.8rem;
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .activity-item .icon-wrapper i {
+            font-size: 1.2rem;
+        }
+
+        .activity-item .content {
+            flex: 1;
+        }
+
+        .activity-item .title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.2rem;
+        }
+
+        .activity-item .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #34495e;
+            margin: 0;
+        }
+
+        .activity-item[data-status="success"] {
+            border-left-color: #2ecc71;
+        }
+
+        .activity-item[data-status="success"] .icon-wrapper {
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .activity-item[data-status="success"] .icon-wrapper i {
+            color: #2ecc71;
+        }
+
+        .activity-item[data-status="warning"] {
+            border-left-color: #f1c40f;
+        }
+
+        .activity-item[data-status="warning"] .icon-wrapper {
+            background: rgba(241, 196, 15, 0.1);
+        }
+
+        .activity-item[data-status="warning"] .icon-wrapper i {
+            color: #f1c40f;
+        }
+
+        .activity-item[data-status="error"] {
+            border-left-color: #e74c3c;
+        }
+
+        .activity-item[data-status="error"] .icon-wrapper {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .activity-item[data-status="error"] .icon-wrapper i {
+            color: #e74c3c;
+        }
+
+        .activity-item[data-status="info"] {
+            border-left-color: #3498db;
+        }
+
+        .activity-item[data-status="info"] .icon-wrapper {
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .activity-item[data-status="info"] .icon-wrapper i {
+            color: #3498db;
+        }
+
+        /* Scrollbar styling */
+        .activity-section .card-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .activity-section .card-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .activity-section .card-body::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .activity-section .card-body::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Status colors */
+        .activity-item[data-status="success"] {
+            border-left-color: #28a745;
+        }
+
+        .activity-item[data-status="success"] .icon-wrapper i {
+            color: #28a745;
+        }
+
+        .activity-item[data-status="warning"] {
+            border-left-color: #ffc107;
+        }
+
+        .activity-item[data-status="warning"] .icon-wrapper i {
+            color: #ffc107;
+        }
+
+        .activity-item[data-status="error"] {
+            border-left-color: #dc3545;
+        }
+
+        .activity-item[data-status="error"] .icon-wrapper i {
+            color: #dc3545;
+        }
+
+        .activity-item[data-status="info"] {
+            border-left-color: #17a2b8;
+        }
+
+        .activity-item[data-status="info"] .icon-wrapper i {
+            color: #17a2b8;
+        }
+
+        /* Dashboard Statistics Styles */
+        .dashboard-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-stat-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-stat-content {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .dashboard-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #ffffff;
+        }
+
+        .dashboard-stat-card:nth-child(1) .dashboard-stat-icon {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        }
+
+        .dashboard-stat-card:nth-child(2) .dashboard-stat-icon {
+            background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+        }
+
+        .dashboard-stat-card:nth-child(3) .dashboard-stat-icon {
+            background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+        }
+
+        .dashboard-stat-card:nth-child(4) .dashboard-stat-icon {
+            background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+        }
+
+        .dashboard-stat-info {
+            flex: 1;
+        }
+
+        .dashboard-stat-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6c757d;
+            margin: 0;
+            margin-bottom: 0.25rem;
+        }
+
+        .dashboard-stat-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2e3a59;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        /* Dark Mode Support */
+        [data-theme="dark"] .dashboard-stat-card {
+            background: #2d2d2d;
+        }
+
+        [data-theme="dark"] .dashboard-stat-label {
+            color: #adb5bd;
+        }
+
+        [data-theme="dark"] .dashboard-stat-number {
+            color: #ffffff;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .dashboard-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-stat-content {
+                padding: 1rem;
+            }
+            
+            .dashboard-stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+            
+            .dashboard-stat-label {
+                font-size: 0.8rem;
+            }
+            
+            .dashboard-stat-number {
+                font-size: 1.25rem;
+            }
+        }
     </style>
 </head>
 <body class="theme-transition">
@@ -948,312 +1656,70 @@
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item has-submenu" data-menu-id="employees">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="employees">
+                        <a href="employees/list.html" class="nav-link">
                             <i class="fas fa-users"></i>
                             <span>Nhân viên</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="employees/list.html" class="nav-link">
-                                    <span>Danh sách nhân viên</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="employees/add.html" class="nav-link">
-                                    <span>Thêm nhân viên</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="employees/contracts.html" class="nav-link">
-                                    <span>Hợp đồng</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="employees/attendance.html" class="nav-link">
-                                    <span>Chấm công</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="salary">
+                        <a href="salary/list.html" class="nav-link">
                             <i class="fas fa-money-bill-wave"></i>
                             <span>Lương</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="salary/list.html" class="nav-link">
-                                    <span>Danh sách lương</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="salary/adjust.html" class="nav-link">
-                                    <span>Điều chỉnh lương</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="salary/payslip.html" class="nav-link">
-                                    <span>Phiếu lương</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="salary/history.html" class="nav-link">
-                                    <span>Lịch sử điều chỉnh</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="leave">
+                        <a href="leave/list.html" class="nav-link">
                             <i class="fas fa-calendar-alt"></i>
                             <span>Nghỉ phép</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="leave/register.html" class="nav-link">
-                                    <span>Đăng ký nghỉ phép</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="leave/list.html" class="nav-link">
-                                    <span>Danh sách nghỉ phép</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="performance">
+                        <a href="performance/report.html" class="nav-link">
                             <i class="fas fa-chart-line"></i>
                             <span>Hiệu suất</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="performance/report.html" class="nav-link">
-                                    <span>Báo cáo hiệu suất</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="performance/evaluation.html" class="nav-link">
-                                    <span>Đánh giá nhân viên</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="departments">
+                        <a href="departments/list.html" class="nav-link">
                             <i class="fas fa-building"></i>
                             <span>Phòng ban</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="departments/list.html" class="nav-link">
-                                    <span>Danh sách phòng ban</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="positions/list.html" class="nav-link">
-                                    <span>Vị trí công việc</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="documents">
+                        <a href="documents/list.html" class="nav-link">
                             <i class="fas fa-file-alt"></i>
                             <span>Tài liệu</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="documents/list.html" class="nav-link">
-                                    <span>Danh sách tài liệu</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="documents/upload.html" class="nav-link">
-                                    <span>Upload tài liệu</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="documents/manage.html" class="nav-link">
-                                    <span>Quản lý tài liệu</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="documents/view_document.html" class="nav-link">
-                                    <span>Xem tài liệu</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="equipment">
+                        <a href="equipment/list.html" class="nav-link">
                             <i class="fas fa-laptop"></i>
                             <span>Thiết bị</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="equipment/list.html" class="nav-link">
-                                    <span>Danh sách thiết bị</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="equipment/assign.html" class="nav-link">
-                                    <span>Cấp phát thiết bị</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="reports">
+                        <a href="reports/employee.html" class="nav-link">
                             <i class="fas fa-chart-bar"></i>
                             <span>Báo cáo</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="reports/employee.html" class="nav-link">
-                                    <span>Đánh giá hiệu suất</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="recruitment">
+                        <a href="recruitment/positions.html" class="nav-link">
                             <i class="fas fa-user-plus"></i>
                             <span>Tuyển dụng</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="recruitment/positions.html" class="nav-link">
-                                    <span>Vị trí tuyển dụng</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="recruitment/candidates.html" class="nav-link">
-                                    <span>Quản lý ứng viên</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="recruitment/interviews.html" class="nav-link">
-                                    <span>Lịch phỏng vấn</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="recruitment/onboarding.html" class="nav-link">
-                                    <span>Onboarding</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="benefits">
+                        <a href="benefits/insurance.html" class="nav-link">
                             <i class="fas fa-gift"></i>
                             <span>Phúc lợi</span>
-                            <i class="fas fa-chevron-right"></i>
                         </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="benefits/insurance.html" class="nav-link">
-                                    <span>Bảo hiểm</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="benefits/policies.html" class="nav-link">
-                                    <span>Chính sách phúc lợi</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-menu-id="projects">
+                        <a href="projects/list.html" class="nav-link">
                             <i class="fas fa-project-diagram"></i>
                             <span>Dự án</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="projects/list.html" class="nav-link">
-                                    <span>Danh sách dự án</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="projects/tasks.html" class="nav-link">
-                                    <span>Quản lý công việc</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-cog"></i>
-                            <span>Cài đặt</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="settings/security.html" class="nav-link">
-                                    <span>Bảo mật</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="settings/integrations.html" class="nav-link">
-                                    <span>Tích hợp</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="settings/backup.html" class="nav-link">
-                                    <span>Sao lưu</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Đào tạo</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="training/courses.html" class="nav-link">
-                                    <span>Quản lý khóa đào tạo</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="training/register.html" class="nav-link">
-                                    <span>Đăng ký đào tạo</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="training/list.html" class="nav-link">
-                                    <span>Danh sách đăng ký</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="training/evaluation.html" class="nav-link">
-                                    <span>Đánh giá kết quả</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="training/reports.html" class="nav-link">
-                                    <span>Báo cáo đào tạo</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" id="logoutBtn">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Đăng xuất</span>
                         </a>
                     </li>
                 </ul>
@@ -1268,87 +1734,67 @@
                 </div>
                 <div class="header-right">
                     <div class="header-controls">
-                        <div class="search-container">
-                            <input type="text" class="search-input" placeholder="Search..." aria-label="Global Search">
-                            <i class="fas fa-search search-icon"></i>
-                        </div>
-                        
-                        <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
-                            <i class="fas fa-sun"></i>
+                        <button id="viewDataBtn" class="btn btn-warning me-2">
+                            <i class="fas fa-database"></i> View Data
+                        </button>
+                        <select id="languageSwitch" class="form-select">
+                            <option value="vi">Tiếng Việt</option>
+                            <option value="en">English</option>
+                        </select>
+                        <button id="darkModeToggle" class="btn">
                             <i class="fas fa-moon"></i>
                         </button>
-
-                        <div class="user-menu">
-                            <button class="user-menu-btn" type="button" id="userMenuBtn">
-                                <div class="user-avatar">
-                                    <img src="male.png" alt="Admin Avatar">
-                                </div>
-                                <span class="user-name">Admin</span>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a href="#" class="dropdown-item">
-                                    <i class="fas fa-user"></i>
-                                    <span>Profile</span>
-                                </a>
-                                <a href="#" class="dropdown-item">
-                                    <i class="fas fa-cog"></i>
-                                    <span>Settings</span>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item text-danger" id="logoutBtn">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                    <span>Logout</span>
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </header>
 
+            <!-- Notification Container -->
+            <div class="notification-container" id="notificationContainer"></div>
+
             <div class="dashboard-content">
                 <!-- Statistics Cards -->
-                <div class="statistics-grid d-grid gap-3">
-                    <div class="stat-card card shadow-sm hover-shadow">
-                        <div class="stat-content">
-                            <div class="stat-icon-wrapper">
+                <div class="dashboard-stats-grid d-grid gap-3">
+                    <div class="dashboard-stat-card card shadow-sm hover-shadow">
+                        <div class="dashboard-stat-content">
+                            <div class="dashboard-stat-icon">
                                 <i class="fas fa-users"></i>
                             </div>
-                            <div class="stat-info">
-                                <h3 class="stat-title">Tổng số nhân viên</h3>
-                                <p class="stat-value" id="totalEmployees">Loading...</p>
+                            <div class="dashboard-stat-info">
+                                <h3 class="dashboard-stat-label">Tổng số nhân viên</h3>
+                                <p class="dashboard-stat-number" id="totalEmployees">Loading...</p>
                             </div>
                         </div>
                     </div>
-                    <div class="stat-card card shadow-sm hover-shadow">
-                        <div class="stat-content">
-                            <div class="stat-icon-wrapper">
+                    <div class="dashboard-stat-card card shadow-sm hover-shadow">
+                        <div class="dashboard-stat-content">
+                            <div class="dashboard-stat-icon">
                                 <i class="fas fa-clock"></i>
                             </div>
-                            <div class="stat-info">
-                                <h3 class="stat-title">Đi làm đúng giờ</h3>
-                                <p class="stat-value" id="onTimePercentage">Loading...</p>
+                            <div class="dashboard-stat-info">
+                                <h3 class="dashboard-stat-label">Đi làm đúng giờ</h3>
+                                <p class="dashboard-stat-number" id="onTimePercentage">Loading...</p>
                             </div>
                         </div>
                     </div>
-                    <div class="stat-card card shadow-sm hover-shadow">
-                        <div class="stat-content">
-                            <div class="stat-icon-wrapper">
+                    <div class="dashboard-stat-card card shadow-sm hover-shadow">
+                        <div class="dashboard-stat-content">
+                            <div class="dashboard-stat-icon">
                                 <i class="fas fa-calendar-check"></i>
                             </div>
-                            <div class="stat-info">
-                                <h3 class="stat-title">Có mặt hôm nay</h3>
-                                <p class="stat-value" id="presentToday">Loading...</p>
+                            <div class="dashboard-stat-info">
+                                <h3 class="dashboard-stat-label">Có mặt hôm nay</h3>
+                                <p class="dashboard-stat-number" id="presentToday">Loading...</p>
                             </div>
                         </div>
                     </div>
-                    <div class="stat-card card shadow-sm hover-shadow">
-                        <div class="stat-content">
-                            <div class="stat-icon-wrapper">
+                    <div class="dashboard-stat-card card shadow-sm hover-shadow">
+                        <div class="dashboard-stat-content">
+                            <div class="dashboard-stat-icon">
                                 <i class="fas fa-calendar-times"></i>
                             </div>
-                            <div class="stat-info">
-                                <h3 class="stat-title">Vắng mặt hôm nay</h3>
-                                <p class="stat-value" id="absentToday">Loading...</p>
+                            <div class="dashboard-stat-info">
+                                <h3 class="dashboard-stat-label">Vắng mặt hôm nay</h3>
+                                <p class="dashboard-stat-number" id="absentToday">Loading...</p>
                             </div>
                         </div>
                     </div>
@@ -1407,52 +1853,411 @@
 
                 <!-- Activity Timeline -->
                 <div class="activity-section mt-4">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-transparent border-bottom-0">
-                            <h3 class="section-title text-primary mb-0">Hoạt động gần đây</h3>
+                    <div class="row">
+                        <!-- Statistics Cards -->
+                        <div class="col-md-12 mb-4">
+                            <div class="statistics-grid">
+                                <div class="stat-card">
+                                    <div class="stat-content">
+                                        <div class="stat-icon-wrapper">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="stat-info">
+                                            <div class="stat-title">Hoạt động trong tháng</div>
+                                            <div class="stat-value" id="total-activities">0</div>
+                                            <div class="stat-trend positive">
+                                                <i class="fas fa-arrow-up"></i>
+                                                <span>12%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-content">
+                                        <div class="stat-icon-wrapper">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <div class="stat-info">
+                                            <div class="stat-title">Tổng số phòng ban</div>
+                                            <div class="stat-value" id="total-users">0</div>
+                                            <div class="stat-trend positive">
+                                                <i class="fas fa-arrow-up"></i>
+                                                <span>5%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-content">
+                                        <div class="stat-icon-wrapper">
+                                            <i class="fas fa-calendar-check"></i>
+                                        </div>
+                                        <div class="stat-info">
+                                            <div class="stat-title">Đơn xin nghỉ phép</div>
+                                            <div class="stat-value" id="total-leaves">0</div>
+                                            <div class="stat-trend negative">
+                                                <i class="fas fa-arrow-down"></i>
+                                                <span>3%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-content">
+                                        <div class="stat-icon-wrapper">
+                                            <i class="fas fa-tasks"></i>
+                                        </div>
+                                        <div class="stat-info">
+                                            <div class="stat-title">Công việc đang thực hiện</div>
+                                            <div class="stat-value" id="total-tasks">0</div>
+                                            <div class="stat-trend positive">
+                                                <i class="fas fa-arrow-up"></i>
+                                                <span>8%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body p-3">
-                            <div class="activity-timeline">
-                                <div class="activity-item">
-                                    <div class="activity-icon bg-primary">
-                                        <i class="fas fa-user-plus"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <p class="activity-text">Thêm nhân viên mới: Nguyễn Văn A</p>
-                                        <span class="activity-time">2 giờ trước</span>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="activity-icon bg-success">
-                                        <i class="fas fa-clock"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <p class="activity-text">Cập nhật bảng chấm công</p>
-                                        <span class="activity-time">4 giờ trước</span>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="activity-icon bg-info">
-                                        <i class="fas fa-file-alt"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <p class="activity-text">Tải lên tài liệu mới</p>
-                                        <span class="activity-time">6 giờ trước</span>
+
+                        <!-- Activity Timeline -->
+                        <div class="col-md-12">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-transparent border-bottom-0 d-flex justify-content-between align-items-center">
+                                    <h3 class="section-title text-primary mb-0">Hoạt động gần đây</h3>
+                                    <div class="activity-filters">
+                                        <select id="activity-filter" class="form-select form-select-sm">
+                                            <option value="all">Tất cả</option>
+                                            <option value="LOGIN">Đăng nhập</option>
+                                            <option value="LOGOUT">Đăng xuất</option>
+                                            <option value="UPDATE_PROFILE">Cập nhật hồ sơ</option>
+                                            <option value="CREATE_LEAVE">Nghỉ phép</option>
+                                            <option value="APPROVE_LEAVE">Duyệt nghỉ phép</option>
+                                            <option value="UPLOAD_DOCUMENT">Tài liệu</option>
+                                            <option value="ASSIGN_ASSET">Tài sản</option>
+                                            <option value="GENERATE_REPORT">Báo cáo</option>
+                                            <option value="CREATE_PROJECT">Dự án</option>
+                                            <option value="COMPLETE_TASK">Công việc</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="activity-item">
-                                    <div class="activity-icon bg-warning">
-                                        <i class="fas fa-calendar-alt"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <p class="activity-text">Đăng ký nghỉ phép: Trần Thị B</p>
-                                        <span class="activity-time">8 giờ trước</span>
+                                <div class="card-body p-3">
+                                    <div class="activity-timeline" id="recent-activities">
+                                        <!-- Activities will be loaded here -->
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <style>
+                /* Statistics Cards */
+                .stat-card {
+                    border-radius: 10px;
+                    padding: 20px;
+                    height: 100%;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+
+                .stat-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+                }
+
+                .stat-icon {
+                    font-size: 2.5rem;
+                    margin-bottom: 15px;
+                    opacity: 0.8;
+                }
+
+                .stat-content h3 {
+                    font-size: 2rem;
+                    font-weight: 600;
+                    margin-bottom: 5px;
+                }
+
+                .stat-content p {
+                    font-size: 1rem;
+                    opacity: 0.9;
+                    margin-bottom: 0;
+                }
+
+                .bg-primary {
+                    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+                }
+
+                .bg-success {
+                    background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+                }
+
+                .bg-warning {
+                    background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+                }
+
+                .bg-info {
+                    background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+                }
+
+                /* Activity Filters */
+                .activity-filters {
+                    width: 200px;
+                }
+
+                /* Activity Items */
+                .activity-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 0.8rem;
+                    margin-bottom: 0.8rem;
+                    background: #ffffff;
+                    border-radius: 8px;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                    transition: all 0.3s ease;
+                    border-left: 3px solid transparent;
+                }
+
+                .activity-item:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                }
+
+                .activity-item .icon-wrapper {
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 8px;
+                    margin-right: 0.8rem;
+                    background: rgba(0, 0, 0, 0.03);
+                }
+
+                .activity-item .icon-wrapper i {
+                    font-size: 1.2rem;
+                }
+
+                .activity-item .content {
+                    flex: 1;
+                }
+
+                .activity-item .title {
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin-bottom: 0.2rem;
+                }
+
+                .activity-item .value {
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #34495e;
+                    margin: 0;
+                }
+
+                .activity-item[data-status="success"] {
+                    border-left-color: #2ecc71;
+                }
+
+                .activity-item[data-status="success"] .icon-wrapper {
+                    background: rgba(46, 204, 113, 0.1);
+                }
+
+                .activity-item[data-status="success"] .icon-wrapper i {
+                    color: #2ecc71;
+                }
+
+                .activity-item[data-status="warning"] {
+                    border-left-color: #f1c40f;
+                }
+
+                .activity-item[data-status="warning"] .icon-wrapper {
+                    background: rgba(241, 196, 15, 0.1);
+                }
+
+                .activity-item[data-status="warning"] .icon-wrapper i {
+                    color: #f1c40f;
+                }
+
+                .activity-item[data-status="error"] {
+                    border-left-color: #e74c3c;
+                }
+
+                .activity-item[data-status="error"] .icon-wrapper {
+                    background: rgba(231, 76, 60, 0.1);
+                }
+
+                .activity-item[data-status="error"] .icon-wrapper i {
+                    color: #e74c3c;
+                }
+
+                .activity-item[data-status="info"] {
+                    border-left-color: #3498db;
+                }
+
+                .activity-item[data-status="info"] .icon-wrapper {
+                    background: rgba(52, 152, 219, 0.1);
+                }
+
+                .activity-item[data-status="info"] .icon-wrapper i {
+                    color: #3498db;
+                }
+
+                /* Status colors */
+                .activity-item[data-status="success"] {
+                    border-left-color: #28a745;
+                }
+
+                .activity-item[data-status="success"] .icon-wrapper i {
+                    color: #28a745;
+                }
+
+                .activity-item[data-status="warning"] {
+                    border-left-color: #ffc107;
+                }
+
+                .activity-item[data-status="warning"] .icon-wrapper i {
+                    color: #ffc107;
+                }
+
+                .activity-item[data-status="error"] {
+                    border-left-color: #dc3545;
+                }
+
+                .activity-item[data-status="error"] .icon-wrapper i {
+                    color: #dc3545;
+                }
+
+                .activity-item[data-status="info"] {
+                    border-left-color: #17a2b8;
+                }
+
+                .activity-item[data-status="info"] .icon-wrapper i {
+                    border-left-color: #17a2b8;
+                }
+
+                .activity-item[data-status="info"] .icon-wrapper i {
+                    color: #17a2b8;
+                }
+                </style>
+
+                <script>
+                function loadRecentActivities() {
+                    fetch('../api/activities.php?recent=1&limit=10')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                // Update statistics
+                                document.getElementById('total-activities').textContent = data.statistics.totalActivities;
+                                document.getElementById('total-users').textContent = data.statistics.totalUsers;
+                                document.getElementById('total-leaves').textContent = data.statistics.totalLeaves;
+                                document.getElementById('total-tasks').textContent = data.statistics.totalTasks;
+
+                                const activitiesContainer = document.getElementById('recent-activities');
+                                activitiesContainer.innerHTML = '';
+
+                                if (data.activities && data.activities.length > 0) {
+                                    data.activities.forEach(activity => {
+                                        const activityElement = document.createElement('div');
+                                        activityElement.className = 'activity-item';
+                                        activityElement.setAttribute('data-status', activity.status);
+                                        activityElement.setAttribute('data-type', activity.type);
+                                        
+                                        // Icon wrapper
+                                        const iconWrapper = document.createElement('div');
+                                        iconWrapper.className = 'icon-wrapper';
+                                        const iconElement = document.createElement('i');
+                                        iconElement.className = `fas ${activity.icon}`;
+                                        iconWrapper.appendChild(iconElement);
+                                        
+                                        // Content wrapper
+                                        const contentElement = document.createElement('div');
+                                        contentElement.className = 'activity-content';
+                                        
+                                        // Description
+                                        const descriptionElement = document.createElement('p');
+                                        descriptionElement.className = 'description';
+                                        descriptionElement.textContent = activity.description;
+                                        
+                                        // Meta information
+                                        const metaInfo = document.createElement('div');
+                                        metaInfo.className = 'meta-info';
+                                        
+                                        // User ID
+                                        const userIdElement = document.createElement('span');
+                                        userIdElement.className = 'meta-item';
+                                        userIdElement.innerHTML = `<i class="fas fa-user"></i> User #${activity.user.id}`;
+                                        
+                                        // Target entity
+                                        const targetElement = document.createElement('span');
+                                        targetElement.className = 'meta-item';
+                                        targetElement.innerHTML = `<i class="fas fa-link"></i> ${activity.target.entity} #${activity.target.id}`;
+                                        
+                                        // Activity type
+                                        const typeElement = document.createElement('span');
+                                        typeElement.className = 'meta-item';
+                                        typeElement.innerHTML = `<i class="fas fa-tag"></i> ${activity.type}`;
+                                        
+                                        // Time
+                                        const timeElement = document.createElement('span');
+                                        timeElement.className = 'time';
+                                        timeElement.innerHTML = `<i class="far fa-clock"></i> ${activity.timeAgo} (${activity.timestamp})`;
+                                        
+                                        // Append meta items
+                                        metaInfo.appendChild(userIdElement);
+                                        metaInfo.appendChild(targetElement);
+                                        metaInfo.appendChild(typeElement);
+                                        
+                                        // Append all elements
+                                        contentElement.appendChild(descriptionElement);
+                                        contentElement.appendChild(metaInfo);
+                                        contentElement.appendChild(timeElement);
+                                        
+                                        activityElement.appendChild(iconWrapper);
+                                        activityElement.appendChild(contentElement);
+                                        
+                                        activitiesContainer.appendChild(activityElement);
+                                    });
+                                } else {
+                                    activitiesContainer.innerHTML = '<div class="alert alert-info">Không có hoạt động nào gần đây</div>';
+                                }
+                            } else {
+                                throw new Error(data.message || 'Lỗi không xác định');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading activities:', error);
+                            const activitiesContainer = document.getElementById('recent-activities');
+                            activitiesContainer.innerHTML = `<div class="alert alert-danger">Lỗi khi tải hoạt động: ${error.message}</div>`;
+                        });
+                }
+
+                // Add filter functionality
+                document.getElementById('activity-filter').addEventListener('change', function(e) {
+                    const filterValue = e.target.value;
+                    const activities = document.querySelectorAll('.activity-item');
+                    
+                    activities.forEach(activity => {
+                        if (filterValue === 'all' || activity.getAttribute('data-type') === filterValue) {
+                            activity.style.display = 'flex';
+                        } else {
+                            activity.style.display = 'none';
+                        }
+                    });
+                });
+
+                // Load activities when page loads
+                document.addEventListener('DOMContentLoaded', loadRecentActivities);
+
+                // Reload activities every 5 minutes
+                setInterval(loadRecentActivities, 300000);
+                </script>
 
                 <!-- Quick Actions -->
                 <div class="quick-actions mt-4">
@@ -1478,6 +2283,153 @@
                                     <i class="fas fa-money-bill-wave"></i>
                                     <span>Tính lương</span>
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5>HR Trends</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="trend-items-container">
+                                    <div class="trend-item">
+                                        <div class="trend-icon">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="trend-content">
+                                            <div class="trend-title">Tăng trưởng nhân sự</div>
+                                            <div class="trend-value">
+                                                <span class="trend-badge positive">3 → 120 nhân viên (+117)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="department-stats">
+                                        <div class="department-item">
+                                            <div class="department-name">IT</div>
+                                            <div class="department-count">25</div>
+                                            <div class="department-percentage">20.8%</div>
+                                        </div>
+                                        <div class="department-item">
+                                            <div class="department-name">Kinh doanh</div>
+                                            <div class="department-count">35</div>
+                                            <div class="department-percentage">29.2%</div>
+                                        </div>
+                                        <div class="department-item">
+                                            <div class="department-name">Hành chính</div>
+                                            <div class="department-count">20</div>
+                                            <div class="department-percentage">16.7%</div>
+                                        </div>
+                                        <div class="department-item">
+                                            <div class="department-name">Kế toán</div>
+                                            <div class="department-count">15</div>
+                                            <div class="department-percentage">12.5%</div>
+                                        </div>
+                                        <div class="department-item">
+                                            <div class="department-name">Kỹ thuật</div>
+                                            <div class="department-count">25</div>
+                                            <div class="department-percentage">20.8%</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="trend-item">
+                                        <div class="trend-icon">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </div>
+                                        <div class="trend-content">
+                                            <div class="trend-title">Dự đoán tăng trưởng</div>
+                                            <div class="trend-value">15-20 nhân viên mới</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="trend-item">
+                                        <div class="trend-icon">
+                                            <i class="fas fa-user-check"></i>
+                                        </div>
+                                        <div class="trend-content">
+                                            <div class="trend-title">Tỷ lệ hoàn thành thử việc</div>
+                                            <div class="trend-value">
+                                                <span class="trend-badge positive">95%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="trend-item">
+                                        <div class="trend-icon">
+                                            <i class="fas fa-venus"></i>
+                                        </div>
+                                        <div class="trend-content">
+                                            <div class="trend-title">Tỷ lệ nhân viên nữ</div>
+                                            <div class="trend-value">45%</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="view-more">
+                                    <a href="#">Xem thêm <i class="fas fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5>Employee Sentiment</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="sentiment-stats">
+                                    <div class="sentiment-item">
+                                        <div class="sentiment-label">Tích cực</div>
+                                        <div class="sentiment-value positive">65%</div>
+                                    </div>
+                                    <div class="sentiment-item">
+                                        <div class="sentiment-label">Trung lập</div>
+                                        <div class="sentiment-value neutral">25%</div>
+                                    </div>
+                                    <div class="sentiment-item">
+                                        <div class="sentiment-label">Tiêu cực</div>
+                                        <div class="sentiment-value negative">10%</div>
+                                    </div>
+                                </div>
+
+                                <div class="sentiment-chart-container">
+                                    <canvas id="sentimentChart"></canvas>
+                                </div>
+
+                                <div class="trend-items-container">
+                                    <div class="trend-item">
+                                        <div class="trend-icon">
+                                            <i class="fas fa-comment-alt"></i>
+                                        </div>
+                                        <div class="trend-content">
+                                            <div class="trend-title">Phản hồi gần đây</div>
+                                            <div class="trend-value">120 phản hồi trong 30 ngày</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="trend-item">
+                                        <div class="trend-icon">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="trend-content">
+                                            <div class="trend-title">Xu hướng</div>
+                                            <div class="trend-value">
+                                                <span class="trend-badge positive">+5% tích cực</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="view-more">
+                                    <a href="#">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2624,10 +3576,101 @@ async function updateDashboardStats() {
 }
 
 // Function to show notification
-function showNotification(type, title, message) {
-    // You can implement your own notification system here
-    alert(`${title}: ${message}`);
+function showNotification(type, title, message, duration = 5000) {
+    const container = document.getElementById('notificationContainer');
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    // Set icon based on type
+    let icon = '';
+    switch(type) {
+        case 'success':
+            icon = '<i class="fas fa-check-circle"></i>';
+            break;
+        case 'error':
+            icon = '<i class="fas fa-exclamation-circle"></i>';
+            break;
+        case 'warning':
+            icon = '<i class="fas fa-exclamation-triangle"></i>';
+            break;
+        case 'info':
+            icon = '<i class="fas fa-info-circle"></i>';
+            break;
+    }
+
+    notification.innerHTML = `
+        <div class="notification-icon">${icon}</div>
+        <div class="notification-content">
+            <div class="notification-title">${title}</div>
+            <div class="notification-message">${message}</div>
+        </div>
+        <div class="notification-close">
+            <i class="fas fa-times"></i>
+        </div>
+        <div class="notification-progress">
+            <div class="notification-progress-bar"></div>
+        </div>
+    `;
+
+    // Add to container
+    container.appendChild(notification);
+
+    // Start progress bar
+    const progressBar = notification.querySelector('.notification-progress-bar');
+    let width = 100;
+    const interval = setInterval(() => {
+        width -= 0.1;
+        progressBar.style.width = width + '%';
+        if (width <= 0) {
+            clearInterval(interval);
+            removeNotification(notification);
+        }
+    }, duration / 1000);
+
+    // Close button click
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+        clearInterval(interval);
+        removeNotification(notification);
+    });
+
+    // Auto remove after duration
+    setTimeout(() => {
+        if (notification.parentNode) {
+            removeNotification(notification);
+        }
+    }, duration);
 }
+
+function removeNotification(notification) {
+    notification.style.animation = 'slideOut 0.3s ease-out';
+    notification.addEventListener('animationend', () => {
+        notification.remove();
+    });
+}
+
+// Add slideOut animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Example usage:
+// showNotification('success', 'Thành công', 'Thao tác đã được thực hiện thành công');
+// showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi thực hiện thao tác');
+// showNotification('warning', 'Cảnh báo', 'Vui lòng kiểm tra lại thông tin');
+// showNotification('info', 'Thông tin', 'Có thông báo mới từ hệ thống');
+// ... existing code ...
 
 // Update stats when page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -3004,8 +4047,342 @@ document.addEventListener('DOMContentLoaded', function() {
     // Refresh chart data every 5 minutes
     setInterval(fetchNewChartData, 300000);
 });
+
+// Function to fetch and update HR statistics
+async function updateHRStats() {
+    try {
+        const response = await fetch('../api/hr_stats.php');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update HR stats
+            const hrData = data.data.hr;
+            document.getElementById('totalEmployees').textContent = hrData.total_employees;
+            document.getElementById('activeEmployees').textContent = hrData.active_employees;
+            document.getElementById('inactiveEmployees').textContent = hrData.inactive_employees;
+            document.getElementById('probationEmployees').textContent = hrData.probation_employees;
+
+            // Update finance chart
+            updateFinanceChart(data.data.finance);
+
+            // Update training chart
+            updateTrainingChart(data.data.training);
+
+            // Update recruitment chart
+            updateRecruitmentChart(data.data.recruitment);
+        } else {
+            console.error('Error fetching HR stats:', data.message);
+            showNotification('error', 'Lỗi', 'Không thể tải dữ liệu nhân sự: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi tải dữ liệu nhân sự');
+    }
+}
+
+// Function to update finance chart
+function updateFinanceChart(financeData) {
+    const ctx = document.getElementById('financeChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: financeData.map(item => `Tháng ${item.month}`),
+            datasets: [{
+                label: 'Tổng lương (VND)',
+                data: financeData.map(item => item.total_salary),
+                backgroundColor: '#1cc88a'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + ' VND';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Function to update training chart
+function updateTrainingChart(trainingData) {
+    const ctx = document.getElementById('trainingChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: trainingData.map(item => `Tháng ${item.month}`),
+            datasets: [
+                {
+                    label: 'Số khóa học',
+                    data: trainingData.map(item => item.total_courses),
+                    borderColor: '#36b9cc',
+                    fill: false
+                },
+                {
+                    label: 'Số người tham gia',
+                    data: trainingData.map(item => item.total_participants),
+                    borderColor: '#f6c23e',
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Function to update recruitment chart
+function updateRecruitmentChart(recruitmentData) {
+    const ctx = document.getElementById('recruitmentChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: recruitmentData.map(item => `Tháng ${item.month}`),
+            datasets: [
+                {
+                    label: 'Tổng đơn ứng tuyển',
+                    data: recruitmentData.map(item => item.total_applications),
+                    backgroundColor: '#4e73df'
+                },
+                {
+                    label: 'Đã phỏng vấn',
+                    data: recruitmentData.map(item => item.interviewed),
+                    backgroundColor: '#1cc88a'
+                },
+                {
+                    label: 'Đã tuyển dụng',
+                    data: recruitmentData.map(item => item.hired),
+                    backgroundColor: '#36b9cc'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Update stats when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial update
+    updateHRStats();
+    
+    // Update stats every 5 minutes
+    setInterval(updateHRStats, 300000);
+});
+
+// Function to load department data
+async function loadDepartmentData() {
+    try {
+        const response = await fetch('/api/dashboard/stats.php?type=departments');
+        const data = await response.json();
+
+        if (data.success) {
+            // Update total departments count
+            document.getElementById('total-users').textContent = data.data.length;
+
+            // Update department list if needed
+            const departmentList = document.getElementById('departmentList');
+            if (departmentList) {
+                departmentList.innerHTML = data.data.map(dept => `
+                    <div class="department-item">
+                        <span class="department-name">${dept.name}</span>
+                        <span class="department-count">${dept.employee_count} nhân viên</span>
+                    </div>
+                `).join('');
+            }
+        } else {
+            console.error('Error loading department data:', data.message);
+        }
+    } catch (error) {
+        console.error('Error loading department data:', error);
+    }
+}
+
+// Load department data when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadDepartmentData();
+    // Refresh department data every 5 minutes
+    setInterval(loadDepartmentData, 300000);
+});
+
+// Function to load database tables
+async function loadDatabaseTables() {
+    try {
+        const response = await fetch('/api/database/tables');
+        const data = await response.json();
+        
+        if (data.success) {
+            const tableList = document.getElementById('tableList');
+            tableList.innerHTML = data.tables.map(table => `
+                <a href="#" class="list-group-item list-group-item-action" data-table="${table}">
+                    <i class="fas fa-table me-2"></i>${table}
+                </a>
+            `).join('');
+            
+            // Add click event to table items
+            tableList.querySelectorAll('.list-group-item').forEach(item => {
+                item.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const tableName = e.currentTarget.dataset.table;
+                    await loadTableData(tableName);
+                    
+                    // Update active state
+                    tableList.querySelectorAll('.list-group-item').forEach(i => i.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                });
+            });
+            
+            // Load first table by default
+            if (data.tables.length > 0) {
+                await loadTableData(data.tables[0]);
+                tableList.querySelector('.list-group-item').classList.add('active');
+            }
+        } else {
+            console.error('Error loading tables:', data.message);
+        }
+    } catch (error) {
+        console.error('Error loading tables:', error);
+    }
+}
+
+// Function to load table data
+async function loadTableData(tableName) {
+    try {
+        console.log('Loading data for table:', tableName);
+        const response = await fetch(`/api/database/table/${tableName}`);
+        console.log('API Response:', response);
+        const data = await response.json();
+        console.log('Parsed Data:', data);
+        
+        if (data.success) {
+            const dataTable = document.getElementById('dataTable');
+            const thead = dataTable.querySelector('thead tr');
+            const tbody = dataTable.querySelector('tbody');
+            
+            // Clear existing data
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+            
+            // Add headers
+            data.data.headers.forEach(header => {
+                thead.innerHTML += `<th>${header}</th>`;
+            });
+            
+            // Add rows
+            data.data.rows.forEach(row => {
+                const tr = document.createElement('tr');
+                Object.values(row).forEach(cell => {
+                    tr.innerHTML += `<td>${cell}</td>`;
+                });
+                tbody.appendChild(tr);
+            });
+        } else {
+            console.error('Error loading table data:', data.message);
+            showError('Không thể tải dữ liệu: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error loading table data:', error);
+        showError('Lỗi khi tải dữ liệu: ' + error.message);
+    }
+}
+
+// Initialize when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize View Data button
+    const viewDataBtn = document.getElementById('viewDataBtn');
+    const databaseViewModal = document.getElementById('databaseViewModal');
+    const modal = new bootstrap.Modal(databaseViewModal);
+    
+    viewDataBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        modal.show();
+        await loadDatabaseTables();
+    });
+
+    // Prevent modal from closing when clicking outside
+    databaseViewModal.addEventListener('click', (e) => {
+        if (e.target === databaseViewModal) {
+            e.stopPropagation();
+        }
+    });
+});
+
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+    errorDiv.role = 'alert';
+    errorDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    const modalBody = document.querySelector('#databaseViewModal .modal-body');
+    modalBody.insertBefore(errorDiv, modalBody.firstChild);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 5000);
+}
 </script>
 
+    </div>
+
+    <!-- Database View Modal -->
+    <div class="modal fade" id="databaseViewModal" tabindex="-1" aria-labelledby="databaseViewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="databaseViewModalLabel">
+                        <i class="fas fa-database text-warning me-2"></i>Database Tables
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="list-group" id="tableList">
+                                <!-- Tables will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="dataTable">
+                                    <thead>
+                                        <tr>
+                                            <!-- Table headers will be loaded here -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Table data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- JavaScript Files -->
