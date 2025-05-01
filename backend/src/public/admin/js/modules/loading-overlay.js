@@ -8,38 +8,45 @@ const LoadingOverlay = {
     createOverlay() {
         const overlay = document.createElement('div');
         overlay.id = 'loading-overlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        `;
+        overlay.className = 'loading-overlay';
 
-        const spinner = document.createElement('div');
-        spinner.className = 'spinner-border text-light';
-        spinner.role = 'status';
-        overlay.appendChild(spinner);
+        const container = document.createElement('div');
+        container.className = 'loading-container';
 
+        const loader = document.createElement('span');
+        loader.className = 'loader';
+
+        const message = document.createElement('div');
+        message.className = 'loading-message';
+        message.textContent = 'Đang tải...';
+
+        container.appendChild(loader);
+        container.appendChild(message);
+        overlay.appendChild(container);
         document.body.appendChild(overlay);
     },
 
-    show() {
+    show(message = 'Đang tải...') {
         const overlay = document.getElementById('loading-overlay');
+        const messageEl = overlay.querySelector('.loading-message');
+        
         if (overlay) {
-            overlay.style.display = 'flex';
+            overlay.classList.add('show');
+            messageEl.textContent = message;
         }
     },
 
     hide() {
         const overlay = document.getElementById('loading-overlay');
         if (overlay) {
-            overlay.style.display = 'none';
+            overlay.classList.remove('show');
+        }
+    },
+
+    updateMessage(message) {
+        const messageEl = document.querySelector('.loading-message');
+        if (messageEl) {
+            messageEl.textContent = message;
         }
     }
 };

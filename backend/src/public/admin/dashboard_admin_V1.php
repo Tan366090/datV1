@@ -4,16 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:;">
+    <meta http-equiv="Content-Security-Policy" content="font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https: 'wasm-unsafe-eval'; connect-src 'self' https:;">
     <title>Quản lý nhân sự - Dashboard</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/font-awesome/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/notifications.css">
-    <link rel="stylesheet" href="/assets/css/loading.css">
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+
+    <!-- System Loading -->
+    <!-- <div class="system-loading">
+        <div class="system-loader"></div>
+    </div> -->
+
     <!-- Thêm CSS cho hệ thống thông báo -->
     <style>
         .notification-container {
@@ -178,19 +186,11 @@
         <!-- Configuration -->
         <script src="js/config.js"></script>
         <script type="module">
-            import { AIAnalysis } from './js/modules/ai-analysis.js';
+            import { Dashboard } from './js/modules/dashboard.js';
             
-            document.addEventListener('DOMContentLoaded', function() {
-                // Khởi tạo và tải dữ liệu
-                AIAnalysis.init();
-                
-                // Thêm event listener cho nút cập nhật
-                const updateBtn = document.getElementById('updateAnalysis');
-                if (updateBtn) {
-                    updateBtn.addEventListener('click', () => {
-                        AIAnalysis.loadAnalysis();
-                    });
-                }
+            document.addEventListener('DOMContentLoaded', () => {
+                const dashboard = new Dashboard();
+                dashboard.init();
             });
         </script>
 
@@ -218,10 +218,11 @@
             import { NotificationHandler } from './js/modules/notification-handler.js';
             import { LoadingOverlay } from './js/modules/loading-overlay.js';
             import { DarkMode } from './js/modules/dark-mode.js';
+            import { ContentLoader } from './js/modules/content-loader.js';
                     
 
             // Khởi tạo các module
-            
+            ContentLoader.init();
             const widgetManager = new WidgetManager();
             await widgetManager.initialize();
             const dashboard = new Dashboard();
@@ -1625,6 +1626,56 @@
                 font-size: 1.25rem;
             }
         }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .card-body {
+            padding: 1rem;
+        }
+        .dashboard-stats-grid {
+            margin-bottom: 0.5rem !important;
+        }
+        .charts-row {
+            margin-top: 0 !important;
+        }
+
+        /* Scroll Driven Animations for Activities */
+        @media (prefers-reduced-motion: no-preference) {
+            .activity-timeline {
+                & > .activity-item {
+                    animation: slide-in-from-left linear both;
+                    animation-timeline: view();
+                    animation-range: entry 0% entry 100%;
+                }
+            }
+        }
+
+        @keyframes slide-in-from-left {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .activity-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .activity-item:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body class="theme-transition">
@@ -1649,75 +1700,63 @@
             </div>
 
             <nav role="navigation">
-                <ul class="nav-menu">
+                <ul class="nav-list">
                     <li class="nav-item" data-menu-id="dashboard">
-                        <a href="dashboard.html" class="nav-link active" aria-current="page">
-                            <i class="fas fa-home"></i>
+                        <a href="dashboard_admin_V1.php" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item" data-menu-id="employees">
-                        <a href="employees/list.html" class="nav-link">
+                        <a href="pages/employees.php" class="nav-link">
                             <i class="fas fa-users"></i>
-                            <span>Nhân viên</span>
+                            <span>Quản lý nhân viên</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-menu-id="salary">
-                        <a href="salary/list.html" class="nav-link">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <span>Lương</span>
+                    <li class="nav-item" data-menu-id="attendance">
+                        <a href="pages/attendance.php" class="nav-link">
+                            <i class="fas fa-clock"></i>
+                            <span>Chấm công</span>
                         </a>
                     </li>
                     <li class="nav-item" data-menu-id="leave">
-                        <a href="leave/list.html" class="nav-link">
+                        <a href="pages/leave.php" class="nav-link">
                             <i class="fas fa-calendar-alt"></i>
                             <span>Nghỉ phép</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-menu-id="performance">
-                        <a href="performance/report.html" class="nav-link">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Hiệu suất</span>
+                    <li class="nav-item" data-menu-id="payroll">
+                        <a href="pages/payroll.php" class="nav-link">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Lương thưởng</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-menu-id="departments">
-                        <a href="departments/list.html" class="nav-link">
-                            <i class="fas fa-building"></i>
-                            <span>Phòng ban</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" data-menu-id="documents">
-                        <a href="documents/list.html" class="nav-link">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Tài liệu</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" data-menu-id="equipment">
-                        <a href="equipment/list.html" class="nav-link">
-                            <i class="fas fa-laptop"></i>
-                            <span>Thiết bị</span>
+                    <li class="nav-item" data-menu-id="training">
+                        <a href="pages/training.php" class="nav-link">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Đào tạo</span>
                         </a>
                     </li>
                     <li class="nav-item" data-menu-id="reports">
-                        <a href="reports/employee.html" class="nav-link">
+                        <a href="pages/reports.php" class="nav-link">
                             <i class="fas fa-chart-bar"></i>
                             <span>Báo cáo</span>
                         </a>
                     </li>
                     <li class="nav-item" data-menu-id="recruitment">
-                        <a href="recruitment/positions.html" class="nav-link">
+                        <a href="pages/recruitment.php" class="nav-link">
                             <i class="fas fa-user-plus"></i>
                             <span>Tuyển dụng</span>
                         </a>
                     </li>
                     <li class="nav-item" data-menu-id="benefits">
-                        <a href="benefits/insurance.html" class="nav-link">
+                        <a href="pages/benefits.php" class="nav-link">
                             <i class="fas fa-gift"></i>
                             <span>Phúc lợi</span>
                         </a>
                     </li>
                     <li class="nav-item" data-menu-id="projects">
-                        <a href="projects/list.html" class="nav-link">
+                        <a href="pages/projects.php" class="nav-link">
                             <i class="fas fa-project-diagram"></i>
                             <span>Dự án</span>
                         </a>
@@ -1727,7 +1766,7 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content" role="main">
+        <main class="main-content" id="mainContent" role="main">
             <header class="header">
                 <div class="header-left">
                     <h1 class="header-title">Admin Dashboard</h1>
@@ -1761,7 +1800,9 @@
                             </div>
                             <div class="dashboard-stat-info">
                                 <h3 class="dashboard-stat-label">Tổng số nhân viên</h3>
-                                <p class="dashboard-stat-number" id="totalEmployees">Loading...</p>
+                                <p class="dashboard-stat-number" id="totalEmployees">
+                                    <span class="loader"></span>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1772,7 +1813,9 @@
                             </div>
                             <div class="dashboard-stat-info">
                                 <h3 class="dashboard-stat-label">Đi làm đúng giờ</h3>
-                                <p class="dashboard-stat-number" id="onTimePercentage">Loading...</p>
+                                <p class="dashboard-stat-number" id="onTimePercentage">
+                                    <span class="loader"></span>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1783,7 +1826,9 @@
                             </div>
                             <div class="dashboard-stat-info">
                                 <h3 class="dashboard-stat-label">Có mặt hôm nay</h3>
-                                <p class="dashboard-stat-number" id="presentToday">Loading...</p>
+                                <p class="dashboard-stat-number" id="presentToday">
+                                    <span class="loader"></span>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1794,22 +1839,54 @@
                             </div>
                             <div class="dashboard-stat-info">
                                 <h3 class="dashboard-stat-label">Vắng mặt hôm nay</h3>
-                                <p class="dashboard-stat-number" id="absentToday">Loading...</p>
+                                <p class="dashboard-stat-number" id="absentToday">
+                                    <span class="loader"></span>
+                                </p>
                             </div>
                         </div>
                     </div>
+                    <!-- <div class="dashboard-stat-card card shadow-sm hover-shadow">
+                        <div class="dashboard-stat-content">
+                            <div class="dashboard-stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="dashboard-stat-info">
+                                <h3 class="dashboard-stat-label">Đi muộn hôm nay</h3>
+                                <p class="dashboard-stat-number" id="lateToday">
+                                    <span class="loader"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div> -->
                 </div>
 
                 <!-- New Charts Section -->
-                <div class="row mt-4">
-                    <!-- HR Chart -->
+                <div class="row charts-row">
+                    <!-- Comment out HR Status Chart
                     <div class="col-md-6 mb-4">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="card-title mb-0">Biểu đồ nhân sự</h5>
+                                <h5 class="card-title mb-0">Biểu đồ trạng thái nhân sự</h5>
                             </div>
                             <div class="card-body">
-                                <canvas id="hrChart"></canvas>
+                                <div class="chart-container">
+                                    <canvas id="hrChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+
+                    <!-- Department Distribution Chart -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Biểu đồ phân bố nhân sự theo phòng ban</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="hrDepartmentChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1821,7 +1898,9 @@
                                 <h5 class="card-title mb-0">Biểu đồ tài chính</h5>
                             </div>
                             <div class="card-body">
-                                <canvas id="financeChart"></canvas>
+                                <div class="chart-container">
+                                    <canvas id="financeChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1855,6 +1934,7 @@
                 <div class="activity-section mt-4">
                     <div class="row">
                         <!-- Statistics Cards -->
+                        <!-- Comment out statistics section
                         <div class="col-md-12 mb-4">
                             <div class="statistics-grid">
                                 <div class="stat-card">
@@ -1878,8 +1958,10 @@
                                             <i class="fas fa-users"></i>
                                         </div>
                                         <div class="stat-info">
+                                            <?php /* Tổng số phòng ban hiện có trong hệ thống */ ?>
                                             <div class="stat-title">Tổng số phòng ban</div>
                                             <div class="stat-value" id="total-users">0</div>
+                                            <?php /* Tỷ lệ tăng trưởng so với tháng trước */ ?>
                                             <div class="stat-trend positive">
                                                 <i class="fas fa-arrow-up"></i>
                                                 <span>5%</span>
@@ -1893,8 +1975,10 @@
                                             <i class="fas fa-calendar-check"></i>
                                         </div>
                                         <div class="stat-info">
+                                            <?php /* Số lượng đơn xin nghỉ phép đang chờ xử lý */ ?>
                                             <div class="stat-title">Đơn xin nghỉ phép</div>
                                             <div class="stat-value" id="total-leaves">0</div>
+                                            <?php /* Tỷ lệ giảm so với tháng trước */ ?>
                                             <div class="stat-trend negative">
                                                 <i class="fas fa-arrow-down"></i>
                                                 <span>3%</span>
@@ -1919,6 +2003,7 @@
                                 </div>
                             </div>
                         </div>
+                        -->
 
                         <!-- Activity Timeline -->
                         <div class="col-md-12">
@@ -2143,120 +2228,88 @@
                 </style>
 
                 <script>
-                function loadRecentActivities() {
-                    fetch('../api/activities.php?recent=1&limit=10')
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                // Update statistics
-                                document.getElementById('total-activities').textContent = data.statistics.totalActivities;
-                                document.getElementById('total-users').textContent = data.statistics.totalUsers;
-                                document.getElementById('total-leaves').textContent = data.statistics.totalLeaves;
-                                document.getElementById('total-tasks').textContent = data.statistics.totalTasks;
-
-                                const activitiesContainer = document.getElementById('recent-activities');
-                                activitiesContainer.innerHTML = '';
-
-                                if (data.activities && data.activities.length > 0) {
-                                    data.activities.forEach(activity => {
-                                        const activityElement = document.createElement('div');
-                                        activityElement.className = 'activity-item';
-                                        activityElement.setAttribute('data-status', activity.status);
-                                        activityElement.setAttribute('data-type', activity.type);
-                                        
-                                        // Icon wrapper
-                                        const iconWrapper = document.createElement('div');
-                                        iconWrapper.className = 'icon-wrapper';
-                                        const iconElement = document.createElement('i');
-                                        iconElement.className = `fas ${activity.icon}`;
-                                        iconWrapper.appendChild(iconElement);
-                                        
-                                        // Content wrapper
-                                        const contentElement = document.createElement('div');
-                                        contentElement.className = 'activity-content';
-                                        
-                                        // Description
-                                        const descriptionElement = document.createElement('p');
-                                        descriptionElement.className = 'description';
-                                        descriptionElement.textContent = activity.description;
-                                        
-                                        // Meta information
-                                        const metaInfo = document.createElement('div');
-                                        metaInfo.className = 'meta-info';
-                                        
-                                        // User ID
-                                        const userIdElement = document.createElement('span');
-                                        userIdElement.className = 'meta-item';
-                                        userIdElement.innerHTML = `<i class="fas fa-user"></i> User #${activity.user.id}`;
-                                        
-                                        // Target entity
-                                        const targetElement = document.createElement('span');
-                                        targetElement.className = 'meta-item';
-                                        targetElement.innerHTML = `<i class="fas fa-link"></i> ${activity.target.entity} #${activity.target.id}`;
-                                        
-                                        // Activity type
-                                        const typeElement = document.createElement('span');
-                                        typeElement.className = 'meta-item';
-                                        typeElement.innerHTML = `<i class="fas fa-tag"></i> ${activity.type}`;
-                                        
-                                        // Time
-                                        const timeElement = document.createElement('span');
-                                        timeElement.className = 'time';
-                                        timeElement.innerHTML = `<i class="far fa-clock"></i> ${activity.timeAgo} (${activity.timestamp})`;
-                                        
-                                        // Append meta items
-                                        metaInfo.appendChild(userIdElement);
-                                        metaInfo.appendChild(targetElement);
-                                        metaInfo.appendChild(typeElement);
-                                        
-                                        // Append all elements
-                                        contentElement.appendChild(descriptionElement);
-                                        contentElement.appendChild(metaInfo);
-                                        contentElement.appendChild(timeElement);
-                                        
-                                        activityElement.appendChild(iconWrapper);
-                                        activityElement.appendChild(contentElement);
-                                        
-                                        activitiesContainer.appendChild(activityElement);
-                                    });
-                                } else {
-                                    activitiesContainer.innerHTML = '<div class="alert alert-info">Không có hoạt động nào gần đây</div>';
-                                }
-                            } else {
-                                throw new Error(data.message || 'Lỗi không xác định');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error loading activities:', error);
-                            const activitiesContainer = document.getElementById('recent-activities');
-                            activitiesContainer.innerHTML = `<div class="alert alert-danger">Lỗi khi tải hoạt động: ${error.message}</div>`;
-                        });
+                async function loadRecentActivities() {
+                    try {
+                        const response = await fetch('../../api/activities/recent.php');
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        
+                        if (!data.success) {
+                            throw new Error(data.message || 'API returned unsuccessful response');
+                        }
+                        
+                        if (!data.data || !Array.isArray(data.data)) {
+                            throw new Error('Invalid data format received from API');
+                        }
+                        
+                        const activityTimeline = document.getElementById('recent-activities');
+                        activityTimeline.innerHTML = data.data.map(activity => `
+                            <div class="activity-item mb-3" data-type="${activity.type}">
+                                <div class="d-flex align-items-center">
+                                    <div class="activity-icon me-3">
+                                        <i class="fas ${getActivityIcon(activity.type)}"></i>
+                                    </div>
+                                    <div class="activity-content flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">${activity.type_name || activity.type}</h6>
+                                            <small class="text-muted">${activity.created_at}</small>
+                                        </div>
+                                        <p class="mb-0">${activity.description || 'Không có mô tả'}</p>
+                                        <small class="text-muted">${activity.user_name || 'Không xác định'} (${activity.user_email || 'Không có email'})</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } catch (error) {
+                        console.error('Error loading activities:', error);
+                        const activityTimeline = document.getElementById('recent-activities');
+                        activityTimeline.innerHTML = `
+                            <div class="alert alert-danger">
+                                <h6 class="alert-heading">Có lỗi xảy ra khi tải dữ liệu</h6>
+                                <p class="mb-0">${error.message}</p>
+                                <hr>
+                                <p class="mb-0 small">Vui lòng thử lại sau hoặc liên hệ quản trị viên nếu lỗi vẫn tiếp diễn.</p>
+                            </div>
+                        `;
+                    }
                 }
 
-                // Add filter functionality
+                function getActivityIcon(type) {
+                    const icons = {
+                        'LOGIN': 'fa-sign-in-alt',
+                        'LOGOUT': 'fa-sign-out-alt',
+                        'UPDATE_PROFILE': 'fa-user-edit',
+                        'CREATE_LEAVE': 'fa-calendar-plus',
+                        'APPROVE_LEAVE': 'fa-check-circle',
+                        'UPLOAD_DOCUMENT': 'fa-file-upload',
+                        'ASSIGN_ASSET': 'fa-box',
+                        'GENERATE_REPORT': 'fa-chart-bar',
+                        'CREATE_PROJECT': 'fa-project-diagram',
+                        'COMPLETE_TASK': 'fa-tasks'
+                    };
+                    return icons[type] || 'fa-info-circle';
+                }
+
+                // Load activities when page loads
+                document.addEventListener('DOMContentLoaded', loadRecentActivities);
+
+                // Add event listener for filter change
                 document.getElementById('activity-filter').addEventListener('change', function(e) {
-                    const filterValue = e.target.value;
+                    const filter = e.target.value;
                     const activities = document.querySelectorAll('.activity-item');
                     
                     activities.forEach(activity => {
-                        if (filterValue === 'all' || activity.getAttribute('data-type') === filterValue) {
-                            activity.style.display = 'flex';
+                        if (filter === 'all' || activity.dataset.type === filter) {
+                            activity.style.display = '';
                         } else {
                             activity.style.display = 'none';
                         }
                     });
                 });
-
-                // Load activities when page loads
-                document.addEventListener('DOMContentLoaded', loadRecentActivities);
-
-                // Reload activities every 5 minutes
-                setInterval(loadRecentActivities, 300000);
                 </script>
 
                 <!-- Quick Actions -->
@@ -2402,6 +2455,35 @@
                                 <div class="sentiment-chart-container">
                                     <canvas id="sentimentChart"></canvas>
                                 </div>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const ctx = document.getElementById('sentimentChart').getContext('2d');
+                                        const sentimentChart = new Chart(ctx, {
+                                            type: 'pie',
+                                            data: {
+                                                labels: ['Tích cực', 'Trung lập', 'Tiêu cực'],
+                                                datasets: [{
+                                                    data: [65, 25, 10],
+                                                    backgroundColor: [
+                                                        '#2ecc71', // Xanh lá cho tích cực
+                                                        '#f1c40f', // Vàng cho trung lập
+                                                        '#e74c3c'  // Đỏ cho tiêu cực
+                                                    ]
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'bottom'
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    });
+                                </script>
 
                                 <div class="trend-items-container">
                                     <div class="trend-item">
@@ -3533,7 +3615,7 @@ function showSalaryModal() {
 // Function to update dashboard statistics
 async function updateDashboardStats() {
     try {
-        const response = await fetch('../api/dashboard_stats.php');
+        const response = await fetch('/qlnhansu_V2/backend/src/api/dashboard/stats.php?type=departments');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -3923,6 +4005,7 @@ function fetchNewChartData() {
 
 // Function to initialize new charts
 function initNewCharts(chartData) {
+    /* Comment out HR Status Chart initialization
     // HR Chart (Pie)
     const hrCtx = document.getElementById('hrChart').getContext('2d');
     new Chart(hrCtx, {
@@ -3940,6 +4023,7 @@ function initNewCharts(chartData) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'bottom'
@@ -3947,6 +4031,7 @@ function initNewCharts(chartData) {
             }
         }
     });
+    */
 
     // Finance Chart (Bar)
     const financeCtx = document.getElementById('financeChart').getContext('2d');
@@ -3962,6 +4047,7 @@ function initNewCharts(chartData) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     beginAtZero: true,
@@ -4078,8 +4164,8 @@ async function updateHRStats() {
             showNotification('error', 'Lỗi', 'Không thể tải dữ liệu nhân sự: ' + data.message);
         }
     } catch (error) {
-        console.error('Error:', error);
-        showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi tải dữ liệu nhân sự');
+        // console.error('Error:', error);
+        // showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi tải dữ liệu nhân sự');
     }
 }
 
@@ -4193,7 +4279,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Function to load department data
 async function loadDepartmentData() {
     try {
-        const response = await fetch('/api/dashboard/stats.php?type=departments');
+        const response = await fetch('../api/departments.php');
         const data = await response.json();
 
         if (data.success) {
@@ -4307,25 +4393,25 @@ async function loadTableData(tableName) {
 }
 
 // Initialize when document is ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize View Data button
-    const viewDataBtn = document.getElementById('viewDataBtn');
-    const databaseViewModal = document.getElementById('databaseViewModal');
-    const modal = new bootstrap.Modal(databaseViewModal);
+// document.addEventListener('DOMContentLoaded', function() {
+//     // Initialize View Data button
+//     const viewDataBtn = document.getElementById('viewDataBtn');
+//     const databaseViewModal = document.getElementById('databaseViewModal');
+//     const modal = new bootstrap.Modal(databaseViewModal);
     
-    viewDataBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        modal.show();
-        await loadDatabaseTables();
-    });
+//     viewDataBtn.addEventListener('click', async (e) => {
+//         e.preventDefault();
+//         modal.show();
+//         await loadDatabaseTables();
+//     });
 
-    // Prevent modal from closing when clicking outside
-    databaseViewModal.addEventListener('click', (e) => {
-        if (e.target === databaseViewModal) {
-            e.stopPropagation();
-        }
-    });
-});
+//     // Prevent modal from closing when clicking outside
+//     databaseViewModal.addEventListener('click', (e) => {
+//         if (e.target === databaseViewModal) {
+//             e.stopPropagation();
+//         }
+//     });
+// });
 
 function showError(message) {
     const errorDiv = document.createElement('div');
@@ -4344,6 +4430,210 @@ function showError(message) {
         errorDiv.remove();
     }, 5000);
 }
+
+// Function to initialize HR department chart
+async function initHRDepartmentChart() {
+    const chartContainer = document.getElementById('hrDepartmentChart');
+    if (!chartContainer) {
+        console.error('Chart container not found');
+        return;
+    }
+
+    try {
+        // Hiển thị trạng thái đang tải
+        chartContainer.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+        const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/hr_department_chart.php');
+        
+        // Kiểm tra lỗi HTTP khi gọi API
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Kiểm tra nếu API trả về lỗi
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to load HR department data');
+        }
+
+        // Kiểm tra nếu không có dữ liệu phòng ban
+        if (!data.data || data.data.length === 0) {
+            throw new Error('No department data available');
+        }
+
+        const departments = data.data;
+        
+        // Xóa trạng thái đang tải và tạo canvas mới
+        chartContainer.innerHTML = '<canvas></canvas>';
+        const ctx = chartContainer.querySelector('canvas').getContext('2d');
+        
+        // Hủy biểu đồ cũ nếu tồn tại
+        if (window.hrDepartmentChart) {
+            window.hrDepartmentChart.destroy();
+        }
+        
+        // Create new chart instance
+        window.hrDepartmentChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: departments.map(dept => dept.name),
+                datasets: [{
+                    data: departments.map(dept => dept.count),
+                    backgroundColor: departments.map(dept => dept.color)
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return {
+                                            text: `${label} (${value} - ${percentage}%)`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            hidden: false,
+                                            lineCap: 'butt',
+                                            lineDash: [],
+                                            lineDashOffset: 0,
+                                            lineJoin: 'miter',
+                                            lineWidth: 1,
+                                            strokeStyle: data.datasets[0].backgroundColor[i],
+                                            pointStyle: 'circle',
+                                            rotation: 0
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing HR department chart:', error);
+        chartContainer.innerHTML = `
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Lỗi khi tải dữ liệu nhân sự</h4>
+                <p>${error.message}</p>
+                <hr>
+                <p class="mb-0">Vui lòng thử lại sau hoặc liên hệ quản trị viên.</p>
+            </div>
+        `;
+    }
+}
+
+// Initialize chart after all resources are loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for all resources to load
+    window.addEventListener('load', function() {
+        // Small delay to ensure other charts are initialized
+        setTimeout(initHRDepartmentChart, 100);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize department chart
+    initDepartmentChart();
+});
+
+async function initDepartmentChart() {
+    try {
+        const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/hr_department_chart.php');
+        const data = await response.json();
+        
+        if (!data.success) {
+            console.error('Failed to load department data:', data.message);
+            return;
+        }
+
+        const departments = data.data;
+        const chartCtx = document.getElementById('hrDepartmentChart');
+        
+        if (!chartCtx) {
+            console.error('HR Department Chart container not found');
+            return;
+        }
+
+        // Destroy existing chart if it exists
+        if (window.departmentChart) {
+            window.departmentChart.destroy();
+        }
+
+        // Create new chart
+        window.departmentChart = new Chart(chartCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: departments.map(dept => dept.name),
+                datasets: [{
+                    label: 'Số lượng nhân viên',
+                    data: departments.map(dept => dept.count),
+                    backgroundColor: departments.map(dept => dept.color),
+                    borderColor: departments.map(dept => dept.color),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.parsed.y} nhân viên`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing department chart:', error);
+    }
+}
+
+// ... existing code ...
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize View Data button
+    const viewDataBtn = document.getElementById('viewDataBtn');
+    if (viewDataBtn) {
+        viewDataBtn.addEventListener('click', function() {
+            window.location.href = 'check_data.php';
+        });
+    }
+});
+// ... existing code ...
 </script>
 
     </div>
@@ -4388,5 +4678,8 @@ function showError(message) {
     <!-- JavaScript Files -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/modules/menu-handler.js"></script>
+    <script src="js/modules/recent-menu.js"></script>
+    <script type="module" src="./js/modules/tab.js"></script>
 </body>
 </html>

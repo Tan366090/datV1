@@ -8,77 +8,69 @@ ini_set('display_errors', 0);
 
 // Set JSON header
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Headers: Content-Type');
 
 require_once '../../config/database.php';
-require_once '../../middlewares/auth.php';
+require_once '../../middleware/auth.php';
 
 try {
     // Clear any previous output
     ob_clean();
 
     // Verify user is logged in and is a manager
-    checkAuth();
-    checkRole('manager');
+    Auth::requireAuth();
+    Auth::requireRole('manager');
 
-    $db = new Database();
-    $conn = $db->getConnection();
+    $database = new Database();
+    $db = $database->getConnection();
 
-    $stmt = $conn->prepare("
-        (SELECT 
-            'leave' as type,
-            CONCAT(up.first_name, ' ', up.last_name) as title,
-            CONCAT('Đã yêu cầu nghỉ phép từ ', DATE_FORMAT(lr.start_date, '%d/%m/%Y'), ' đến ', DATE_FORMAT(lr.end_date, '%d/%m/%Y')) as description,
-            lr.created_at as timestamp
-        FROM leave_requests lr
-        JOIN users u ON lr.user_id = u.user_id
-        JOIN user_profiles up ON u.user_id = up.user_id
-        WHERE lr.status = 'pending')
-        
-        UNION ALL
-        
-        (SELECT 
-            'attendance' as type,
-            CONCAT(up.first_name, ' ', up.last_name) as title,
+    // Lấy hoạt động gần đây từ database
+    $query = "
+        SELECT 
+            a.id,
+            a.type,
+            a.description,
+            a.created_at,
+            u.username as user_name,
+            u.email as user_email,
             CASE 
-                WHEN a.check_out IS NULL THEN CONCAT('Đã check in lúc ', DATE_FORMAT(a.check_in, '%H:%i'))
-                ELSE CONCAT('Đã check out lúc ', DATE_FORMAT(a.check_out, '%H:%i'))
-            END as description,
-            COALESCE(a.check_out, a.check_in) as timestamp
-        FROM attendance a
-        JOIN users u ON a.user_id = u.user_id
-        JOIN user_profiles up ON u.user_id = up.user_id
-        WHERE DATE(a.check_in) = CURDATE())
-        
-        UNION ALL
-        
-        (SELECT 
-            'salary' as type,
-            CONCAT(up.first_name, ' ', up.last_name) as title,
-            CONCAT('Đã được thanh toán lương tháng ', DATE_FORMAT(sh.payment_date, '%m/%Y')) as description,
-            sh.payment_date as timestamp
-        FROM salary_history sh
-        JOIN users u ON sh.user_id = u.user_id
-        JOIN user_profiles up ON u.user_id = up.user_id
-        WHERE DATE_FORMAT(sh.payment_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m'))
-        
-        ORDER BY timestamp DESC
+                WHEN a.type = 'LOGIN' THEN 'Đăng nhập'
+                WHEN a.type = 'UPDATE_PROFILE' THEN 'Cập nhật thông tin'
+                WHEN a.type = 'CREATE_LEAVE' THEN 'Tạo đơn nghỉ phép'
+                WHEN a.type = 'UPLOAD_DOCUMENT' THEN 'Tải lên tài liệu'
+                WHEN a.type = 'APPROVE_LEAVE' THEN 'Duyệt đơn nghỉ phép'
+                ELSE a.type
+            END as type_name
+        FROM activities a
+        LEFT JOIN users u ON a.user_id = u.user_id
+        ORDER BY a.created_at DESC
         LIMIT 10
-    ");
+    ";
+
+    $stmt = $db->prepare($query);
     $stmt->execute();
+    
     $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Format lại thời gian
+    foreach ($activities as &$activity) {
+        $activity['created_at'] = date('d/m/Y H:i:s', strtotime($activity['created_at']));
+    }
 
     echo json_encode([
         'success' => true,
         'data' => $activities
     ]);
-} catch (Exception $e) {
+} catch (PDOException $e) {
     // Clear any previous output
     ob_clean();
     
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Lỗi khi tải hoạt động gần đây: ' . $e->getMessage()
+        'message' => 'Lỗi khi lấy dữ liệu hoạt động: ' . $e->getMessage()
     ]);
 }
 

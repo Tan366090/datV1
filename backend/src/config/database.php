@@ -4,6 +4,7 @@ define('DB_HOST', 'localhost');
 define('DB_NAME', 'qlnhansu');
 define('DB_USER', 'root');
 define('DB_PASS', '');
+define('DB_CHARSET', 'utf8mb4');
 
 // Error reporting
 error_reporting(E_ALL);
@@ -17,17 +18,18 @@ if (!file_exists(__DIR__ . '/../logs')) {
 }
 
 class Database {
-    private static $host = 'localhost';
-    private static $db_name = 'qlnhansu';
-    private static $username = 'root';
-    private static $password = '';
+    private static $host = DB_HOST;
+    private static $db_name = DB_NAME;
+    private static $username = DB_USER;
+    private static $password = DB_PASS;
+    private static $charset = DB_CHARSET;
     private static $conn;
 
     public static function getConnection() {
         if (self::$conn === null) {
             try {
                 self::$conn = new PDO(
-                    "mysql:host=" . self::$host . ";dbname=" . self::$db_name . ";charset=utf8mb4",
+                    "mysql:host=" . self::$host . ";dbname=" . self::$db_name . ";charset=" . self::$charset,
                     self::$username,
                     self::$password,
                     [
@@ -51,4 +53,13 @@ try {
 } catch (Exception $e) {
     error_log("Database connection failed: " . $e->getMessage());
 }
+
+// Return configuration array for DataStore
+return [
+    'host' => DB_HOST,
+    'database' => DB_NAME,
+    'username' => DB_USER,
+    'password' => DB_PASS,
+    'charset' => DB_CHARSET
+];
 ?> 

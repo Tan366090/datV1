@@ -88,14 +88,51 @@ class RecentMenu {
     setupEventListeners() {
         const items = document.querySelectorAll('.recent-item-link');
         items.forEach(item => {
-            item.addEventListener('click', (e) => {
+            item.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const url = item.getAttribute('href');
                 if (url) {
-                    window.location.href = url;
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const content = await response.text();
+                        
+                        // Update main content
+                        const mainContent = document.querySelector('.main-content');
+                        if (mainContent) {
+                            mainContent.innerHTML = content;
+                        }
+                        
+                        // Add to recent items
+                        const title = item.querySelector('span').textContent;
+                        const icon = item.querySelector('i').className;
+                        this.addItem(title, url, icon);
+                    } catch (error) {
+                        console.error('Error loading content:', error);
+                        this.showError('Không thể tải nội dung');
+                    }
                 }
             });
         });
+    }
+
+    addItem(title, url, icon) {
+        // Add new item to the beginning of the array
+        this.recentItems.unshift({ title, url, icon });
+        
+        // Keep only maxItems
+        if (this.recentItems.length > this.maxItems) {
+            this.recentItems = this.recentItems.slice(0, this.maxItems);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('recentMenuItems', JSON.stringify(this.recentItems));
+        
+        // Re-render the menu
+        this.render();
+        this.setupEventListeners();
     }
 }
 

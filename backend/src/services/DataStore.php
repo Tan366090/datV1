@@ -13,6 +13,9 @@ class DataStore {
 
     private function __construct() {
         $this->config = require __DIR__ . '/../config/database.php';
+        if (!is_array($this->config)) {
+            throw new Exception("Invalid database configuration");
+        }
         $this->connectDatabase();
     }
 
@@ -25,6 +28,12 @@ class DataStore {
 
     private function connectDatabase() {
         try {
+            if (!isset($this->config['host']) || !isset($this->config['database']) || 
+                !isset($this->config['username']) || !isset($this->config['password']) ||
+                !isset($this->config['charset'])) {
+                throw new Exception("Missing required database configuration parameters");
+            }
+
             $dsn = "mysql:host={$this->config['host']};dbname={$this->config['database']};charset={$this->config['charset']}";
             $this->pdo = new PDO(
                 $dsn,
