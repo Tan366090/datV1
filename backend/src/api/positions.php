@@ -24,6 +24,77 @@ class PositionAPI {
             return;
         }
         
+        // API endpoint để lấy chức vụ theo phòng ban
+        if ($method === 'GET' && isset($_GET['department_id'])) {
+            try {
+                $departmentId = $_GET['department_id'];
+                
+                $sql = "SELECT p.*, d.name as department_name 
+                        FROM positions p 
+                        JOIN departments d ON p.department_id = d.id 
+                        WHERE p.department_id = :department_id 
+                        AND p.status = 'active'";
+                
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':department_id', $departmentId);
+                $stmt->execute();
+                
+                $positions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                echo json_encode([
+                    'success' => true,
+                    'data' => $positions
+                ]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Lỗi khi lấy danh sách chức vụ: ' . $e->getMessage()
+                ]);
+            }
+            return;
+        }
+
+        // API endpoint để lấy thông tin hợp đồng theo chức vụ
+        if ($method === 'GET' && isset($_GET['position_id'])) {
+            try {
+                $positionId = $_GET['position_id'];
+                
+                $sql = "SELECT p.*, 
+                               p.min_salary as salary,
+                               p.contract_type,
+                               DATE_FORMAT(CURRENT_DATE(), '%Y-%m-%d') as start_date
+                        FROM positions p 
+                        WHERE p.id = :position_id";
+                
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':position_id', $positionId);
+                $stmt->execute();
+                
+                $contractInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($contractInfo) {
+                    echo json_encode([
+                        'success' => true,
+                        'data' => $contractInfo
+                    ]);
+                } else {
+                    http_response_code(404);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Không tìm thấy thông tin chức vụ'
+                    ]);
+                }
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Lỗi khi lấy thông tin hợp đồng: ' . $e->getMessage()
+                ]);
+            }
+            return;
+        }
+        
         switch ($method) {
             case 'GET':
                 $this->getPositions();

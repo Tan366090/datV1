@@ -16,6 +16,32 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Xử lý sự kiện nút đăng xuất
     setupLogoutButton();
+
+    // Xử lý khi thay đổi phòng ban
+    const departmentSelect = document.getElementById('departmentId');
+    if (departmentSelect) {
+        departmentSelect.addEventListener('change', function() {
+            const departmentId = this.value;
+            if (departmentId) {
+                loadPositionsByDepartment(departmentId);
+            } else {
+                // Reset chức vụ nếu không chọn phòng ban
+                const positionSelect = document.getElementById('positionId');
+                positionSelect.innerHTML = '<option value="">Chọn chức vụ</option>';
+            }
+        });
+    }
+    
+    // Xử lý khi thay đổi chức vụ
+    const positionSelect = document.getElementById('positionId');
+    if (positionSelect) {
+        positionSelect.addEventListener('change', function() {
+            const positionId = this.value;
+            if (positionId) {
+                loadContractInfo(positionId);
+            }
+        });
+    }
 });
 
 // Hàm kiểm tra đăng nhập
@@ -279,4 +305,56 @@ function showSuccess(message) {
     `;
     document.body.appendChild(success);
     setTimeout(() => success.remove(), 3000);
+}
+
+// Hàm load chức vụ dựa vào phòng ban
+async function loadPositionsByDepartment(departmentId) {
+    try {
+        const response = await fetch(`/api/positions?department_id=${departmentId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const positionSelect = document.getElementById('positionId');
+            positionSelect.innerHTML = '<option value="">Chọn chức vụ</option>';
+            
+            data.data.forEach(position => {
+                const option = document.createElement('option');
+                option.value = position.id;
+                option.textContent = position.name;
+                positionSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Lỗi khi tải chức vụ:', error);
+    }
+}
+
+// Hàm load thông tin hợp đồng dựa vào chức vụ
+async function loadContractInfo(positionId) {
+    try {
+        const response = await fetch(`/api/positions/${positionId}/contract-info`);
+        const data = await response.json();
+        
+        if (data.success) {
+            // Cập nhật thông tin hợp đồng
+            const contractTypeSelect = document.getElementById('contractType');
+            const salaryInput = document.getElementById('salary');
+            const startDateInput = document.getElementById('startDate');
+            
+            // Cập nhật loại hợp đồng
+            contractTypeSelect.value = data.contract_type || '';
+            
+            // Cập nhật lương
+            if (data.salary) {
+                salaryInput.value = data.salary;
+            }
+            
+            // Cập nhật ngày bắt đầu
+            if (data.start_date) {
+                startDateInput.value = data.start_date;
+            }
+        }
+    } catch (error) {
+        console.error('Lỗi khi tải thông tin hợp đồng:', error);
+    }
 } 

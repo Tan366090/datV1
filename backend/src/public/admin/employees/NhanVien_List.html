@@ -753,7 +753,7 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #3498db, #2980b9);">
-                            <i class="fa-solid fa-users"></i>
+                            <img src="employees.png" alt="Tổng nhân viên" style="width: 32px; height: 32px;">
                         </div>
                         <div>
                             <h6 class="card-title">Tổng nhân viên</h6>
@@ -768,7 +768,7 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
-                            <i class="fa-solid fa-user-check"></i>
+                            <img src="deadline.png" alt="Đang làm việc" style="width: 32px; height: 32px;">
                         </div>
                         <div>
                             <h6 class="card-title">Đang làm việc</h6>
@@ -783,7 +783,7 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #f1c40f, #f39c12);">
-                            <i class="fa-solid fa-user-plus"></i>
+                            <img src="add-group.png" alt="Nhân viên mới" style="width: 32px; height: 32px;">
                         </div>
                         <div>
                             <h6 class="card-title">Nhân viên mới</h6>
@@ -798,7 +798,7 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #ff7e5f, #feb47b);">
-                            <i class="fa-solid fa-building"></i>
+                            <img src="home.png" alt="Phòng ban" style="width: 32px; height: 32px;">
                         </div>
                         <div>
                             <h6 class="card-title">Phòng ban</h6>
@@ -818,7 +818,7 @@
                     <div class="search-box">
                         <div class="input-group">
                             <span class="input-group-text">
-                                <img src="search.png" alt="Tìm kiếm" style="width: 24px; height: 24px;">
+                                <img src="TimKiem.png" alt="Tìm kiếm" style="width: 24px; height: 24px;">
                             </span>
                             <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm nhân viên...">
                         </div>
@@ -1156,6 +1156,11 @@
         // Cập nhật hàm saveEmployee
         async function saveEmployee() {
             const form = document.getElementById('addEmployeeForm');
+            if (!form.checkValidity()) {
+                showNotification('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+                return;
+            }
+
             const formData = new FormData(form);
             
             // Chuyển đổi FormData thành object
@@ -1189,18 +1194,116 @@
                 if (result.success) {
                     showNotification('Thêm nhân viên thành công', 'success');
                     closeAddEmployeeModal();
-                    // Cập nhật danh sách nhân viên
-                    loadEmployees();
+                    
+                    // Reset form
+                    form.reset();
+                    
+                    // Load lại danh sách nhân viên
+                    await loadEmployees();
+                    
+                    // Cập nhật thống kê
+                    await updateDashboardStats();
                 } else {
-                    showNotification(result.message, 'error');
+                    showNotification(result.message || 'Có lỗi xảy ra khi thêm nhân viên', 'error');
                 }
             } catch (error) {
-                showNotification('Có lỗi xảy ra khi thêm nhân viên', 'error');
                 console.error('Error:', error);
+                showNotification('Có lỗi xảy ra khi thêm nhân viên', 'error');
             } finally {
                 loadingOverlay.style.display = 'none';
             }
         }
+
+        // Hàm cập nhật thống kê dashboard
+        async function updateDashboardStats() {
+            try {
+                const response = await fetch('/api/employees/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('totalEmployees').textContent = data.total_employees;
+                    document.getElementById('activeEmployees').textContent = data.active_employees;
+                    document.getElementById('newEmployees').textContent = data.new_employees;
+                    document.getElementById('totalDepartments').textContent = data.total_departments;
+                }
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Xử lý khi thay đổi phòng ban
+            const departmentSelect = document.getElementById('departmentId');
+            if (departmentSelect) {
+                departmentSelect.addEventListener('change', async function() {
+                    const departmentId = this.value;
+                    if (departmentId) {
+                        try {
+                            const response = await fetch(`/api/positions?department_id=${departmentId}`);
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                const positionSelect = document.getElementById('positionId');
+                                positionSelect.innerHTML = '<option value="">Chọn chức vụ</option>';
+                                
+                                data.data.forEach(position => {
+                                    const option = document.createElement('option');
+                                    option.value = position.id;
+                                    option.textContent = position.name;
+                                    positionSelect.appendChild(option);
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Error loading positions:', error);
+                            showNotification('Có lỗi xảy ra khi tải chức vụ', 'error');
+                        }
+                    } else {
+                        // Reset chức vụ nếu không chọn phòng ban
+                        const positionSelect = document.getElementById('positionId');
+                        positionSelect.innerHTML = '<option value="">Chọn chức vụ</option>';
+                    }
+                });
+            }
+
+            // Xử lý khi thay đổi chức vụ
+            const positionSelect = document.getElementById('positionId');
+            if (positionSelect) {
+                positionSelect.addEventListener('change', async function() {
+                    const positionId = this.value;
+                    if (positionId) {
+                        try {
+                            const response = await fetch(`/api/positions/${positionId}/contract-info`);
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                // Cập nhật thông tin hợp đồng
+                                const contractTypeSelect = document.getElementById('contractType');
+                                const baseSalaryInput = document.getElementById('baseSalary');
+                                const contractStartDateInput = document.getElementById('contractStartDate');
+                                
+                                // Cập nhật loại hợp đồng
+                                if (data.contract_type) {
+                                    contractTypeSelect.value = data.contract_type;
+                                }
+                                
+                                // Cập nhật lương cơ bản
+                                if (data.salary) {
+                                    baseSalaryInput.value = data.salary;
+                                }
+                                
+                                // Cập nhật ngày bắt đầu hợp đồng
+                                if (data.start_date) {
+                                    contractStartDateInput.value = data.start_date;
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error loading contract info:', error);
+                            showNotification('Có lỗi xảy ra khi tải thông tin hợp đồng', 'error');
+                        }
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html> 
