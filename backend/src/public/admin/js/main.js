@@ -81,7 +81,9 @@ const App = {
         const modules = [
             'dashboard_features',
             'export-data',
+            /*
             'dark-mode',
+            */
             'loading-overlay',
             'notification-handler',
             'activity-filter',

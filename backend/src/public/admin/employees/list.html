@@ -12,25 +12,25 @@
 
         <title>Danh sách nhân viên - Quản lý nhân sự</title>
         
-        <link rel="stylesheet" href="../../css/libs/bootstrap.min.css">
-        <link rel="stylesheet" href="../../css/libs/bootstrap-icons.min.css">
-        <link rel="stylesheet" href="../../css/libs/font-awesome.min.css">
-        <link rel="stylesheet" href="../../css/libs/roboto.css">
-        <link rel="stylesheet" href="../../dashboard_admin.css">
+        <link rel="stylesheet" href="../../../css/libs/bootstrap.min.css">
+        <link rel="stylesheet" href="../../../css/libs/bootstrap-icons.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <link rel="stylesheet" href="../../../css/libs/roboto.css">
+        <link rel="stylesheet" href="../../../dashboard_admin.css">
        
-        <script src="../../js/libs/bootstrap.bundle.min.js"></script>
+        <script src="../../../js/libs/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="../../js/libs/jquery-3.7.1.min.js"></script>
+        <script src="../../../js/libs/jquery-3.7.1.min.js"></script>
         
         <!-- Configuration -->
-        <script src="../../js/config.js"></script>
+        <script src="../../../js/config.js"></script>
         
         <!-- Main Scripts -->
         <script type="module">
-            import { CommonUtils, AuthUtils, PermissionUtils, NotificationUtils, UIUtils } from '../../js/modules/utils.js';
-            import { APIUtils } from '../../js/modules/api.js';
-            import { LoadingOverlay } from '../../js/modules/loading-overlay.js';
-            import { DarkMode } from '../../js/modules/dark-mode.js';
+            import { CommonUtils, AuthUtils, PermissionUtils, NotificationUtils, UIUtils } from '../../../js/modules/utils.js';
+            import { APIUtils } from '../../../js/modules/api.js';
+            import { LoadingOverlay } from '../../../js/modules/loading-overlay.js';
+            import { DarkMode } from '../../../js/modules/dark-mode.js';
 
             // Khởi tạo các module
             const loadingOverlay = new LoadingOverlay();
@@ -133,7 +133,7 @@
                 try {
                     loadingOverlay.show();
                     
-                    const response = await fetch('/qlnhansu_V2/backend/src/api/employees.php');
+                    const response = await fetch('/qlnhansu_V2/backend/src/api/employee/employees.php');
                     const data = await response.json();
                     
                     if (data.success) {
@@ -268,7 +268,7 @@
             <!-- Sidebar -->
             <aside class="sidebar">
                 <div class="sidebar-header">
-                    <img src="../../male.png" alt="User Avatar" class="user-avatar" />
+                    <img src="../../../male.png" alt="User Avatar" class="user-avatar" />
                     <h2 style="color: #3498db;">VNPT</h2>
                 </div>
 

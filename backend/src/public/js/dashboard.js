@@ -46,6 +46,8 @@ const NotificationUtils = {
 
 // UI utilities
 const UIUtils = {
+    // Comment out dark mode implementation
+    /*
     toggleDarkMode: () => {
         document.body.classList.toggle("dark-mode");
         localStorage.setItem(
@@ -53,6 +55,7 @@ const UIUtils = {
             document.body.classList.contains("dark-mode")
         );
     },
+    */
     toggleSidebar: () => {
         const sidebar = document.querySelector(".sidebar");
         const overlay = document.getElementById("sidebarOverlay");
@@ -86,7 +89,8 @@ class DashboardHandler {
 
     // Setup event listeners
     setupEventListeners() {
-        // Dark mode toggle
+        // Comment out dark mode toggle event listener
+        /*
         const darkModeToggle = document.getElementById('darkModeToggle');
         if (darkModeToggle) {
             darkModeToggle.addEventListener('click', () => {
@@ -94,6 +98,7 @@ class DashboardHandler {
                 localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
             });
         }
+        */
 
         // Logout button
         const logoutBtn = document.getElementById('logoutBtn');

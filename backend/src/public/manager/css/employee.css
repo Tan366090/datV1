@@ -275,16 +275,6 @@
   margin-top: var(--spacing-lg);
 }
 
-/* Dark Mode */
-[data-theme="dark"] .employee-card {
-  background: var(--bg-primary);
-  border-color: var(--border-color);
-}
-
-[data-theme="dark"] .employee-code {
-  background: var(--bg-tertiary);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .employee-container {
@@ -387,4 +377,14 @@
 .empty-state-action:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
-} 
+}
+
+/* Comment out dark mode styles
+[data-theme="dark"] .employee-card {
+    // ... dark mode styles ...
+}
+
+[data-theme="dark"] .employee-code {
+    // ... dark mode styles ...
+}
+*/ 

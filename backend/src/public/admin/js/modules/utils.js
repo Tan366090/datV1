@@ -115,6 +115,8 @@ export const NotificationUtils = {
 
 // UI utilities
 export const UIUtils = {
+    // Comment out dark mode implementation
+    /*
     toggleDarkMode: () => {
         document.body.classList.toggle("dark-mode");
         localStorage.setItem(
@@ -122,6 +124,7 @@ export const UIUtils = {
             document.body.classList.contains("dark-mode")
         );
     },
+    */
     toggleSidebar: () => {
         document.querySelector('.sidebar').classList.toggle('collapsed');
     }

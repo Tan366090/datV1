@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="../assets/css/loading.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
 
     <!-- System Loading -->
     <!-- <div class="system-loading">
@@ -161,7 +162,7 @@
     }
 } 
     </style>
-    <meta charset="UTF-8" />
+        <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta name="theme-color" content="#ffffff" />
@@ -178,6 +179,7 @@
         <link rel="stylesheet" href="css/libs/font-awesome.min.css">
         <link rel="stylesheet" href="css/libs/roboto.css">
         <link rel="stylesheet" href="dashboard_admin.css">
+        <link rel="stylesheet" href="css/dark-mode.css">
        
         <script src="js/libs/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -187,10 +189,15 @@
         <script src="js/config.js"></script>
         <script type="module">
             import { Dashboard } from './js/modules/dashboard.js';
+            import { DarkMode } from './js/modules/dark-mode.js';
             
             document.addEventListener('DOMContentLoaded', () => {
                 const dashboard = new Dashboard();
                 dashboard.init();
+                
+                // Khởi tạo dark mode
+                const darkMode = new DarkMode();
+                darkMode.initialize(); // Thêm dòng này để đảm bảo dark mode được khởi tạo
             });
         </script>
 
@@ -425,6 +432,116 @@
             });
         </script>
     <style>
+        
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: calc(-1 * var(--sidebar-width));
+        transition: left 0.3s ease;
+        z-index: 1030;
+        max-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        width: var(--sidebar-width);
+        background-color: #F2F2F2;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1029;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    /* Mobile sidebar improvements */
+    .sidebar-header {
+        padding: 1rem;
+        position: sticky;
+        top: 0;
+        background-color: #F2F2F2;
+        z-index: 1;
+    }
+
+    .user-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .user-avatar {
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-list {
+        padding: 0.5rem;
+        margin: 0;
+        list-style: none;
+    }
+
+    .nav-item {
+        margin-bottom: 0.25rem;
+        position: relative;
+    }
+
+    .nav-link {
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .nav-link i {
+        font-size: 1.1rem;
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .nav-link span {
+        font-size: 0.9rem;
+        flex: 1;
+    }
+
+    .submenu {
+        list-style: none;
+        padding-left: 2rem;
+        margin: 0;
+        display: none;
+    }
+
+    .nav-item.has-submenu.open .submenu {
+        display: block;
+    }
+
+    .submenu .nav-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .submenu-toggle {
+        display: inline-flex;
+        margin-left: auto;
+        transition: transform 0.3s ease;
+    }
+
+    .nav-item.has-submenu.open .submenu-toggle {
+        transform: rotate(90deg);
+    }
+}
         /* Header Styles */
         .header {
             position: fixed;
@@ -440,6 +557,7 @@
             justify-content: space-between;
             padding: 0 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: left 0.3s ease;
         }
 
         .header-left {
@@ -453,16 +571,17 @@
             font-weight: 600;
             color: #333;
             margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
         }
 
         /* Header Controls Styles */
         .header-controls {
             display: flex;
             align-items: center;
-            gap: 10px;
-            white-space: nowrap;
-            overflow-x: auto;
-            padding: 5px 0;
+            gap: 15px;
         }
 
         .header-controls .btn,
@@ -477,6 +596,9 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
         .header-controls .btn-warning:hover {
@@ -487,20 +609,139 @@
         .header-controls .form-select {
             width: auto;
             min-width: 120px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .header-controls .btn {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            background: transparent;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .header-controls .btn:hover {
+            background: rgba(0,0,0,0.05);
         }
 
         /* Responsive adjustments */
-        @media (max-width: 768px) {
+        @media (max-width: 1200px) {
+            .header-title {
+                max-width: 200px;
+            }
+            
             .header-controls {
-                gap: 5px;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .header-title {
+                max-width: 150px;
             }
             
             .header-controls .btn-warning span {
                 display: none;
             }
             
-            .header-controls .btn-warning i {
-                margin: 0;
+            .header-controls .form-select {
+                min-width: 100px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                left: 0;
+                padding: 0 15px;
+            }
+            
+            .header-title {
+                max-width: 120px;
+                font-size: 1.2rem;
+            }
+            
+            .header-controls {
+                gap: 8px;
+            }
+            
+            .header-controls .btn-warning {
+                padding: 8px;
+            }
+            
+            .header-controls .form-select {
+                min-width: 80px;
+                padding: 8px;
+            }
+            
+            .header-controls .btn {
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header {
+                height: 50px;
+                padding: 0 10px;
+            }
+            
+            .header-title {
+                max-width: 100px;
+                font-size: 1rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .header-controls {
+                gap: 5px;
+                flex-wrap: nowrap;
+            }
+            
+            .header-controls .btn-warning,
+            .header-controls .btn {
+                padding: 6px;
+                font-size: 0.8rem;
+            }
+            
+            .header-controls .form-select {
+                min-width: 60px;
+                padding: 6px;
+                font-size: 0.8rem;
+            }
+
+            .header-controls .btn i {
+                font-size: 0.9rem;
+            }
+
+            .header-controls .btn span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header {
+                height: 45px;
+                padding: 0 5px;
+            }
+            
+            .header-title {
+                max-width: 80px;
+                font-size: 0.9rem;
+            }
+            
+            .header-controls .btn {
+                padding: 4px 6px;
+            }
+            
+            .header-controls .form-select {
+                min-width: 50px;
+                padding: 4px;
             }
         }
 
@@ -803,12 +1044,24 @@
         /* Menu styles */
         .nav-list {
             list-style: none; /* Remove bullet points from menu */
-            padding-left: 0; /* Remove default padding */
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .nav-list::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
 
         .submenu {
             list-style: none; /* Remove bullet points from submenu */
-            padding-left: 0; /* Remove default padding */
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .submenu::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
 
         /* Remove underline on menu hover */
@@ -972,8 +1225,8 @@
         /* Sidebar Header Styles */
         .sidebar-header {
             padding: 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            background: #F2F2F2;
+            border-bottom: 1px solid #F2F2F2;
         }
 
         .user-info {
@@ -1067,12 +1320,24 @@
         /* Menu styles */
         .nav-list {
             list-style: none; /* Remove bullet points from menu */
-            padding-left: 0; /* Remove default padding */
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .nav-list::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
 
         .submenu {
             list-style: none; /* Remove bullet points from submenu */
-            padding-left: 0; /* Remove default padding */
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .submenu::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
 
         /* Icon styles */
@@ -1100,12 +1365,24 @@
         /* Menu styles */
         .nav-list {
             list-style: none; /* Remove bullet points from menu */
-            padding-left: 0; /* Remove default padding */
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .nav-list::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
 
         .submenu {
             list-style: none; /* Remove bullet points from submenu */
-            padding-left: 0; /* Remove default padding */
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .submenu::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
 
         /* Remove underline on menu hover */
@@ -1676,12 +1953,226 @@
         .activity-item:hover {
             transform: translateY(-2px);
         }
+
+        /* Main content styles */
+        .main-content {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* Card styles */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Table styles */
+        .table {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .table th {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .table td {
+            border-color: var(--border-color);
+        }
+
+        .table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        .table tr:hover {
+            background-color: var(--bg-hover);
+        }
+
+        /* Chart styles */
+        .chart-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+        }
+
+        /* Statistics card styles */
+        .statistics-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+        }
+
+        /* Form styles */
+        .form-control {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Button styles */
+        .btn {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--border-hover);
+        }
+
+        /* Dropdown styles */
+        .dropdown-menu {
+            background-color: var(--bg-dropdown);
+            border: 1px solid var(--border-color);
+        }
+
+        .dropdown-item {
+            color: var(--text-primary);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-hover);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #F2F2F2;
+            color: #333;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        .nav-item {
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            text-align: left;
+        }
+
+        .nav-link:hover {
+            background-color: #E0E0E0;
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: left;
+            color: #333;
+        }
+
+        .nav-link span {
+            text-align: left;
+        }
+
+        /* Menu Toggle Button Styles */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1050;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .menu-toggle i {
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .menu-toggle:hover {
+            background: #f8f9fa;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                width: 280px;
+                z-index: 1040;
+                transition: left 0.3s ease;
+                background: #fff;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 1030;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            body.sidebar-open {
+                overflow: hidden;
+            }
+        }
     </style>
 </head>
 <body class="theme-transition">
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" role="complementary">
+        <!-- Menu Toggle Button -->
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay"></div>
+        <aside class="sidebar" style="background-color: #F2F2F2;" role="complementary">
             <div class="sidebar-header">
                 <div class="user-info">
                     <div class="user-avatar">
@@ -1694,35 +2185,24 @@
                 </div>
             </div>
 
-            <!-- Menu Search -->
-            <div class="menu-search">
-                <input type="text" placeholder="Tìm kiếm menu..." aria-label="Search Menu" class="search-input" />
-            </div>
-
             <nav role="navigation">
                 <ul class="nav-list">
                     <li class="nav-item" data-menu-id="dashboard">
                         <a href="dashboard_admin_V1.php" class="nav-link">
-                            <i class="fas fa-tachometer-alt"></i>
+                            <i class="fas fa-home"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item" data-menu-id="employees">
-                        <a href="pages/employees.php" class="nav-link">
+                        <a href="employees/NhanVien_List.html" class="nav-link">
                             <i class="fas fa-users"></i>
-                            <span>Quản lý nhân viên</span>
+                            <span>Nhân viên</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-menu-id="attendance">
+                    <!-- <li class="nav-item" data-menu-id="attendance">
                         <a href="pages/attendance.php" class="nav-link">
                             <i class="fas fa-clock"></i>
                             <span>Chấm công</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" data-menu-id="leave">
-                        <a href="pages/leave.php" class="nav-link">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Nghỉ phép</span>
                         </a>
                     </li>
                     <li class="nav-item" data-menu-id="payroll">
@@ -1731,45 +2211,158 @@
                             <span>Lương thưởng</span>
                         </a>
                     </li>
+                    <li class="nav-item" data-menu-id="departments">
+                        <a href="pages/departments.php" class="nav-link">
+                            <i class="fas fa-building"></i>
+                            <span>Phòng ban</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-menu-id="certificates">
+                        <a href="pages/certificates.php" class="nav-link">
+                            <i class="fas fa-certificate"></i>
+                            <span>Bằng cấp</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-menu-id="leave">
+                        <a href="pages/leave.php" class="nav-link">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Nghỉ phép</span>
+                        </a>
+                    </li>
                     <li class="nav-item" data-menu-id="training">
                         <a href="pages/training.php" class="nav-link">
                             <i class="fas fa-graduation-cap"></i>
                             <span>Đào tạo</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-menu-id="reports">
-                        <a href="pages/reports.php" class="nav-link">
-                            <i class="fas fa-chart-bar"></i>
-                            <span>Báo cáo</span>
+                    <li class="nav-item" data-menu-id="equipment">
+                        <a href="pages/equipment.php" class="nav-link">
+                            <i class="fas fa-laptop"></i>
+                            <span>Thiết bị</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-menu-id="recruitment">
-                        <a href="pages/recruitment.php" class="nav-link">
-                            <i class="fas fa-user-plus"></i>
-                            <span>Tuyển dụng</span>
+                    <li class="nav-item" data-menu-id="documents">
+                        <a href="pages/documents.php" class="nav-link">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Tài liệu</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-menu-id="benefits">
-                        <a href="pages/benefits.php" class="nav-link">
-                            <i class="fas fa-gift"></i>
-                            <span>Phúc lợi</span>
+                    <li class="nav-item" data-menu-id="logout">
+                        <a href="logout.php" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Đăng xuất</span>
                         </a>
-                    </li>
-                    <li class="nav-item" data-menu-id="projects">
-                        <a href="pages/projects.php" class="nav-link">
-                            <i class="fas fa-project-diagram"></i>
-                            <span>Dự án</span>
-                        </a>
-                    </li>
+                    </li> -->
                 </ul>
             </nav>
         </aside>
 
+        <style>
+            /* Menu Toggle Button Styles */
+            .menu-toggle {
+                display: none;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1050;
+                background: #fff;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 8px 12px;
+                cursor: pointer;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+
+            .menu-toggle i {
+                font-size: 1.2rem;
+                color: #333;
+            }
+
+            .menu-toggle:hover {
+                background: #f8f9fa;
+            }
+
+            /* Sidebar Styles */
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 280px;
+                background: #fff;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+                z-index: 1040;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 1030;
+            }
+
+            /* Mobile Styles */
+            @media (max-width: 768px) {
+                .menu-toggle {
+                    display: block;
+                }
+
+                .sidebar {
+                    left: -280px;
+                }
+
+                .sidebar.active {
+                    left: 0;
+                }
+
+                .sidebar-overlay.active {
+                    display: block;
+                }
+
+                body.sidebar-open {
+                    overflow: hidden;
+                }
+
+                .nav-list {
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .nav-item {
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .nav-link {
+                    padding: 12px 20px;
+                    display: flex;
+                    align-items: center;
+                }
+
+                .nav-link i {
+                    width: 24px;
+                    margin-right: 10px;
+                }
+
+                .nav-link span {
+                    flex: 1;
+                }
+            }
+        </style>
+
         <!-- Main Content -->
         <main class="main-content" id="mainContent" role="main">
-            <header class="header">
+            <header style="margin: 10px 60px 0px 60px; padding: 20px" class="header">
                 <div class="header-left">
-                    <h1 class="header-title">Admin Dashboard</h1>
+                    <button class="menu-toggle d-md-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="header-title">Dashboard</h1>
                 </div>
                 <div class="header-right">
                     <div class="header-controls">
@@ -1780,7 +2373,7 @@
                             <option value="vi">Tiếng Việt</option>
                             <option value="en">English</option>
                         </select>
-                        <button id="darkModeToggle" class="btn">
+                        <button id="darkModeToggle" class="btn" aria-label="Toggle Dark Mode">
                             <i class="fas fa-moon"></i>
                         </button>
                     </div>
@@ -2522,922 +3115,922 @@
                 <p>&copy; 2023 VNPT. All rights reserved.</p>
             </footer>
         </main>
-                                </div>
+                            </div>
 
-    <!-- Form thêm nhân viên -->
-    <div id="addEmployeeModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Thêm nhân viên mới</h3>
-                <button style="color: brown;" type="button" class="modal-close-btn" onclick="closeAddEmployeeModal()">&times;</button>
+        <!-- Form thêm nhân viên -->
+        <div id="addEmployeeModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Thêm nhân viên mới</h3>
+                    <button style="color: brown;" type="button" class="modal-close-btn" onclick="closeAddEmployeeModal()">&times;</button>
+                                    </div>
+                <div class="modal-body">
+                    <form id="addEmployeeForm" class="employee-form" enctype="multipart/form-data">
+                        <div class="form-grid">
+                            <!-- Thông tin cá nhân -->
+                            <div class="form-group">
+                                <label class="form-label required">Họ</label>
+                                <input type="text" class="form-control" name="first_name" required>
                                 </div>
-            <div class="modal-body">
-                <form id="addEmployeeForm" class="employee-form" enctype="multipart/form-data">
-                    <div class="form-grid">
-                        <!-- Thông tin cá nhân -->
-                        <div class="form-group">
-                            <label class="form-label required">Họ</label>
-                            <input type="text" class="form-control" name="first_name" required>
+                            <div class="form-group">
+                                <label class="form-label required">Tên</label>
+                                <input type="text" class="form-control" name="last_name" required>
                             </div>
-                        <div class="form-group">
-                            <label class="form-label required">Tên</label>
-                            <input type="text" class="form-control" name="last_name" required>
+                            <div class="form-group">
+                                <label class="form-label required">Email</label>
+                                <input type="email" class="form-control" name="email" required>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label required">Email</label>
-                            <input type="email" class="form-control" name="email" required>
-                    </div>
-                        <div class="form-group">
-                            <label class="form-label required">Số điện thoại</label>
-                            <input type="tel" class="form-control" name="phone" required>
-                                </div>
-                        <div class="form-group">
-                            <label class="form-label required">Phòng ban</label>
-                            <select class="form-select" name="department_id" required>
-                                <option value="">Chọn phòng ban</option>
-                            </select>
-                                </div>
-                        <div class="form-group">
-                            <label class="form-label required">Vị trí</label>
-                            <select class="form-select" name="position_id" required>
-                                <option value="">Chọn vị trí</option>
-                            </select>
+                            <div class="form-group">
+                                <label class="form-label required">Số điện thoại</label>
+                                <input type="tel" class="form-control" name="phone" required>
+                                    </div>
+                            <div class="form-group">
+                                <label class="form-label required">Phòng ban</label>
+                                <select class="form-select" name="department_id" required>
+                                    <option value="">Chọn phòng ban</option>
+                                </select>
+                                    </div>
+                            <div class="form-group">
+                                <label class="form-label required">Vị trí</label>
+                                <select class="form-select" name="position_id" required>
+                                    <option value="">Chọn vị trí</option>
+                                </select>
                             </div>
-                        <div class="form-group">
-                            <label class="form-label required">Ngày bắt đầu</label>
-                            <input type="date" class="form-control" name="hire_date" required>
+                            <div class="form-group">
+                                <label class="form-label required">Ngày bắt đầu</label>
+                                <input type="date" class="form-control" name="hire_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Mức lương</label>
+                                <input type="number" class="form-control" name="salary" required>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label required">Mức lương</label>
-                            <input type="number" class="form-control" name="salary" required>
-                    </div>
-                        <div class="form-group">
-                            <label class="form-label">Trạng thái</label>
-                            <select class="form-select" name="status">
-                                <option value="active">Đang làm việc</option>
-                                <option value="inactive">Nghỉ việc</option>
-                                <option value="probation">Thử việc</option>
-                            </select>
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Địa chỉ</label>
-                            <textarea class="form-control" name="address" rows="3"></textarea>
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Ảnh đại diện</label>
-                            <div class="avatar-upload" onclick="document.getElementById('avatar').click()">
-                                <input type="file" id="avatar" name="avatar" accept="image/*" style="display: none">
-                                <div id="avatarPreview" class="avatar-placeholder">
-                                    <i class="fas fa-user"></i>
+                            <div class="form-group">
+                                <label class="form-label">Trạng thái</label>
+                                <select class="form-select" name="status">
+                                    <option value="active">Đang làm việc</option>
+                                    <option value="inactive">Nghỉ việc</option>
+                                    <option value="probation">Thử việc</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Địa chỉ</label>
+                                <textarea class="form-control" name="address" rows="3"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Ảnh đại diện</label>
+                                <div class="avatar-upload" onclick="document.getElementById('avatar').click()">
+                                    <input type="file" id="avatar" name="avatar" accept="image/*" style="display: none">
+                                    <div id="avatarPreview" class="avatar-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <span>Nhấn để tải ảnh lên</span>
                                 </div>
-                                <span>Nhấn để tải ảnh lên</span>
                             </div>
                         </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-cancel" onclick="closeAddEmployeeModal()">Hủy</button>
+                            <button type="submit" class="btn-submit">Thêm nhân viên</button>
+                        </div>
+                    </form>
+                </div>
                     </div>
+                </div>
+
+        <!-- Modal chấm công -->
+        <div id="attendanceModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-clock"></i>
+                        Chấm công nhân viên
+                    </h3>
+                    <button type="button" class="modal-close-btn" onclick="closeAttendanceModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="attendanceForm" class="attendance-form">
+                        <!-- Phần tìm kiếm nhân viên -->
+                        <div class="form-section employee-search-section">
+                            <h4 class="section-title">Tìm kiếm nhân viên</h4>
+                            <div class="search-container">
+                                <div class="search-input-group">
+                                    <input type="text" 
+                                           id="employeeSearch" 
+                                           name="employeeSearch"
+                                           class="form-control search-input" 
+                                           placeholder="Nhập tên, mã nhân viên hoặc email..."
+                                           autocomplete="off"
+                                           style="z-index: 1;">
+                                    <button type="button" class="search-btn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <div id="searchResults" class="search-results" style="z-index: 2;"></div>
+                            </div>
+                        </div>
+
+                        <style>
+                        .search-container {
+                            position: relative;
+                            width: 100%;
+                            margin-bottom: 15px;
+                        }
+
+                        .search-input-group {
+                            display: flex;
+                            gap: 10px;
+                            width: 100%;
+                            position: relative;
+                        }
+
+                        .search-input {
+                            flex: 1;
+                            height: 38px;
+                            padding: 8px 12px;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            font-size: 14px;
+                            background: #fff;
+                            width: 100%;
+                            pointer-events: auto;
+                        }
+
+                        .search-input:focus {
+                            border-color: #007bff;
+                            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+                            outline: none;
+                        }
+
+                        .search-btn {
+                            padding: 8px 15px;
+                            background: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            transition: background 0.3s;
+                        }
+
+                        .search-btn:hover {
+                            background: #0056b3;
+                        }
+
+                        .search-results {
+                            position: absolute;
+                            top: 100%;
+                            left: 0;
+                            right: 0;
+                            background: white;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            max-height: 200px;
+                            overflow-y: auto;
+                            margin-top: 5px;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                            display: none;
+                        }
+
+                        .search-result-item {
+                            padding: 10px 15px;
+                            cursor: pointer;
+                            border-bottom: 1px solid #eee;
+                        }
+
+                        .search-result-item:hover {
+                            background-color: #f8f9fa;
+                        }
+
+                        .search-result-item:last-child {
+                            border-bottom: none;
+                        }
+                        </style>
+
+                        <!-- Thông tin nhân viên -->
+                        <div class="form-section employee-info-section">
+                            <h4 class="section-title">Thông tin nhân viên</h4>
+                            <div class="employee-info-grid">
+                                <div class="info-item">
+                                    <label>Mã nhân viên</label>
+                                    <input type="text" id="employeeId" class="form-control" readonly>
+                                </div>
+                                <div class="info-item">
+                                    <label>Tên nhân viên</label>
+                        <input type="text" id="employeeName" class="form-control" readonly>
+                                </div>
+                                <div class="info-item">
+                                    <label>Phòng ban</label>
+                                    <input type="text" id="employeeDepartment" class="form-control" readonly>
+                                </div>
+                                <div class="info-item">
+                                    <label>Vị trí</label>
+                                    <input type="text" id="employeePosition" class="form-control" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chấm công -->
+                        <div class="form-section attendance-info-section">
+                            <h4 class="section-title">Thông tin chấm công</h4>
+                            <div class="attendance-info-grid">
+                                <div class="info-item">
+                                    <label>Ngày chấm công</label>
+                        <input type="date" id="attendanceDate" class="form-control" required>
+                    </div>
+                                <div class="info-item">
+                                    <label>Thời gian</label>
+                        <input type="time" id="recordedTime" class="form-control" required>
+                    </div>
+                            </div>
+                        </div>
+
+                        <!-- Ký hiệu chấm công -->
+                        <div class="form-section attendance-symbols-section">
+                    <!-- Ký hiệu chấm công -->
+                    <div class="form-section attendance-symbols-section">
+                        <h4 class="section-title">Ký hiệu chấm công</h4>
+                        <div class="symbols-grid">
+                            <button type="button" class="symbol-btn" data-symbol="P" data-color="success">
+                                <i class="fas fa-check-circle"></i>
+                                <span>P - Có mặt</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="Ô" data-color="warning">
+                                <i class="fas fa-procedures"></i>
+                                <span>Ô - Nghỉ ốm</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="Cô" data-color="info">
+                                <i class="fas fa-baby"></i>
+                                <span>Cô - Chăm sóc con ốm</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="TS" data-color="primary">
+                                <i class="fas fa-female"></i>
+                                <span>TS - Nghỉ thai sản</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="T" data-color="danger">
+                                <i class="fas fa-ambulance"></i>
+                                <span>T - Tai nạn lao động</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="CN" data-color="secondary">
+                                <i class="fas fa-calendar-week"></i>
+                                <span>CN - Chủ nhật</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="NL" data-color="secondary">
+                                <i class="fas fa-calendar-day"></i>
+                                <span>NL - Nghỉ lễ</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="NB" data-color="info">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span>NB - Nghỉ bù</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="1/2K" data-color="warning">
+                                <i class="fas fa-clock"></i>
+                                <span>1/2K - Nghỉ nửa ngày không lương</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="K" data-color="danger">
+                                <i class="fas fa-calendar-times"></i>
+                                <span>K - Nghỉ nguyên ngày không lương</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="N" data-color="danger">
+                                <i class="fas fa-ban"></i>
+                                <span>N - Ngừng làm việc</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="P" data-color="success">
+                                <i class="fas fa-calendar-check"></i>
+                                <span>P - Nghỉ phép</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="1/2P" data-color="success">
+                                <i class="fas fa-clock"></i>
+                                <span>1/2P - Nghỉ nửa ngày phép</span>
+                            </button>
+                            <button type="button" class="symbol-btn" data-symbol="NN" data-color="info">
+                                <i class="fas fa-clock"></i>
+                                <span>NN - Làm nửa ngày</span>
+                            </button>
+                        </div>
+                        <input type="hidden" id="attendanceSymbol" required>
+                    </div>
+
+                    <!-- Ghi chú -->
+                    <div class="form-section notes-section">
+                        <h4 class="section-title">Ghi chú</h4>
+                        <textarea id="notes" class="form-control" rows="3" 
+                                  placeholder="Nhập ghi chú (nếu có)..."></textarea>
+                    </div>
+
+                    <!-- Nút thao tác -->
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="closeAddEmployeeModal()">Hủy</button>
-                        <button type="submit" class="btn-submit">Thêm nhân viên</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeAttendanceModal()">
+                            <i class="fas fa-times"></i> Hủy
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu chấm công
+                        </button>
                     </div>
                 </form>
             </div>
-                </div>
-            </div>
-
-    <!-- Modal chấm công -->
-    <div id="attendanceModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">
-                    <i class="fas fa-clock"></i>
-                    Chấm công nhân viên
-                </h3>
-                <button type="button" class="modal-close-btn" onclick="closeAttendanceModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="attendanceForm" class="attendance-form">
-                    <!-- Phần tìm kiếm nhân viên -->
-                    <div class="form-section employee-search-section">
-                        <h4 class="section-title">Tìm kiếm nhân viên</h4>
-                        <div class="search-container">
-                            <div class="search-input-group">
-                                <input type="text" 
-                                       id="employeeSearch" 
-                                       name="employeeSearch"
-                                       class="form-control search-input" 
-                                       placeholder="Nhập tên, mã nhân viên hoặc email..."
-                                       autocomplete="off"
-                                       style="z-index: 1;">
-                                <button type="button" class="search-btn">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                            <div id="searchResults" class="search-results" style="z-index: 2;"></div>
-                        </div>
-                    </div>
-
-                    <style>
-                    .search-container {
-                        position: relative;
-                        width: 100%;
-                        margin-bottom: 15px;
-                    }
-
-                    .search-input-group {
-                        display: flex;
-                        gap: 10px;
-                        width: 100%;
-                        position: relative;
-                    }
-
-                    .search-input {
-                        flex: 1;
-                        height: 38px;
-                        padding: 8px 12px;
-                        border: 1px solid #ddd;
-                        border-radius: 4px;
-                        font-size: 14px;
-                        background: #fff;
-                        width: 100%;
-                        pointer-events: auto;
-                    }
-
-                    .search-input:focus {
-                        border-color: #007bff;
-                        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-                        outline: none;
-                    }
-
-                    .search-btn {
-                        padding: 8px 15px;
-                        background: #007bff;
-                        color: white;
-                        border: none;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        transition: background 0.3s;
-                    }
-
-                    .search-btn:hover {
-                        background: #0056b3;
-                    }
-
-                    .search-results {
-                        position: absolute;
-                        top: 100%;
-                        left: 0;
-                        right: 0;
-                        background: white;
-                        border: 1px solid #ddd;
-                        border-radius: 4px;
-                        max-height: 200px;
-                        overflow-y: auto;
-                        margin-top: 5px;
-                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                        display: none;
-                    }
-
-                    .search-result-item {
-                        padding: 10px 15px;
-                        cursor: pointer;
-                        border-bottom: 1px solid #eee;
-                    }
-
-                    .search-result-item:hover {
-                        background-color: #f8f9fa;
-                    }
-
-                    .search-result-item:last-child {
-                        border-bottom: none;
-                    }
-                    </style>
-
-                    <!-- Thông tin nhân viên -->
-                    <div class="form-section employee-info-section">
-                        <h4 class="section-title">Thông tin nhân viên</h4>
-                        <div class="employee-info-grid">
-                            <div class="info-item">
-                                <label>Mã nhân viên</label>
-                                <input type="text" id="employeeId" class="form-control" readonly>
-                            </div>
-                            <div class="info-item">
-                                <label>Tên nhân viên</label>
-                    <input type="text" id="employeeName" class="form-control" readonly>
-                            </div>
-                            <div class="info-item">
-                                <label>Phòng ban</label>
-                                <input type="text" id="employeeDepartment" class="form-control" readonly>
-                            </div>
-                            <div class="info-item">
-                                <label>Vị trí</label>
-                                <input type="text" id="employeePosition" class="form-control" readonly>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Thông tin chấm công -->
-                    <div class="form-section attendance-info-section">
-                        <h4 class="section-title">Thông tin chấm công</h4>
-                        <div class="attendance-info-grid">
-                            <div class="info-item">
-                                <label>Ngày chấm công</label>
-                    <input type="date" id="attendanceDate" class="form-control" required>
-                </div>
-                            <div class="info-item">
-                                <label>Thời gian</label>
-                    <input type="time" id="recordedTime" class="form-control" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ký hiệu chấm công -->
-                    <div class="form-section attendance-symbols-section">
-                <!-- Ký hiệu chấm công -->
-                <div class="form-section attendance-symbols-section">
-                    <h4 class="section-title">Ký hiệu chấm công</h4>
-                    <div class="symbols-grid">
-                        <button type="button" class="symbol-btn" data-symbol="P" data-color="success">
-                            <i class="fas fa-check-circle"></i>
-                            <span>P - Có mặt</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="Ô" data-color="warning">
-                            <i class="fas fa-procedures"></i>
-                            <span>Ô - Nghỉ ốm</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="Cô" data-color="info">
-                            <i class="fas fa-baby"></i>
-                            <span>Cô - Chăm sóc con ốm</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="TS" data-color="primary">
-                            <i class="fas fa-female"></i>
-                            <span>TS - Nghỉ thai sản</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="T" data-color="danger">
-                            <i class="fas fa-ambulance"></i>
-                            <span>T - Tai nạn lao động</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="CN" data-color="secondary">
-                            <i class="fas fa-calendar-week"></i>
-                            <span>CN - Chủ nhật</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="NL" data-color="secondary">
-                            <i class="fas fa-calendar-day"></i>
-                            <span>NL - Nghỉ lễ</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="NB" data-color="info">
-                            <i class="fas fa-exchange-alt"></i>
-                            <span>NB - Nghỉ bù</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="1/2K" data-color="warning">
-                            <i class="fas fa-clock"></i>
-                            <span>1/2K - Nghỉ nửa ngày không lương</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="K" data-color="danger">
-                            <i class="fas fa-calendar-times"></i>
-                            <span>K - Nghỉ nguyên ngày không lương</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="N" data-color="danger">
-                            <i class="fas fa-ban"></i>
-                            <span>N - Ngừng làm việc</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="P" data-color="success">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>P - Nghỉ phép</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="1/2P" data-color="success">
-                            <i class="fas fa-clock"></i>
-                            <span>1/2P - Nghỉ nửa ngày phép</span>
-                        </button>
-                        <button type="button" class="symbol-btn" data-symbol="NN" data-color="info">
-                            <i class="fas fa-clock"></i>
-                            <span>NN - Làm nửa ngày</span>
-                        </button>
-                    </div>
-                    <input type="hidden" id="attendanceSymbol" required>
-                </div>
-
-                <!-- Ghi chú -->
-                <div class="form-section notes-section">
-                    <h4 class="section-title">Ghi chú</h4>
-                    <textarea id="notes" class="form-control" rows="3" 
-                              placeholder="Nhập ghi chú (nếu có)..."></textarea>
-                </div>
-
-                <!-- Nút thao tác -->
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeAttendanceModal()">
-                        <i class="fas fa-times"></i> Hủy
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Lưu chấm công
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
-</div>
 
-<style>
-    /* Style cho modal */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-    backdrop-filter: blur(5px);
-    }
-
-    .modal-overlay.active {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    animation: fadeIn 0.3s ease;
-    }
-
-    .modal-content {
-        background: white;
-    border-radius: 12px;
-        width: 90%;
-        max-width: 800px;
-        max-height: 90vh;
-        overflow-y: auto;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    animation: slideIn 0.3s ease;
-    }
-
-    .modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    background: #f8f9fa;
-    border-radius: 12px 12px 0 0;
-    }
-
-    .modal-title {
-        margin: 0;
-        font-size: 1.5rem;
-        color: #333;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    }
-
-    .modal-close-btn {
-        background: none;
-        border: none;
-    font-size: 1.2rem;
-        cursor: pointer;
-    padding: 5px;
-    color: #666;
-    transition: color 0.3s;
-}
-
-.modal-close-btn:hover {
-    color: #333;
-    }
-
-    .modal-body {
-        padding: 20px;
-    }
-
-/* Style cho form sections */
-.form-section {
-    margin-bottom: 25px;
-    padding: 15px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.section-title {
-    font-size: 1.1rem;
-    color: #333;
-        margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-    text-decoration: none;
-}
-
-/* Style cho tìm kiếm nhân viên */
-.search-container {
-    position: relative;
-    width: 100%;
-}
-
-.search-input-group {
-    display: flex;
-    gap: 10px;
-        width: 100%;
-}
-
-.search-input-group input {
-    flex: 1;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-    outline: none;
-    transition: border-color 0.3s;
-    }
-
-.search-input-group input:focus {
-        border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-}
-
-.search-btn {
-    padding: 8px 15px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.search-btn:hover {
-    background: #0056b3;
-    }
-
-    .search-results {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 1000;
-        display: none;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .search-result-item {
-    padding: 10px 15px;
-        cursor: pointer;
-    transition: background 0.2s;
-    }
-
-    .search-result-item:hover {
-    background: #f8f9fa;
-}
-
-/* Style cho thông tin nhân viên */
-.employee-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-.info-item {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.info-item label {
-    font-size: 0.9rem;
-    color: #666;
-    }
-
-    /* Style cho ký hiệu chấm công */
-.symbols-grid {
-        display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 10px;
-    }
-
-    .symbol-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 15px;
-        border: 1px solid #ddd;
-    border-radius: 6px;
-    background: white;
-        cursor: pointer;
-    transition: all 0.3s;
-        text-align: left;
-    }
-
-    .symbol-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .symbol-btn.active {
-        background: #007bff;
-    color: white;
-        border-color: #007bff;
-    }
-
-.symbol-btn[data-color="success"]:hover {
-    background: #28a745;
-    color: white;
-    border-color: #28a745;
-}
-
-.symbol-btn[data-color="warning"]:hover {
-    background: #ffc107;
-    color: white;
-    border-color: #ffc107;
-}
-
-.symbol-btn[data-color="danger"]:hover {
-    background: #dc3545;
-        color: white;
-    border-color: #dc3545;
-}
-
-.symbol-btn[data-color="info"]:hover {
-    background: #17a2b8;
-    color: white;
-    border-color: #17a2b8;
-}
-
-.symbol-btn[data-color="primary"]:hover {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-.symbol-btn[data-color="secondary"]:hover {
-    background: #6c757d;
-    color: white;
-    border-color: #6c757d;
-}
-
-/* Style cho nút thao tác */
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideIn {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .modal-content {
-        width: 95%;
-        margin: 10px;
-    }
-    
-    .employee-info-grid,
-    .symbols-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-
-<script>
-// Initialize theme
-document.addEventListener('DOMContentLoaded', function() {
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.body.setAttribute('data-theme', savedTheme);
-    }
-
-    // Initialize charts
-    initCharts();
-});
-
-// Theme toggle functionality
-function toggleTheme() {
-    const currentTheme = document.body.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-}
-
-// Initialize all charts
-function initCharts() {
-    // Performance Chart
-    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-    new Chart(performanceCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-            datasets: [{
-                label: 'Hiệu suất trung bình',
-                data: [75, 82, 78, 85],
-                backgroundColor: '#2196F3',
-                borderColor: '#1976D2',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100
-                }
-            }
+    <style>
+        /* Style cho modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        backdrop-filter: blur(5px);
         }
+
+        .modal-overlay.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+        border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        background: #f8f9fa;
+        border-radius: 12px 12px 0 0;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+        font-size: 1.2rem;
+            cursor: pointer;
+        padding: 5px;
+        color: #666;
+        transition: color 0.3s;
+    }
+
+    .modal-close-btn:hover {
+        color: #333;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+    /* Style cho form sections */
+    .form-section {
+        margin-bottom: 25px;
+        padding: 15px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        color: #333;
+            margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        text-decoration: none;
+    }
+
+    /* Style cho tìm kiếm nhân viên */
+    .search-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .search-input-group {
+        display: flex;
+        gap: 10px;
+            width: 100%;
+    }
+
+    .search-input-group input {
+        flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .search-input-group input:focus {
+            border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+    }
+
+    .search-btn {
+        padding: 8px 15px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .search-btn:hover {
+        background: #0056b3;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .search-result-item {
+        padding: 10px 15px;
+            cursor: pointer;
+        transition: background 0.2s;
+        }
+
+        .search-result-item:hover {
+        background: #f8f9fa;
+    }
+
+    /* Style cho thông tin nhân viên */
+    .employee-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .info-item label {
+        font-size: 0.9rem;
+        color: #666;
+        }
+
+        /* Style cho ký hiệu chấm công */
+    .symbols-grid {
+            display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .symbol-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 15px;
+            border: 1px solid #ddd;
+        border-radius: 6px;
+        background: white;
+            cursor: pointer;
+        transition: all 0.3s;
+            text-align: left;
+        }
+
+        .symbol-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .symbol-btn.active {
+            background: #007bff;
+        color: white;
+            border-color: #007bff;
+        }
+
+    .symbol-btn[data-color="success"]:hover {
+        background: #28a745;
+        color: white;
+        border-color: #28a745;
+    }
+
+    .symbol-btn[data-color="warning"]:hover {
+        background: #ffc107;
+        color: white;
+        border-color: #ffc107;
+    }
+
+    .symbol-btn[data-color="danger"]:hover {
+        background: #dc3545;
+            color: white;
+        border-color: #dc3545;
+    }
+
+    .symbol-btn[data-color="info"]:hover {
+        background: #17a2b8;
+        color: white;
+        border-color: #17a2b8;
+    }
+
+    .symbol-btn[data-color="primary"]:hover {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .symbol-btn[data-color="secondary"]:hover {
+        background: #6c757d;
+        color: white;
+        border-color: #6c757d;
+    }
+
+    /* Style cho nút thao tác */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .modal-content {
+            width: 95%;
+            margin: 10px;
+        }
+        
+        .employee-info-grid,
+        .symbols-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    </style>
+
+    <script>
+    // Initialize theme
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.body.setAttribute('data-theme', savedTheme);
+        }
+
+        // Initialize charts
+        initCharts();
     });
 
-    // Salary Chart
-    const salaryCtx = document.getElementById('salaryChart').getContext('2d');
-    new Chart(salaryCtx, {
-        type: 'line',
-        data: {
-            labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
-            datasets: [{
-                label: 'Tổng chi phí lương',
-                data: [50000000, 52000000, 51000000, 53000000, 54000000, 55000000],
-                borderColor: '#FFC107',
-                backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('vi-VN') + 'đ';
+    // Theme toggle functionality
+    function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
+
+    // Initialize all charts
+    function initCharts() {
+        // Performance Chart
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                datasets: [{
+                    label: 'Hiệu suất trung bình',
+                    data: [75, 82, 78, 85],
+                    backgroundColor: '#2196F3',
+                    borderColor: '#1976D2',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Salary Chart
+        const salaryCtx = document.getElementById('salaryChart').getContext('2d');
+        new Chart(salaryCtx, {
+            type: 'line',
+            data: {
+                labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
+                datasets: [{
+                    label: 'Tổng chi phí lương',
+                    data: [50000000, 52000000, 51000000, 53000000, 54000000, 55000000],
+                    borderColor: '#FFC107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('vi-VN') + 'đ';
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
 
-    // Leave Chart
-    const leaveCtx = document.getElementById('leaveChart').getContext('2d');
-    new Chart(leaveCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Nghỉ phép', 'Nghỉ ốm', 'Nghỉ không lương'],
-            datasets: [{
-                data: [120, 45, 30],
-                backgroundColor: [
-                    '#4CAF50',
-                    '#2196F3',
-                    '#FFC107'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
+        // Leave Chart
+        const leaveCtx = document.getElementById('leaveChart').getContext('2d');
+        new Chart(leaveCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Nghỉ phép', 'Nghỉ ốm', 'Nghỉ không lương'],
+                datasets: [{
+                    data: [120, 45, 30],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#2196F3',
+                        '#FFC107'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
                 }
+            }
+        });
+
+        // Recruitment Chart
+        const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
+        new Chart(recruitmentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Đã tuyển', 'Đang phỏng vấn', 'Đã từ chối', 'Đang chờ'],
+                datasets: [{
+                    data: [15, 8, 12, 5],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#2196F3',
+                        '#F44336',
+                        '#FFC107'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Training Chart
+        const trainingCtx = document.getElementById('trainingChart').getContext('2d');
+        new Chart(trainingCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Kỹ năng mềm', 'Kỹ thuật', 'Quản lý', 'An toàn'],
+                datasets: [{
+                    label: 'Số người tham gia',
+                    data: [45, 30, 25, 40],
+                    backgroundColor: '#9C27B0'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Assets Chart
+        const assetsCtx = document.getElementById('assetsChart').getContext('2d');
+        new Chart(assetsCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Đang sử dụng', 'Đang bảo trì', 'Đã thanh lý', 'Chưa cấp phát'],
+                datasets: [{
+                    data: [60, 15, 10, 15],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#2196F3',
+                        '#F44336',
+                        '#FFC107'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    // Search functionality
+    function handleSearch(event) {
+        event.preventDefault();
+        const searchTerm = document.querySelector('.search-input').value;
+        // Implement search logic here
+        console.log('Searching for:', searchTerm);
+    }
+
+    // User menu toggle
+    function toggleUserMenu() {
+        const userMenu = document.querySelector('.user-menu');
+        userMenu.classList.toggle('show');
+    }
+
+    // Close user menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const userMenu = document.querySelector('.user-menu');
+        const userButton = document.querySelector('.user-button');
+        if (userMenu && userButton) {
+            if (!userButton.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenu.classList.remove('show');
             }
         }
     });
 
-    // Recruitment Chart
-    const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
-    new Chart(recruitmentCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Đã tuyển', 'Đang phỏng vấn', 'Đã từ chối', 'Đang chờ'],
-            datasets: [{
-                data: [15, 8, 12, 5],
-                backgroundColor: [
-                    '#4CAF50',
-                    '#2196F3',
-                    '#F44336',
-                    '#FFC107'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-
-    // Training Chart
-    const trainingCtx = document.getElementById('trainingChart').getContext('2d');
-    new Chart(trainingCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Kỹ năng mềm', 'Kỹ thuật', 'Quản lý', 'An toàn'],
-            datasets: [{
-                label: 'Số người tham gia',
-                data: [45, 30, 25, 40],
-                backgroundColor: '#9C27B0'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-
-    // Assets Chart
-    const assetsCtx = document.getElementById('assetsChart').getContext('2d');
-    new Chart(assetsCtx, {
-        type: 'pie',
-        data: {
-            labels: ['Đang sử dụng', 'Đang bảo trì', 'Đã thanh lý', 'Chưa cấp phát'],
-            datasets: [{
-                data: [60, 15, 10, 15],
-                backgroundColor: [
-                    '#4CAF50',
-                    '#2196F3',
-                    '#F44336',
-                    '#FFC107'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
-
-// Search functionality
-function handleSearch(event) {
-    event.preventDefault();
-    const searchTerm = document.querySelector('.search-input').value;
-    // Implement search logic here
-    console.log('Searching for:', searchTerm);
-}
-
-// User menu toggle
-function toggleUserMenu() {
-    const userMenu = document.querySelector('.user-menu');
-    userMenu.classList.toggle('show');
-}
-
-// Close user menu when clicking outside
-document.addEventListener('click', function(event) {
-    const userMenu = document.querySelector('.user-menu');
-    const userButton = document.querySelector('.user-button');
-    if (userMenu && userButton) {
-        if (!userButton.contains(event.target) && !userMenu.contains(event.target)) {
-            userMenu.classList.remove('show');
-        }
-    }
-});
-
-// Hàm hiển thị modal thêm nhân viên
-function showAddEmployeeModal() {
-    const modal = document.getElementById('addEmployeeModal');
-    if (!modal) {
-        console.error('Modal element not found');
-            return;
-        }
-        
-    modal.classList.add('active');
-    
-    // Reset form
-    const form = document.getElementById('addEmployeeForm');
-    if (form) {
-        form.reset();
-    }
-    
-    // Reset avatar preview
-    const avatarPreview = document.getElementById('avatarPreview');
-    if (avatarPreview) {
-        avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
-    }
-}
-
-// Hàm đóng modal thêm nhân viên
-    function closeAddEmployeeModal() {
-    const modal = document.getElementById('addEmployeeModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-}
-
-// Hàm hiển thị modal chấm công
-function showAttendanceModal() {
-        const modal = document.getElementById('attendanceModal');
+    // Hàm hiển thị modal thêm nhân viên
+    function showAddEmployeeModal() {
+        const modal = document.getElementById('addEmployeeModal');
         if (!modal) {
             console.error('Modal element not found');
-            return;
-        }
-
+                return;
+            }
+            
         modal.classList.add('active');
         
-        // Set default date to today
-        const today = new Date();
-        const dateInput = document.getElementById('attendanceDate');
-        const timeInput = document.getElementById('recordedTime');
-        
-        if (dateInput && timeInput) {
-            dateInput.valueAsDate = today;
-            timeInput.value = today.toTimeString().slice(0,5);
-        }
-        
         // Reset form
-        const form = document.getElementById('attendanceForm');
+        const form = document.getElementById('addEmployeeForm');
         if (form) {
             form.reset();
         }
         
-        // Reset employee fields
-    const employeeFields = ['employeeId', 'employeeName', 'employeeDepartment', 'employeePosition'];
-    employeeFields.forEach(field => {
-        const element = document.getElementById(field);
-        if (element) element.value = '';
-    });
-        
-        // Reset attendance symbol
-        const symbolInput = document.getElementById('attendanceSymbol');
-        if (symbolInput) {
-            symbolInput.value = '';
+        // Reset avatar preview
+        const avatarPreview = document.getElementById('avatarPreview');
+        if (avatarPreview) {
+            avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
         }
-        
-        // Remove active class from all symbol buttons
-        document.querySelectorAll('.symbol-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
     }
 
-// Hàm đóng modal chấm công
-    function closeAttendanceModal() {
-        const modal = document.getElementById('attendanceModal');
+    // Hàm đóng modal thêm nhân viên
+        function closeAddEmployeeModal() {
+        const modal = document.getElementById('addEmployeeModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Hàm hiển thị modal chấm công
+    function showAttendanceModal() {
+            const modal = document.getElementById('attendanceModal');
+            if (!modal) {
+                console.error('Modal element not found');
+                return;
+            }
+
+            modal.classList.add('active');
+            
+            // Set default date to today
+            const today = new Date();
+            const dateInput = document.getElementById('attendanceDate');
+            const timeInput = document.getElementById('recordedTime');
+            
+            if (dateInput && timeInput) {
+                dateInput.valueAsDate = today;
+                timeInput.value = today.toTimeString().slice(0,5);
+            }
+            
+            // Reset form
+            const form = document.getElementById('attendanceForm');
+            if (form) {
+                form.reset();
+            }
+            
+            // Reset employee fields
+        const employeeFields = ['employeeId', 'employeeName', 'employeeDepartment', 'employeePosition'];
+        employeeFields.forEach(field => {
+            const element = document.getElementById(field);
+            if (element) element.value = '';
+        });
+            
+            // Reset attendance symbol
+            const symbolInput = document.getElementById('attendanceSymbol');
+            if (symbolInput) {
+                symbolInput.value = '';
+            }
+            
+            // Remove active class from all symbol buttons
+            document.querySelectorAll('.symbol-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+
+    // Hàm đóng modal chấm công
+        function closeAttendanceModal() {
+            const modal = document.getElementById('attendanceModal');
     if (modal) {
         modal.classList.remove('active');
     }
 }
 
-// Xử lý sự kiện khi trang được tải
-document.addEventListener('DOMContentLoaded', function() {
-    // Xử lý modal thêm nhân viên
-    const addEmployeeBtn = document.querySelector('.add-employee-btn');
-    if (addEmployeeBtn) {
-        addEmployeeBtn.addEventListener('click', showAddEmployeeModal);
-    }
+    // Xử lý sự kiện khi trang được tải
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý modal thêm nhân viên
+        const addEmployeeBtn = document.querySelector('.add-employee-btn');
+        if (addEmployeeBtn) {
+            addEmployeeBtn.addEventListener('click', showAddEmployeeModal);
+        }
 
-    // Xử lý sự kiện khi click ra ngoài modal thêm nhân viên
-    const employeeModal = document.getElementById('addEmployeeModal');
-    if (employeeModal) {
-        employeeModal.addEventListener('click', function(e) {
-            if (e.target === employeeModal) {
-                closeAddEmployeeModal();
-            }
-        });
-    }
+        // Xử lý sự kiện khi click ra ngoài modal thêm nhân viên
+        const employeeModal = document.getElementById('addEmployeeModal');
+        if (employeeModal) {
+            employeeModal.addEventListener('click', function(e) {
+                if (e.target === employeeModal) {
+                    closeAddEmployeeModal();
+                }
+            });
+        }
 
-    // Xử lý sự kiện khi click ra ngoài modal chấm công
-    const attendanceModal = document.getElementById('attendanceModal');
-    if (attendanceModal) {
-        attendanceModal.addEventListener('click', function(e) {
-            if (e.target === attendanceModal) {
+        // Xử lý sự kiện khi click ra ngoài modal chấm công
+        const attendanceModal = document.getElementById('attendanceModal');
+        if (attendanceModal) {
+            attendanceModal.addEventListener('click', function(e) {
+                if (e.target === attendanceModal) {
         closeAttendanceModal();
     }
 });
-    }
+        }
 
-    // Xử lý sự kiện khi tải ảnh đại diện
-    const avatarInput = document.getElementById('avatar');
-    if (avatarInput) {
-        avatarInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const avatarPreview = document.getElementById('avatarPreview');
-                    if (avatarPreview) {
-                        avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+        // Xử lý sự kiện khi tải ảnh đại diện
+        const avatarInput = document.getElementById('avatar');
+        if (avatarInput) {
+            avatarInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const avatarPreview = document.getElementById('avatarPreview');
+                        if (avatarPreview) {
+                            avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+                        }
                     }
+                    reader.readAsDataURL(file);
                 }
-                reader.readAsDataURL(file);
-            }
-        });
-    }
+            });
+        }
 
-    // Xử lý form thêm nhân viên
-    const employeeForm = document.getElementById('addEmployeeForm');
-    if (employeeForm) {
-        employeeForm.addEventListener('submit', async function(e) {
+        // Xử lý form thêm nhân viên
+        const employeeForm = document.getElementById('addEmployeeForm');
+        if (employeeForm) {
+            employeeForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
             const submitButton = employeeForm.querySelector('button[type="submit"]');
@@ -3470,10 +4063,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Xử lý form chấm công
-    const attendanceForm = document.getElementById('attendanceForm');
-    if (attendanceForm) {
-        attendanceForm.addEventListener('submit', async function(e) {
+        // Xử lý form chấm công
+        const attendanceForm = document.getElementById('attendanceForm');
+        if (attendanceForm) {
+            attendanceForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const submitButton = attendanceForm.querySelector('button[type="submit"]');
@@ -3505,7 +4098,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     }
 
-    // Xử lý tìm kiếm nhân viên trong modal chấm công
+        // Xử lý tìm kiếm nhân viên trong modal chấm công
     let searchTimeout;
     const employeeSearch = document.getElementById('employeeSearch');
     const searchResults = document.getElementById('searchResults');
@@ -4634,9 +5227,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 // ... existing code ...
-</script>
+                    </script>
 
-    </div>
+                    </div>
 
     <!-- Database View Modal -->
     <div class="modal fade" id="databaseViewModal" tabindex="-1" aria-labelledby="databaseViewModalLabel" aria-hidden="true">
@@ -4647,14 +5240,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-database text-warning me-2"></i>Database Tables
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                                    </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="list-group" id="tableList">
                                 <!-- Tables will be loaded here -->
+                                </div>
                             </div>
-                        </div>
                         <div class="col-md-9">
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover" id="dataTable">
@@ -4667,13 +5260,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <!-- Table data will be loaded here -->
                                     </tbody>
                                 </table>
-                            </div>
                         </div>
+                                    </div>
+                                    </div>
+                            </div>
+                            </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
     <!-- JavaScript Files -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -4681,5 +5274,78 @@ document.addEventListener('DOMContentLoaded', function() {
     <script src="js/modules/menu-handler.js"></script>
     <script src="js/modules/recent-menu.js"></script>
     <script type="module" src="./js/modules/tab.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarOverlay = document.querySelector('.sidebar-overlay');
+            const mainContent = document.querySelector('.main-content');
+
+            if (menuToggle && sidebar && sidebarOverlay) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    sidebarOverlay.classList.toggle('active');
+                    document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                });
+
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+
+                // Close menu on window resize if in desktop mode
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuToggle = document.createElement('button');
+        menuToggle.className = 'menu-toggle';
+        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.appendChild(menuToggle);
+
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // Close menu when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            }
+        });
+    });
+    </script>
+    <!-- Add this before closing body tag -->
+    <script src="js/modules/menu-handler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize menu handler
+            new MenuHandler();
+        });
+    </script>
 </body>
 </html>

@@ -208,7 +208,8 @@ export class Dashboard {
     }
 
     setupEventListeners() {
-        // Dark mode toggle
+        // Comment out dark mode toggle
+        /*
         const darkModeToggle = document.getElementById('darkModeToggle');
         if (darkModeToggle) {
             darkModeToggle.addEventListener('click', () => {
@@ -216,6 +217,7 @@ export class Dashboard {
                 localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
             });
         }
+        */
 
         // Attendance period change
         const attendancePeriod = document.getElementById('attendancePeriod');

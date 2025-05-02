@@ -344,6 +344,11 @@ class Settings {
     }
 
     applyThemeSettings(settings) {
+        // Comment out dark mode class removal
+        /*
+        document.body.classList.remove('light-mode', 'dark-mode');
+        */
+
         // Apply theme mode
         document.body.classList.remove('light-mode', 'dark-mode');
         document.body.classList.add(`${settings.theme_mode}-mode`);

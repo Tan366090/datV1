@@ -12,7 +12,7 @@ import { initializeMobileStats } from './modules/mobile-stats.js';
 import { initializeActivityFilter } from './modules/activity-filter.js';
 import { initializeNotificationHandler } from './modules/notification-handler.js';
 import { initializeLoadingOverlay } from './modules/loading-overlay.js';
-import { initializeDarkMode } from './modules/dark-mode.js';
+// import { initializeDarkMode } from './modules/dark-mode.js';
 import { initializeDashboardAdmin } from './modules/dashboard-admin.js';
 
 // Utility Modules
@@ -99,7 +99,7 @@ export {
     initializeActivityFilter,
     initializeNotificationHandler,
     initializeLoadingOverlay,
-    initializeDarkMode,
+    // initializeDarkMode,
     initializeDashboardAdmin,
 
     // Utility Modules

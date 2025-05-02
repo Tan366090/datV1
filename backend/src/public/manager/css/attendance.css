@@ -1074,19 +1074,6 @@ td input[type="text"].note-input:focus {
     margin-top: var(--spacing-lg);
 }
 
-/* Dark Mode */
-[data-theme="dark"] .attendance-table-container {
-    background: var(--bg-primary);
-}
-
-[data-theme="dark"] .attendance-table th {
-    background: var(--bg-tertiary);
-}
-
-[data-theme="dark"] .action-btn:hover {
-    background: var(--bg-tertiary);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .attendance-container {
@@ -1195,3 +1182,17 @@ td input[type="text"].note-input:focus {
     background: var(--primary-hover);
     transform: translateY(-1px);
 }
+
+/* Comment out dark mode styles
+[data-theme="dark"] .attendance-table-container {
+    // ... dark mode styles ...
+}
+
+[data-theme="dark"] .attendance-table th {
+    // ... dark mode styles ...
+}
+
+[data-theme="dark"] .action-btn:hover {
+    // ... dark mode styles ...
+}
+*/

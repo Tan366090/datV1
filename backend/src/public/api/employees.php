@@ -21,59 +21,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 //     exit();
 // }
 
-require_once __DIR__ . '/../config/database.php';
+require_once '../../config/database.php';
+require_once '../../models/Employee.php';
 
 try {
     $db = new Database();
     $conn = $db->getConnection();
+    $employee = new Employee($conn);
 
-    $query = "SELECT 
-                e.id,
-                e.employee_code,
-                e.full_name,
-                d.name as department_name,
-                p.name as position_name,
-                e.salary,
-                e.join_date,
-                e.birth_date,
-                e.phone,
-                e.email,
-                e.address,
-                e.status,
-                e.created_at
-            FROM employees e
-            LEFT JOIN departments d ON e.department_id = d.id
-            LEFT JOIN positions p ON e.position_id = p.id
-            ORDER BY e.id DESC";
+    $method = $_SERVER['REQUEST_METHOD'];
 
-    $stmt = $conn->prepare($query);
-    $stmt->execute();
+    switch($method) {
+        case 'GET':
+            if(isset($_GET['id'])) {
+                // Lấy thông tin một nhân viên
+                $result = $employee->getById($_GET['id']);
+            } else {
+                // Lấy danh sách nhân viên
+                $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+                $search = isset($_GET['search']) ? $_GET['search'] : '';
+                $department = isset($_GET['department']) ? $_GET['department'] : '';
+                $status = isset($_GET['status']) ? $_GET['status'] : '';
+                
+                $result = $employee->getAll($page, $limit, $search, $department, $status);
+            }
+            break;
+        
+        case 'POST':
+            $data = json_decode(file_get_contents('php://input'), true);
+            $result = $employee->create($data);
+            break;
+        
+        case 'PUT':
+            $data = json_decode(file_get_contents('php://input'), true);
+            if(isset($_GET['id'])) {
+                $result = $employee->update($_GET['id'], $data);
+            }
+            break;
+        
+        case 'DELETE':
+            if(isset($_GET['id'])) {
+                $result = $employee->delete($_GET['id']);
+            }
+            break;
+        
+        default:
+            http_response_code(405);
+            $result = ['error' => 'Method not allowed'];
+    }
 
-    $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Format the data
-    $formattedEmployees = array_map(function($emp) {
-        return [
-            'id' => $emp['id'],
-            'employee_code' => $emp['employee_code'],
-            'full_name' => $emp['full_name'],
-            'position' => $emp['position_name'],
-            'department' => $emp['department_name'],
-            'join_date' => $emp['join_date'],
-            'birth_date' => $emp['birth_date'],
-            'phone' => $emp['phone'],
-            'email' => $emp['email'],
-            'address' => $emp['address'],
-            'status' => $emp['status'],
-            'salary' => $emp['salary'],
-            'created_at' => $emp['created_at']
-        ];
-    }, $employees);
-
-    echo json_encode([
-        'success' => true,
-        'data' => $formattedEmployees
-    ]);
+    echo json_encode($result);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([

@@ -131,4 +131,87 @@ $router->group('/certificates', function($router) {
 });
 
 // Attendance routes
-$router->get('/attendance/today', 'AttendanceController@getTodayAttendance'); 
+$router->get('/attendance/today', 'AttendanceController@getTodayAttendance');
+
+// API Routes
+$router->post('/api/employees', function ($request, $response) {
+    $data = $request->getParsedBody();
+    
+    // Validate required fields
+    $requiredFields = [
+        'name', 'email', 'phone', 'employeeCode', 
+        'departmentId', 'positionId', 'hireDate',
+        'contractType', 'baseSalary', 'contractStartDate'
+    ];
+    
+    foreach ($requiredFields as $field) {
+        if (empty($data[$field])) {
+            return $response->withJson([
+                'success' => false,
+                'message' => "Trường $field là bắt buộc"
+            ], 400);
+        }
+    }
+    
+    // Validate email format
+    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        return $response->withJson([
+            'success' => false,
+            'message' => 'Email không hợp lệ'
+        ], 400);
+    }
+    
+    // Validate phone number format
+    if (!preg_match('/^[0-9]{10,11}$/', $data['phone'])) {
+        return $response->withJson([
+            'success' => false,
+            'message' => 'Số điện thoại không hợp lệ'
+        ], 400);
+    }
+    
+    $employeeController = new EmployeeController();
+    $result = $employeeController->addEmployee($data);
+    
+    if ($result['success']) {
+        return $response->withJson($result, 201);
+    } else {
+        return $response->withJson($result, 500);
+    }
+});
+
+// API để lấy danh sách phòng ban
+$router->get('/api/departments', function($request, $response) {
+    $departmentController = new DepartmentController();
+    $departments = $departmentController->getDepartments();
+    return $response->withJson([
+        'success' => true,
+        'data' => $departments
+    ]);
+});
+
+// API để lấy danh sách chức vụ
+$router->get('/api/positions', function($request, $response) {
+    $positionController = new PositionController();
+    $positions = $positionController->getPositions();
+    return $response->withJson([
+        'success' => true,
+        'data' => $positions
+    ]);
+});
+
+// API để lấy danh sách loại hợp đồng
+$router->get('/api/contract-types', function($request, $response) {
+    $contractTypeController = new ContractTypeController();
+    $contractTypes = $contractTypeController->getContractTypes();
+    return $response->withJson([
+        'success' => true,
+        'data' => $contractTypes
+    ]);
+});
+
+// API để lấy mã nhân viên mới
+$router->get('/api/employee-code', function($request, $response) {
+    $employeeController = new EmployeeController();
+    $code = $employeeController->generateEmployeeCode();
+    return $response->withJson(['success' => true, 'data' => $code]);
+}); 

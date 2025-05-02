@@ -291,4 +291,143 @@ class EmployeeController {
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save($filename);
     }
+
+    public function addEmployee($data) {
+        try {
+            // Bắt đầu transaction
+            $this->db->beginTransaction();
+
+            // 1. Thêm thông tin người dùng
+            $userQuery = "INSERT INTO users (email, password, role_id) VALUES (?, ?, ?)";
+            $userStmt = $this->db->prepare($userQuery);
+            $userStmt->execute([
+                $data['email'],
+                password_hash('123456', PASSWORD_DEFAULT), // Mật khẩu mặc định
+                2 // Role nhân viên
+            ]);
+            $userId = $this->db->lastInsertId();
+
+            // 2. Thêm thông tin nhân viên
+            $employeeQuery = "INSERT INTO employees (
+                user_id, employee_code, department_id, position_id, 
+                hire_date, status, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())";
+            
+            $employeeStmt = $this->db->prepare($employeeQuery);
+            $employeeStmt->execute([
+                $userId,
+                $data['employeeCode'],
+                $data['departmentId'],
+                $data['positionId'],
+                $data['hireDate'],
+                'active'
+            ]);
+            $employeeId = $this->db->lastInsertId();
+
+            // 3. Thêm thông tin hợp đồng
+            $contractQuery = "INSERT INTO contracts (
+                employee_id, contract_type, start_date, salary, 
+                status, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+            
+            $contractStmt = $this->db->prepare($contractQuery);
+            $contractStmt->execute([
+                $employeeId,
+                $data['contractType'],
+                $data['contractStartDate'],
+                $data['baseSalary'],
+                'active'
+            ]);
+
+            // 4. Thêm thông tin gia đình
+            if (!empty($data['familyMembers'])) {
+                $familyQuery = "INSERT INTO family_members (
+                    employee_id, member_name, relationship, 
+                    date_of_birth, occupation, is_dependent
+                ) VALUES (?, ?, ?, ?, ?, ?)";
+                
+                $familyStmt = $this->db->prepare($familyQuery);
+                foreach ($data['familyMembers'] as $member) {
+                    $familyStmt->execute([
+                        $employeeId,
+                        $member['name'],
+                        $member['relationship'],
+                        $member['birthday'] ?: null,
+                        $member['occupation'] ?: null,
+                        $member['isDependent']
+                    ]);
+                }
+            }
+
+            // Commit transaction
+            $this->db->commit();
+            return [
+                'success' => true,
+                'message' => 'Thêm nhân viên thành công',
+                'employeeId' => $employeeId
+            ];
+
+        } catch (Exception $e) {
+            // Rollback transaction nếu có lỗi
+            $this->db->rollBack();
+            return [
+                'success' => false,
+                'message' => 'Lỗi khi thêm nhân viên: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function getDepartments() {
+        try {
+            $query = "SELECT id, name FROM departments WHERE status = 'active' ORDER BY name";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    public function getPositions() {
+        try {
+            $query = "SELECT id, name FROM positions WHERE status = 'active' ORDER BY name";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    public function getContractTypes() {
+        try {
+            $query = "SELECT id, name, description FROM contract_types WHERE status = 'active' ORDER BY name";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    public function generateEmployeeCode() {
+        try {
+            // Lấy năm hiện tại
+            $year = date('Y');
+            
+            // Lấy số thứ tự cuối cùng của năm
+            $query = "SELECT MAX(CAST(SUBSTRING(employee_code, 8) AS UNSIGNED)) as last_number 
+                     FROM employees 
+                     WHERE employee_code LIKE :year_prefix";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute(['year_prefix' => "NV{$year}%"]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Tạo mã mới
+            $nextNumber = ($result['last_number'] ?? 0) + 1;
+            return "NV{$year}" . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        } catch (Exception $e) {
+            return "NV" . date('Y') . "0001";
+        }
+    }
 } 

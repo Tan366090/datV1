@@ -535,16 +535,6 @@ table tbody td:last-child {
   margin-top: var(--spacing-lg);
 }
 
-/* Dark Mode */
-[data-theme="dark"] .salary-card {
-  background: var(--bg-primary);
-  border-color: var(--border-color);
-}
-
-[data-theme="dark"] .salary-code {
-  background: var(--bg-tertiary);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .salary-container {
@@ -648,3 +638,13 @@ table tbody td:last-child {
   background: var(--primary-hover);
   transform: translateY(-1px);
 }
+
+/* Comment out dark mode styles
+[data-theme="dark"] .salary-card {
+    // ... dark mode styles ...
+}
+
+[data-theme="dark"] .salary-code {
+    // ... dark mode styles ...
+}
+*/

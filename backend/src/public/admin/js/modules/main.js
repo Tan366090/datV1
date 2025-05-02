@@ -70,25 +70,6 @@ function loadInitialData() {
     loadPositions();
 }
 
-// Add dark mode toggle
-function setupDarkModeToggle() {
-    const darkModeToggle = $(
-        '<button class="btn btn-secondary ms-2" id="darkModeToggle">' +
-            '<i class="fas fa-moon"></i></button>'
-    );
-    $(".main-content .d-flex").first().append(darkModeToggle);
-
-    $("#darkModeToggle").click(function () {
-        $("body").toggleClass("dark-mode");
-        const isDarkMode = $("body").hasClass("dark-mode");
-        $(this).html(
-            isDarkMode
-                ? '<i class="fas fa-sun"></i>'
-                : '<i class="fas fa-moon"></i>'
-        );
-    });
-}
-
 // Update sidebar toggle for better responsiveness
 function setupResponsiveSidebar() {
     const sidebarToggle = $(
