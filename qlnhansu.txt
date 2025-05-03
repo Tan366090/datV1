@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 01, 2025 at 06:41 AM
+-- Generation Time: May 02, 2025 at 08:20 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -563,10 +563,17 @@ INSERT INTO `email_verification_tokens` (`id`, `user_id`, `token`, `expires_at`,
 CREATE TABLE `employees` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL COMMENT 'Link to the user account',
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
   `employee_code` varchar(20) DEFAULT NULL,
   `department_id` int(11) DEFAULT NULL,
   `position_id` int(11) DEFAULT NULL,
   `hire_date` date DEFAULT NULL,
+  `contract_type` varchar(50) DEFAULT NULL,
+  `contract_start_date` date DEFAULT NULL,
+  `contract_end_date` date DEFAULT NULL,
+  `base_salary` decimal(10,2) DEFAULT 0.00,
   `termination_date` date DEFAULT NULL,
   `status` enum('active','inactive','terminated','on_leave') DEFAULT 'active',
   `created_at` datetime DEFAULT current_timestamp(),
@@ -577,17 +584,17 @@ CREATE TABLE `employees` (
 -- Dumping data for table `employees`
 --
 
-INSERT INTO `employees` (`id`, `user_id`, `employee_code`, `department_id`, `position_id`, `hire_date`, `termination_date`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'EMP-ADM-001', 1, 1, '2020-01-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
-(2, 2, 'EMP-MGR-IT-002', 1, 2, '2020-02-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
-(3, 3, 'EMP-HR-003', 2, 3, '2020-03-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
-(4, 4, 'EMP-IT-004', 1, 4, '2020-04-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
-(5, 5, 'EMP-IT-005', 1, 4, '2020-05-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
-(6, 6, 'EMP-HR-006', 2, 4, '2020-06-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
-(7, 7, 'EMP-FIN-007', 3, 5, '2020-07-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
-(8, 8, 'EMP-MKT-008', 4, 7, '2020-08-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
-(9, 9, 'EMP-SLS-009', 5, 8, '2020-09-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
-(10, 10, 'EMP-OPT-010', 6, 9, '2020-10-01', NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44');
+INSERT INTO `employees` (`id`, `user_id`, `name`, `email`, `phone`, `employee_code`, `department_id`, `position_id`, `hire_date`, `contract_type`, `contract_start_date`, `contract_end_date`, `base_salary`, `termination_date`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, '', '', NULL, 'EMP-ADM-001', 1, 1, '2020-01-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(2, 2, '', '', NULL, 'EMP-MGR-IT-002', 1, 2, '2020-02-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(3, 3, '', '', NULL, 'EMP-HR-003', 2, 3, '2020-03-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(4, 4, '', '', NULL, 'EMP-IT-004', 1, 4, '2020-04-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(5, 5, '', '', NULL, 'EMP-IT-005', 1, 4, '2020-05-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(6, 6, '', '', NULL, 'EMP-HR-006', 2, 4, '2020-06-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(7, 7, '', '', NULL, 'EMP-FIN-007', 3, 5, '2020-07-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(8, 8, '', '', NULL, 'EMP-MKT-008', 4, 7, '2020-08-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(9, 9, '', '', NULL, 'EMP-SLS-009', 5, 8, '2020-09-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44'),
+(10, 10, '', '', NULL, 'EMP-OPT-010', 6, 9, '2020-10-01', NULL, NULL, NULL, 0.00, NULL, 'active', '2025-04-30 11:53:44', '2025-04-30 11:53:44');
 
 -- --------------------------------------------------------
 

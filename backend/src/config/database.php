@@ -8,13 +8,24 @@ define('DB_CHARSET', 'utf8mb4');
 
 // Error reporting
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0); // Don't display errors to users
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/error.log');
 
 // Create logs directory if it doesn't exist
 if (!file_exists(__DIR__ . '/../logs')) {
     mkdir(__DIR__ . '/../logs', 0777, true);
+}
+
+// Function to handle errors and return JSON response
+function handleError($message, $code = 500) {
+    http_response_code($code);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'error' => $message
+    ]);
+    exit;
 }
 
 class Database {
@@ -40,7 +51,7 @@ class Database {
                 );
             } catch(PDOException $e) {
                 error_log("Database connection error: " . $e->getMessage());
-                throw new Exception("Database connection failed: " . $e->getMessage());
+                handleError("Database connection failed", 500);
             }
         }
         return self::$conn;
@@ -52,6 +63,7 @@ try {
     $db = Database::getConnection();
 } catch (Exception $e) {
     error_log("Database connection failed: " . $e->getMessage());
+    handleError("Database connection failed", 500);
 }
 
 // Return configuration array for DataStore

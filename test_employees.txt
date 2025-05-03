@@ -1,0 +1,9 @@
+EMP|An|Nguyễn Văn An|an.nguyen@example.com|0912345678|1990-05-20|123 Lê Lợi, Q.1, TP.HCM|1|1|Permanent|15000000|2022-01-10|2025-01-10
+FAM|Nguyễn Thị B|Vợ|1991-07-10|Giáo viên|1
+FAM|Nguyễn Văn C|Con|2015-09-01|Học sinh|1
+EMP|Bình|Trần Thị Bình|binh.tran@example.com|0987654321|1992-08-15|456 Nguyễn Trãi, Q.5, TP.HCM|2|3|Fixed-Term|12000000|2023-03-01|2024-03-01
+FAM|Trần Văn D|Chồng|1988-03-22|Kỹ sư|0
+EMP|Lê|Lê Thị Hoa|hoa.le@example.com|0901122334|1985-12-30|789 Lý Thường Kiệt, Q.10, TP.HCM|3|5|Permanent|20000000|2021-06-15|2026-06-15
+FAM|Nguyễn Văn E|Chồng|1983-11-11|Bác sĩ|1
+FAM|Nguyễn Thị F|Con|2010-05-05|Học sinh|1
+FAM|Nguyễn Văn G|Con|2012-08-20|Học sinh|1 

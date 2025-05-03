@@ -383,7 +383,7 @@ async function loadFilters() {
                 });
             }
         } else {
-            showError(deptData.message || 'Không thể tải danh sách phòng ban');
+            // showError(deptData.message || 'Không thể tải danh sách phòng ban');
         }
 
         // Reset dropdown chức vụ

@@ -107,33 +107,86 @@ class Employee {
     }
 
     public function create($data) {
-        $query = "INSERT INTO " . $this->table_name . "
-                (employee_code, full_name, department_id, position_id, salary, 
-                join_date, birth_date, phone, email, address, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                
-        $stmt = $this->conn->prepare($query);
+        $conn = $this->conn;
+        $conn->beginTransaction();
         
         try {
-            $stmt->execute([
-                $data['employee_code'],
-                $data['full_name'],
+            // Generate employee code
+            $currentYear = date('y');
+            $currentMonth = date('m');
+            
+            // Get the last employee code for this month
+            $lastCodeQuery = "SELECT employee_code FROM employees 
+                            WHERE employee_code LIKE 'NV{$currentYear}{$currentMonth}%' 
+                            ORDER BY employee_code DESC LIMIT 1";
+            $lastCodeStmt = $conn->query($lastCodeQuery);
+            $lastCode = $lastCodeStmt->fetchColumn();
+            
+            if ($lastCode) {
+                $lastNumber = intval(substr($lastCode, -3));
+                $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+            } else {
+                $newNumber = '001';
+            }
+            
+            $employeeCode = "NV{$currentYear}{$currentMonth}{$newNumber}";
+            
+            // 1. Create user record
+            $userQuery = "INSERT INTO users (username, email, password_hash, role_id, is_active) 
+                         VALUES (?, ?, ?, ?, 1)";
+            $username = strtolower(str_replace(' ', '', $data['full_name']));
+            $password = password_hash('default123', PASSWORD_DEFAULT);
+            $roleId = 4; // Default employee role
+            
+            $userStmt = $conn->prepare($userQuery);
+            $userStmt->execute([$username, $data['email'], $password, $roleId]);
+            $userId = $conn->lastInsertId();
+            
+            // 2. Create user profile record
+            $profileQuery = "INSERT INTO user_profiles (user_id, full_name, phone_number) 
+                           VALUES (?, ?, ?)";
+            $profileStmt = $conn->prepare($profileQuery);
+            $profileStmt->execute([$userId, $data['full_name'], $data['phone_number']]);
+            
+            // 3. Create employee record
+            $employeeQuery = "INSERT INTO employees (user_id, employee_code, department_id, position_id, 
+                           hire_date, contract_type, contract_start_date, status) 
+                           VALUES (?, ?, ?, ?, ?, ?, ?, 'active')";
+            $employeeStmt = $conn->prepare($employeeQuery);
+            $employeeStmt->execute([
+                $userId,
+                $employeeCode,
                 $data['department_id'],
                 $data['position_id'],
-                $data['salary'],
-                $data['join_date'],
-                $data['birth_date'],
-                $data['phone'],
-                $data['email'],
-                $data['address'],
-                $data['status']
+                $data['hire_date'],
+                $data['contract_type'],
+                $data['contract_start_date']
             ]);
+            
+            $employeeId = $conn->lastInsertId();
+            
+            // 4. Get the complete employee information
+            $getEmployeeQuery = "SELECT e.*, u.email, up.full_name, up.phone_number as phone,
+                               d.name as department_name, p.name as position_name
+                               FROM employees e
+                               JOIN users u ON e.user_id = u.user_id
+                               JOIN user_profiles up ON e.user_id = up.user_id
+                               LEFT JOIN departments d ON e.department_id = d.id
+                               LEFT JOIN positions p ON e.position_id = p.id
+                               WHERE e.id = ?";
+            
+            $getEmployeeStmt = $conn->prepare($getEmployeeQuery);
+            $getEmployeeStmt->execute([$employeeId]);
+            $employee = $getEmployeeStmt->fetch(PDO::FETCH_ASSOC);
+            
+            $conn->commit();
             
             return [
                 'success' => true,
-                'id' => $this->conn->lastInsertId()
+                'data' => $employee
             ];
         } catch(PDOException $e) {
+            $conn->rollBack();
             return [
                 'success' => false,
                 'error' => $e->getMessage()

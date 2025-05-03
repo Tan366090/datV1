@@ -78,6 +78,24 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.25em;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         body {
@@ -233,11 +251,13 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease-in-out;
+            transform: translateY(0);
         }
 
         .dashboard-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .card-header {
@@ -323,11 +343,18 @@
         .search-box {
             flex: 1;
             min-width: 250px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .search-box:focus-within {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .filter-select {
             min-width: 180px;
             flex: 1;
+            transition: all 0.3s ease-in-out;
         }
 
         .input-group {
@@ -352,7 +379,7 @@
 
         .form-control:focus, .form-select:focus {
             border-color: #3498db;
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.1);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
         }
 
         .form-control::placeholder {
@@ -366,6 +393,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             overflow: hidden;
             margin-bottom: 20px;
+            transition: all 0.3s ease-in-out;
         }
 
         .table-responsive {
@@ -714,6 +742,290 @@
         .form-group label.required-field {
             color: #2c3e50;
         }
+
+        /* Thêm các hiệu ứng chuyển động mượt mà */
+        .table-row {
+            transition: all 0.3s ease-in-out;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .table-row.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Input States */
+        .form-control.valid {
+            border-color: #2ecc71;
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+        }
+
+        .form-control.invalid {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+        }
+
+        .form-control.pending {
+            border-color: #f39c12;
+            box-shadow: 0 0 0 0.2rem rgba(243, 156, 18, 0.25);
+        }
+
+        /* Validation Messages */
+        .validation-message {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .validation-message.valid {
+            color: #2ecc71;
+            display: block;
+        }
+
+        .validation-message.invalid {
+            color: #e74c3c;
+            display: block;
+        }
+
+        .validation-message.pending {
+            color: #f39c12;
+            display: block;
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification.success {
+            background-color: #2ecc71;
+        }
+
+        .notification.error {
+            background-color: #e74c3c;
+        }
+
+        .notification.warning {
+            background-color: #f39c12;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal thêm nhân viên bằng file - tối ưu giao diện */
+        #addEmployeeByFileModal .modal-content {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.18);
+            padding: 0;
+            overflow: hidden;
+            border: none;
+            max-width: 1100px;
+            
+        }
+        #addEmployeeByFileModal .modal-header {
+            background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+            color: #fff;
+            padding: 20px 32px 16px 32px;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #addEmployeeByFileModal .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        #addEmployeeByFileModal .modal-body {
+            padding: 32px 32px 16px 32px;
+            background: #f8fafd;
+        }
+        #addEmployeeByFileModal .form-label {
+            font-weight: 600;
+            color: #185a9d;
+        }
+        #addEmployeeByFileModal input[type="file"] {
+            border: 1.5px solid #43cea2;
+            border-radius: 6px;
+            background: #fff;
+            padding: 10px;
+        }
+        #addEmployeeByFileModal .btn {
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(67, 206, 162, 0.08);
+            transition: background 0.2s, color 0.2s;
+        }
+        #addEmployeeByFileModal .btn-primary {
+            background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+            border: none;
+        }
+        #addEmployeeByFileModal .btn-success {
+            background: linear-gradient(90deg, #38f9d7 0%, #43cea2 100%);
+            border: none;
+            color: #fff;
+        }
+        #addEmployeeByFileModal .btn-primary:hover, #addEmployeeByFileModal .btn-success:hover {
+            filter: brightness(1.08);
+            opacity: 0.95;
+        }
+        #addEmployeeByFileModal .table {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.97rem;
+        }
+        #addEmployeeByFileModal .table th {
+            background: #eaf6fb;
+            color: #185a9d;
+            font-weight: 700;
+            border-bottom: 2px solid #43cea2;
+        }
+        #addEmployeeByFileModal .table td {
+            background: #f8fafd;
+            color: #222;
+        }
+        #addEmployeeByFileModal .modal-footer {
+            background: #f8fafd;
+            border-top: 1px solid #eaeaea;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        #addEmployeeByFileModal .alert-success {
+            background: linear-gradient(90deg, #43cea2 0%, #38f9d7 100%);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+        }
+        #addEmployeeByFileModal .alert-danger {
+            background-color: #fff5f5;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1);
+        }
+        #addEmployeeByFileModal .alert-danger h5 {
+            color: #dc3545;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        #addEmployeeByFileModal .alert-danger h6 {
+            color: #dc3545;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        #addEmployeeByFileModal .list-group-item-danger {
+            background-color: #fff5f5;
+            border-color: #dc3545;
+            color: #dc3545;
+            margin-bottom: 4px;
+            border-radius: 4px;
+        }
+        #addEmployeeByFileModal .text-muted {
+            color: #6c757d !important;
+        }
+        #addEmployeeByFileModal .alert-info {
+            background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+        }
+        #addEmployeeByFileModal small.text-muted {
+            color: #888 !important;
+            font-size: 0.95em;
+            margin-top: 4px;
+            display: block;
+        }
+        #addEmployeeByFileModal .mb-3 {
+            margin-bottom: 1.5rem !important;
+        }
+        #addEmployeeByFileModal .preview-table {
+            margin-top: 12px;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+            table-layout: auto;
+        }
+        #addEmployeeByFileModal .preview-table th {
+            background: #eaf6fb;
+            color: #185a9d;
+            font-weight: 700;
+            border-bottom: 2px solid #43cea2;
+            font-size: 14px;
+            padding: 12px 8px;
+            white-space: nowrap;
+        }
+        #addEmployeeByFileModal .preview-table td {
+            background: #f8fafd;
+            color: #222;
+            font-size: 12px;
+            padding: 8px;
+            vertical-align: middle;
+            word-break: break-word;
+        }
+        #addEmployeeByFileModal .preview-table tr:hover td {
+            background-color: #f1f7fd;
+        }
+        #addEmployeeByFileModal .preview-table .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        #addEmployeeByFileModal .preview-table .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+        #addEmployeeByFileModal .preview-table .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        #addEmployeeByFileModal .preview-table .table-responsive::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        #addEmployeeByFileModal .preview-table .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        #addEmployeeByFileModal .preview-table th:first-child,
+        #addEmployeeByFileModal .preview-table td:first-child {
+            padding-left: 16px;
+        }
+        #addEmployeeByFileModal .preview-table th:last-child,
+        #addEmployeeByFileModal .preview-table td:last-child {
+            padding-right: 16px;
+        }
+        #addEmployeeByFileModal .preview-table th,
+        #addEmployeeByFileModal .preview-table td {
+            min-width: 100px;
+            max-width: 300px;
+        }
+        #addEmployeeByFileModal .preview-table th:last-child,
+        #addEmployeeByFileModal .preview-table td:last-child {
+            min-width: 200px;
+            max-width: 400px;
+        }
     </style>
 </head>
 <body>
@@ -842,9 +1154,17 @@
                 <div class="table-header">
                     <h5 class="table-title">Danh sách nhân viên</h5>
                     <div class="table-actions">
-                        <button style="padding: 5px 10px;" class="btn-export">Xuất Excel</button>
-                        <button class="btn-reload" style="border: none;;background: #021308 ;color:#fff;font-weight:600; padding: 5px 10px; border-radius:10px;"><i class="fa fa-sync-alt"></i> Load lại dữ liệu</button>
-                        <button class="btn-reload" onclick="showAddEmployeeModal()" style="border: none;background-color: #43e97b ;padding: 5px 10px;;color:#fff;font-weight:600; border-radius:10px;"><i class="fa fa-sync-alt"></i>Thêm nhân viên</button>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="tableActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-start" aria-labelledby="tableActionsDropdown">
+                                <button style="padding: 5px 10px;" class="btn-export">Xuất Excel</button>
+                                <li><a class="dropdown-item" href="#" onclick="reloadEmployeeData()"><i class="fa fa-sync-alt"></i> Tải lại dữ liệu</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showAddEmployeeModal()"><i class="fa fa-user-plus"></i> Thêm nhân viên bằng form</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showAddEmployeeByFileModal()"><i class="fa fa-file-upload"></i> Thêm nhân viên bằng file</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -894,8 +1214,12 @@
                         <h4><i class="fas fa-user"></i> Thông tin cá nhân</h4>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="employeeName" class="required-field">Họ và tên</label>
+                                <label for="employeeName" class="required-field">Tên</label>
                                 <input type="text" id="employeeName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeFullName" class="required-field">Họ và tên đầy đủ</label>
+                                <input type="text" id="employeeFullName" class="form-control" required>
                             </div>
                             <div class="form-group">
                                 <label for="employeeEmail" class="required-field">Email</label>
@@ -932,9 +1256,14 @@
                             </div>
                             <div class="form-group">
                                 <label for="positionId" class="required-field">Chức vụ</label>
-                                <select id="positionId" class="form-control" required>
+                                <select id="positionId" class="form-control" required onchange="handlePositionChange()">
                                     <option value="">Chọn chức vụ</option>
+                                    <option value="new">+ Thêm chức vụ mới</option>
                                 </select>
+                            </div>
+                            <div class="form-group" id="newPositionGroup" style="display: none;">
+                                <label for="newPosition" class="required-field">Tên chức vụ mới</label>
+                                <input type="text" id="newPosition" class="form-control" placeholder="Nhập tên chức vụ mới">
                             </div>
                             <div class="form-group">
                                 <label for="hireDate" class="required-field">Ngày bắt đầu làm việc</label>
@@ -971,6 +1300,7 @@
                     <div class="form-section">
                         <h4><i class="fas fa-users"></i> Thông tin gia đình</h4>
                         <div id="familyMembers">
+                            <!-- Template cho một thành viên gia đình -->
                             <div class="family-member">
                                 <div class="form-grid">
                                     <div class="form-group">
@@ -1012,14 +1342,72 @@
                             </div>
                         </div>
                         <button type="button" class="btn btn-primary btn-sm mt-2" onclick="addFamilyMember()">
-                            <i class="fas fa-plus"></i> Thêm thành viên
+                            <img src="add-friend.png" alt="Thêm thành viên" style="width: 20px; height: 20px; margin-right: 5px;">
+                            Thêm thành viên
                         </button>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeAddEmployeeModal()">Hủy</button>
-                <button class="btn btn-primary" onclick="saveEmployee()">Lưu</button>
+                <button class="btn btn-primary" id="saveEmployeeBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Employee By File Modal -->
+    <div id="addEmployeeByFileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Thêm nhân viên bằng file</h3>
+                <span class="close" onclick="closeAddEmployeeByFileModal()">&times;</span>
+            </div>
+            <div id="uploadError" class="alert alert-danger" style="display:none;margin:0 32px 8px 32px;"></div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="employeeFile" class="form-label">Chọn file txt chứa thông tin nhân viên</label>
+                    <input type="file" class="form-control" id="employeeFile" accept=".txt">
+                    <small class="text-muted">
+                        Định dạng file:<br>
+                        <b>EMP|Tên|Họ và tên đầy đủ|Email|Số điện thoại|Ngày sinh|Địa chỉ|Phòng ban|Chức vụ|Loại hợp đồng|Lương|Ngày bắt đầu|Ngày kết thúc</b><br>
+                        <b>FAM|Tên thành viên|Mối quan hệ|Ngày sinh|Nghề nghiệp|Người phụ thuộc (1: có, 0: không)</b><br>
+                        <i>Mỗi nhân viên bắt đầu bằng dòng EMP, tiếp theo là các dòng FAM (nếu có). Khi gặp EMP mới là nhân viên mới.</i>
+                    </small>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary" onclick="previewFile()">Xem trước</button>
+                    <button class="btn btn-success" id="saveToDbBtn" style="display:none;" onclick="savePreviewedEmployees()">Lưu vào CSDL</button>
+                </div>
+                <div id="previewSection" class="hidden">
+                    <h5>Xem trước dữ liệu</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered preview-table">
+                            <thead>
+                                <tr>
+                                    <th>Tên</th>
+                                    <th>Họ và tên đầy đủ</th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Phòng ban</th>
+                                    <th>Chức vụ</th>
+                                    <th>Loại hợp đồng</th>
+                                    <th>Lương</th>
+                                    <th>Ngày bắt đầu</th>
+                                    <th>Ngày kết thúc</th>
+                                    <th style="width:40%">Thành viên gia đình</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="uploadStatus" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddEmployeeByFileModal()">Hủy</button>
             </div>
         </div>
     </div>
@@ -1027,283 +1415,1014 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
     <script src="js/employee-management.js"></script>
+    <script src="js/employee-form.js"></script>
+    <script src="js/file-upload.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
-        // Hàm để load dữ liệu cho dropdown
-        async function loadDropdownData() {
+        // Biến lưu trữ dữ liệu phòng ban
+        let departmentsData = [];
+
+        // Hàm load dữ liệu phòng ban với xử lý lỗi và loading state
+        async function loadDepartments() {
             try {
-                // Lấy mã nhân viên mới
-                const codeResponse = await fetch('/api/employee-code');
-                const codeData = await codeResponse.json();
-                if (codeData.success) {
-                    document.getElementById('employeeCode').value = codeData.data;
+                showLoading();
+                
+                const response = await fetch('/qlnhansu_V2/backend/src/api/departments.php', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                // Kiểm tra content type
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error(`API không trả về JSON. Content-Type: ${contentType}`);
                 }
-
-                // Lấy danh sách phòng ban
-                const deptResponse = await fetch('/api/departments');
-                const deptData = await deptResponse.json();
-                if (deptData.success) {
-                    const deptSelect = document.getElementById('departmentId');
-                    deptSelect.innerHTML = '<option value="">Chọn phòng ban</option>'; // Reset options
-                    deptData.data.forEach(dept => {
-                        const option = document.createElement('option');
-                        option.value = dept.id;
-                        option.textContent = dept.name;
-                        deptSelect.appendChild(option);
-                    });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-
-                // Lấy danh sách chức vụ
-                const posResponse = await fetch('/api/positions');
-                const posData = await posResponse.json();
-                if (posData.success) {
-                    const posSelect = document.getElementById('positionId');
-                    posSelect.innerHTML = '<option value="">Chọn chức vụ</option>'; // Reset options
-                    posData.data.forEach(pos => {
-                        const option = document.createElement('option');
-                        option.value = pos.id;
-                        option.textContent = pos.name;
-                        posSelect.appendChild(option);
-                    });
+                
+                const data = await response.json();
+                console.log('API Response:', data);
+                
+                // Kiểm tra cấu trúc response
+                if (Array.isArray(data)) {
+                    departmentsData = data;
+                } 
+                // Nếu response có format {data}
+                else if (Array.isArray(data.data)) {
+                departmentsData = data.data;
                 }
-
-                // Lấy danh sách loại hợp đồng
-                const contractResponse = await fetch('/api/contract-types');
-                const contractData = await contractResponse.json();
-                if (contractData.success) {
-                    const contractSelect = document.getElementById('contractType');
-                    contractSelect.innerHTML = '<option value="">Chọn loại hợp đồng</option>'; // Reset options
-                    contractData.data.forEach(contract => {
-                        const option = document.createElement('option');
-                        option.value = contract.id;
-                        option.textContent = contract.name;
-                        contractSelect.appendChild(option);
-                    });
+                else {
+                    throw new Error('Cấu trúc dữ liệu không hợp lệ');
                 }
+                
+                // Cập nhật số lượng phòng ban trong thẻ thống kê
+                document.getElementById('totalDepartments').textContent = departmentsData.length;
+                
+                // Cập nhật dropdown filter
+                updateDepartmentFilter();
+                
+                // Cập nhật dropdown trong form thêm nhân viên
+                updateDepartmentForm();
+                
+                // Hiển thị thông báo thành công
+                showNotification('Đã tải danh sách phòng ban thành công', 'success');
+                
             } catch (error) {
-                console.error('Error loading dropdown data:', error);
-                showNotification('Có lỗi xảy ra khi tải dữ liệu', 'error');
-            }
-        }
-
-        // Hàm để thêm form thành viên gia đình
-        function addFamilyMember() {
-            const familyMembersContainer = document.getElementById('familyMembers');
-            const memberIndex = familyMembersContainer.children.length;
-            
-            const memberDiv = document.createElement('div');
-            memberDiv.className = 'family-member';
-            memberDiv.innerHTML = `
-                <div class="form-group">
-                    <label class="required-field">Tên thành viên</label>
-                    <input type="text" name="familyMembers[${memberIndex}][name]" required>
-                </div>
-                <div class="form-group">
-                    <label class="required-field">Mối quan hệ</label>
-                    <select name="familyMembers[${memberIndex}][relationship]" required>
-                        <option value="">Chọn mối quan hệ</option>
-                        <option value="spouse">Vợ/Chồng</option>
-                        <option value="child">Con</option>
-                        <option value="parent">Bố/Mẹ</option>
-                        <option value="sibling">Anh/Chị/Em</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Ngày sinh</label>
-                    <input type="date" name="familyMembers[${memberIndex}][birthday]">
-                </div>
-                <div class="form-group">
-                    <label>Nghề nghiệp</label>
-                    <input type="text" name="familyMembers[${memberIndex}][occupation]">
-                </div>
-                <div class="form-group">
-                    <label>Là người phụ thuộc</label>
-                    <input type="checkbox" name="familyMembers[${memberIndex}][isDependent]" value="1">
-                </div>
-                <button type="button" class="btn btn-danger" onclick="removeFamilyMember(this)">Xóa</button>
-            `;
-            
-            familyMembersContainer.appendChild(memberDiv);
-        }
-
-        // Hàm để xóa form thành viên gia đình
-        function removeFamilyMember(button) {
-            button.parentElement.remove();
-        }
-
-        // Cập nhật hàm showAddEmployeeModal
-        function showAddEmployeeModal() {
-            const modal = document.getElementById('addEmployeeModal');
-            if (!modal) {
-                console.error('Modal element not found');
-                return;
-            }
-            
-            modal.classList.add('active');
-            
-            // Reset form
-            const form = document.getElementById('addEmployeeForm');
-            if (form) {
-                form.reset();
-            }
-
-            // Load dữ liệu cho dropdowns
-            loadDropdownData();
-        }
-
-        // Cập nhật hàm saveEmployee
-        async function saveEmployee() {
-            const form = document.getElementById('addEmployeeForm');
-            if (!form.checkValidity()) {
-                showNotification('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
-                return;
-            }
-
-            const formData = new FormData(form);
-            
-            // Chuyển đổi FormData thành object
-            const data = {};
-            formData.forEach((value, key) => {
-                if (key.includes('familyMembers')) {
-                    const [_, index, field] = key.match(/familyMembers\[(\d+)\]\[(\w+)\]/);
-                    if (!data.familyMembers) data.familyMembers = [];
-                    if (!data.familyMembers[index]) data.familyMembers[index] = {};
-                    data.familyMembers[index][field] = value;
-                } else {
-                    data[key] = value;
+                // console.error('Error loading departments:', error);
+                // showNotification(`Lỗi khi tải danh sách phòng ban: ${error.message}`, 'error');
+                
+                // Nếu có lỗi, hiển thị option mặc định
+                const defaultOption = '<option value="">Tất cả phòng ban</option>';
+                document.getElementById('departmentFilter').innerHTML = defaultOption;
+                const formSelect = document.getElementById('departmentId');
+                if (formSelect) {
+                    formSelect.innerHTML = '<option value="">Chọn phòng ban</option>';
                 }
-            });
+            } finally {
+                // Ẩn loading
+                hideLoading();
+            }
+        }
 
-            // Hiển thị loading
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            loadingOverlay.style.display = 'flex';
+        // Hàm cập nhật dropdown filter với hiệu ứng mượt mà
+        function updateDepartmentFilter() {
+            const filterSelect = document.getElementById('departmentFilter');
+            if (!filterSelect) {
+                console.error('Không tìm thấy element departmentFilter');
+                return;
+            }
 
+            const currentValue = filterSelect.value;
+            
+            // Tạo HTML cho các option
+            let optionsHTML = '<option value="">Tất cả phòng ban</option>';
+            
+            // Kiểm tra và log dữ liệu
+            console.log('Departments data:', departmentsData);
+            
+            if (Array.isArray(departmentsData)) {
+                departmentsData.forEach(dept => {
+                    if (dept && dept.id && dept.name) {
+                        optionsHTML += `<option value="${dept.id}" ${currentValue === dept.id ? 'selected' : ''}>${dept.name}</option>`;
+                    } else {
+                        console.warn('Invalid department data:', dept);
+                    }
+                });
+            } else {
+                console.error('departmentsData is not an array:', departmentsData);
+            }
+            
+            // Thêm hiệu ứng fade out
+            filterSelect.style.opacity = '0';
+            
+            setTimeout(() => {
+                // Cập nhật nội dung
+                filterSelect.innerHTML = optionsHTML;
+                
+                // Thêm hiệu ứng fade in
+                filterSelect.style.opacity = '1';
+            }, 300);
+        }
+
+        // Hàm cập nhật dropdown trong form thêm nhân viên
+        function updateDepartmentForm() {
+            const formSelect = document.getElementById('departmentId');
+            if (!formSelect) {
+                console.error('Không tìm thấy element departmentId');
+                return;
+            }
+            
+            const currentValue = formSelect.value;
+            
+            // Tạo HTML cho các option
+            let optionsHTML = '<option value="">Chọn phòng ban</option>';
+            
+            if (Array.isArray(departmentsData)) {
+                departmentsData.forEach(dept => {
+                    if (dept && dept.id && dept.name) {
+                        optionsHTML += `<option value="${dept.id}" ${currentValue === dept.id ? 'selected' : ''}>${dept.name}</option>`;
+                    }
+                });
+            }
+            
+            // Thêm hiệu ứng fade out
+            formSelect.style.opacity = '0';
+            
+            setTimeout(() => {
+                // Cập nhật nội dung
+                formSelect.innerHTML = optionsHTML;
+                
+                // Thêm hiệu ứng fade in
+                formSelect.style.opacity = '1';
+            }, 300);
+        }
+
+        // Hàm lấy tên phòng ban theo ID
+        function getDepartmentName(id) {
+            if (!id) return '';
+            const department = departmentsData.find(dept => dept.id === id);
+            return department ? department.name : '';
+        }
+
+        // Hàm kiểm tra xem phòng ban có tồn tại không
+        function isValidDepartment(id) {
+            return departmentsData.some(dept => dept.id === id);
+        }
+
+        // Xử lý sự kiện khi thay đổi phòng ban trong filter
+        document.getElementById('departmentFilter').addEventListener('change', function() {
+            const departmentId = this.value;
+            const positionFilter = document.getElementById('positionFilter');
+            
+            // Reset position filter
+            positionFilter.innerHTML = '<option value="">Tất cả chức vụ</option>';
+            
+            // Nếu có chọn phòng ban, load danh sách chức vụ
+            if (departmentId) {
+                loadPositions(departmentId);
+            }
+            
+            // Load lại danh sách nhân viên với filter mới
+            loadEmployees(1);
+        });
+
+        // Hàm xử lý khi thay đổi chức vụ
+        function handlePositionChange() {
+            const positionSelect = document.getElementById('positionId');
+            const newPositionGroup = document.getElementById('newPositionGroup');
+            const newPositionInput = document.getElementById('newPosition');
+            
+            if (positionSelect.value === 'new') {
+                // Hiển thị ô nhập chức vụ mới
+                newPositionGroup.style.display = 'block';
+                newPositionInput.required = true;
+                newPositionInput.disabled = false;
+                newPositionInput.style.backgroundColor = '#fff';
+            } else {
+                // Ẩn ô nhập chức vụ mới
+                newPositionGroup.style.display = 'none';
+                newPositionInput.required = false;
+                newPositionInput.disabled = true;
+                newPositionInput.style.backgroundColor = '#f8f9fa';
+            }
+        }
+
+        // Sửa lại hàm loadPositions
+        async function loadPositions(departmentId) {
             try {
-                const response = await fetch('/api/employees', {
+                const response = await fetch(`/qlnhansu_V2/backend/src/api/positions.php?department_id=${departmentId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Positions Response:', data);
+
+                // Lấy select element cho vị trí
+                const positionSelect = document.getElementById('positionId');
+                if (!positionSelect) return;
+
+                // Reset options nhưng giữ lại option "Thêm chức vụ mới"
+                positionSelect.innerHTML = '<option value="">Chọn chức vụ</option><option value="new">+ Thêm chức vụ mới</option>';
+            
+                // Thêm các vị trí vào select
+                if (Array.isArray(data)) {
+                    data.forEach(position => {
+                        if (position && position.id && position.name) {
+                            const option = document.createElement('option');
+                            option.value = position.id;
+                            option.textContent = position.name;
+                            positionSelect.appendChild(option);
+                        }
+                    });
+                } else if (data.data && Array.isArray(data.data)) {
+                    data.data.forEach(position => {
+                        if (position && position.id && position.name) {
+                            const option = document.createElement('option');
+                            option.value = position.id;
+                            option.textContent = position.name;
+                            positionSelect.appendChild(option);
+                        }
+                    });
+                }
+
+                // Reset trạng thái ô nhập chức vụ mới
+                const newPositionGroup = document.getElementById('newPositionGroup');
+                const newPositionInput = document.getElementById('newPosition');
+                newPositionGroup.style.display = 'none';
+                newPositionInput.value = '';
+                newPositionInput.required = false;
+                newPositionInput.disabled = true;
+                newPositionInput.style.backgroundColor = '#f8f9fa';
+
+            } catch (error) {
+                console.error('Error loading positions:', error);
+                // this.showNotification('Không thể tải danh sách chức vụ', 'error');
+            }
+        }
+
+        // Hàm thêm thành viên gia đình mới
+        function addFamilyMember() {
+            const familyMembers = document.getElementById('familyMembers');
+            const newMember = document.createElement('div');
+            newMember.className = 'family-member';
+            newMember.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="required-field">Tên thành viên</label>
+                        <input type="text" class="form-control member-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="required-field">Mối quan hệ</label>
+                        <select class="form-control relationship" required>
+                            <option value="">Chọn mối quan hệ</option>
+                            <option value="Vợ">Vợ</option>
+                            <option value="Chồng">Chồng</option>
+                            <option value="Con">Con</option>
+                            <option value="Cha">Cha</option>
+                            <option value="Mẹ">Mẹ</option>
+                            <option value="Anh trai">Anh trai</option>
+                            <option value="Chị gái">Chị gái</option>
+                            <option value="Em trai">Em trai</option>
+                            <option value="Em gái">Em gái</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày sinh</label>
+                        <input type="date" class="form-control member-birthday">
+                    </div>
+                    <div class="form-group">
+                        <label>Nghề nghiệp</label>
+                        <input type="text" class="form-control member-occupation">
+                    </div>
+                    <div class="form-group">
+                        <label class="d-flex align-items-center">
+                            <input type="checkbox" class="member-dependent me-2"> Người phụ thuộc
+                        </label>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-member">
+                    <i class="fas fa-trash"></i> Xóa
+                </button>
+            `;
+
+            // Thêm hiệu ứng fade in
+            newMember.style.opacity = '0';
+            familyMembers.appendChild(newMember);
+            setTimeout(() => {
+                newMember.style.opacity = '1';
+            }, 10);
+
+            // Thêm sự kiện xóa cho nút xóa
+            const removeButton = newMember.querySelector('.remove-member');
+            removeButton.addEventListener('click', function() {
+                // Thêm hiệu ứng fade out
+                newMember.style.opacity = '0';
+                setTimeout(() => {
+                    familyMembers.removeChild(newMember);
+                }, 300);
+            });
+        }
+
+        // Thêm sự kiện cho nút Lưu khi DOM đã load
+        document.addEventListener('DOMContentLoaded', function() {
+            const saveButton = document.getElementById('saveEmployeeBtn');
+            if (saveButton) {
+                saveButton.addEventListener('click', saveEmployee);
+            }
+        });
+
+        // Sửa lại hàm saveEmployee
+        async function saveEmployee() {
+            try {
+                showLoading();
+
+                const formData = new FormData(document.getElementById('addEmployeeForm'));
+                const positionId = formData.get('positionId');
+                let positionData = {};
+
+                // Lấy dữ liệu gia đình
+                const familyMembers = [];
+                document.querySelectorAll('.family-member').forEach(member => {
+                    const name = member.querySelector('.member-name').value;
+                    const relationship = member.querySelector('.relationship').value;
+                    const birthday = member.querySelector('.member-birthday').value;
+                    const occupation = member.querySelector('.member-occupation').value;
+                    const isDependent = member.querySelector('.member-dependent').checked;
+
+                    if (name && relationship) {
+                        familyMembers.push({
+                            name,
+                            relationship,
+                            birthday,
+                            occupation,
+                            is_dependent: isDependent
+                        });
+                    }
+                });
+
+                // Nếu là chức vụ mới
+                if (positionId === 'new') {
+                    const newPositionName = document.getElementById('newPosition').value;
+                    if (!newPositionName) {
+                        showNotification('Vui lòng nhập tên chức vụ mới', 'error');
+                        return;
+                    }
+                    positionData = {
+                        name: newPositionName,
+                        department_id: formData.get('departmentId')
+                    };
+                } else {
+                    positionData = {
+                        position_id: positionId
+                    };
+                }
+
+                // Tạo object dữ liệu nhân viên
+                const employeeData = {
+                    name: formData.get('employeeName'),
+                    email: formData.get('employeeEmail'),
+                    phone: formData.get('employeePhone'),
+                    birthday: formData.get('employeeBirthday'),
+                    address: formData.get('employeeAddress'),
+                    employee_code: formData.get('employeeCode'),
+                    department_id: formData.get('departmentId'),
+                    hire_date: formData.get('hireDate'),
+                    contract_type: formData.get('contractType'),
+                    base_salary: formData.get('baseSalary'),
+                    contract_start_date: formData.get('contractStartDate'),
+                    family_members: familyMembers,
+                    ...positionData
+                };
+
+                // Gửi dữ liệu lên server
+                const response = await fetch('/qlnhansu_V2/backend/src/api/employees.php', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(employeeData)
                 });
 
                 const result = await response.json();
                 
+                if (!response.ok) {
+                    // Xử lý lỗi từ server
+                    let errorMessage = 'Lỗi khi lưu dữ liệu: ';
+                    
+                    if (result.errors) {
+                        // Nếu có nhiều lỗi validation
+                        errorMessage += '\n';
+                        Object.entries(result.errors).forEach(([field, messages]) => {
+                            errorMessage += `\n- ${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`;
+                        });
+                    } else if (result.message) {
+                        // Nếu có thông báo lỗi
+                        errorMessage += result.message;
+                    } else if (result.error) {
+                        // Nếu có lỗi hệ thống
+                        errorMessage += result.error;
+                    } else {
+                        // Lỗi không xác định
+                        errorMessage += `HTTP error! status: ${response.status}`;
+                    }
+                    
+                    throw new Error(errorMessage);
+                }
+
                 if (result.success) {
                     showNotification('Thêm nhân viên thành công', 'success');
                     closeAddEmployeeModal();
-                    
-                    // Reset form
-                    form.reset();
-                    
-                    // Load lại danh sách nhân viên
-                    await loadEmployees();
-                    
-                    // Cập nhật thống kê
-                    await updateDashboardStats();
+                    loadEmployees(1); // Load lại danh sách nhân viên
                 } else {
-                    showNotification(result.message || 'Có lỗi xảy ra khi thêm nhân viên', 'error');
+                    throw new Error(result.message || 'Lỗi không xác định khi lưu nhân viên');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Có lỗi xảy ra khi thêm nhân viên', 'error');
-            } finally {
-                loadingOverlay.style.display = 'none';
-            }
-        }
 
-        // Hàm cập nhật thống kê dashboard
-        async function updateDashboardStats() {
-            try {
-                const response = await fetch('/api/employees/stats');
-                const data = await response.json();
+            } catch (error) {
+                console.error('Error saving employee:', error);
                 
-                if (data.success) {
-                    document.getElementById('totalEmployees').textContent = data.total_employees;
-                    document.getElementById('activeEmployees').textContent = data.active_employees;
-                    document.getElementById('newEmployees').textContent = data.new_employees;
-                    document.getElementById('totalDepartments').textContent = data.total_departments;
+                // Hiển thị thông báo lỗi chi tiết
+                const errorMessage = error.message || 'Lỗi không xác định';
+                const errorDetails = errorMessage.split('\n').map(line => line.trim()).filter(line => line);
+                
+                // Tạo HTML cho thông báo lỗi
+                const errorHtml = `
+                    <div class="alert alert-danger" role="alert">
+                        <h5 class="alert-heading mb-2">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Lỗi khi lưu dữ liệu
+                        </h5>
+                        <div class="error-details">
+                            ${errorDetails.map(detail => `<p class="mb-1">${detail}</p>`).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                // Hiển thị thông báo lỗi
+                const errorContainer = document.getElementById('errorMessage');
+                if (errorContainer) {
+                    errorContainer.innerHTML = errorHtml;
+                    errorContainer.style.display = 'block';
+                    
+                    // Tự động ẩn sau 10 giây
+                    setTimeout(() => {
+                        errorContainer.style.display = 'none';
+                    }, 10000);
                 }
-            } catch (error) {
-                console.error('Error updating stats:', error);
+                
+                // Cuộn đến phần thông báo lỗi
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+            } finally {
+                // Ẩn loading
+                hideLoading();
             }
         }
 
+        // Load dữ liệu khi trang được tải
         document.addEventListener('DOMContentLoaded', function() {
-            // Xử lý khi thay đổi phòng ban
-            const departmentSelect = document.getElementById('departmentId');
-            if (departmentSelect) {
-                departmentSelect.addEventListener('change', async function() {
-                    const departmentId = this.value;
-                    if (departmentId) {
-                        try {
-                            const response = await fetch(`/api/positions?department_id=${departmentId}`);
-                            const data = await response.json();
-                            
-                            if (data.success) {
-                                const positionSelect = document.getElementById('positionId');
-                                positionSelect.innerHTML = '<option value="">Chọn chức vụ</option>';
-                                
-                                data.data.forEach(position => {
-                                    const option = document.createElement('option');
-                                    option.value = position.id;
-                                    option.textContent = position.name;
-                                    positionSelect.appendChild(option);
+            loadDepartments();
+        });
+
+        // Hàm hiển thị loading
+        function showLoading() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'flex';
+                loadingOverlay.classList.add('show');
+            }
+        }
+
+        // Hàm ẩn loading
+        function hideLoading() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.remove('show');
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Hàm reload dữ liệu nhân viên
+        async function reloadEmployeeData() {
+            try {
+                // Hiển thị loading
+                showLoading();
+                
+                // Reset tất cả các filter về trạng thái ban đầu
+                document.getElementById('searchInput').value = '';
+                document.getElementById('departmentFilter').value = '';
+                document.getElementById('positionFilter').value = '';
+                document.getElementById('statusFilter').value = '';
+                
+                // Load lại dữ liệu nhân viên với trang đầu tiên
+                await loadEmployees(1);
+                
+                // Hiển thị thông báo thành công
+                showNotification('Đã tải lại dữ liệu thành công', 'success');
+            } catch (error) {
+                console.error('Error reloading data:', error);
+                showNotification(`Lỗi khi tải lại dữ liệu: ${error.message}`, 'error');
+            } finally {
+                // Ẩn loading
+                hideLoading();
+            }
+        }
+
+        // Hàm hiển thị modal thêm nhân viên
+        function showAddEmployeeModal() {
+            const modal = document.getElementById('addEmployeeModal');
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('active');
+                
+                // Reset form
+                document.getElementById('addEmployeeForm').reset();
+                
+                // Tạo mã nhân viên tự động
+                generateEmployeeCode();
+            }
+        }
+
+        // Hàm đóng modal thêm nhân viên
+        function closeAddEmployeeModal() {
+            const modal = document.getElementById('addEmployeeModal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Hàm tạo mã nhân viên tự động
+        function generateEmployeeCode() {
+            const prefix = 'NV';
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            const date = new Date();
+            const year = date.getFullYear().toString().slice(-2);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const employeeCode = `${prefix}${year}${month}${random}`;
+            document.getElementById('employeeCode').value = employeeCode;
+        }
+
+        // Hàm hiển thị modal thêm nhân viên bằng file
+        function showAddEmployeeByFileModal() {
+            const modal = document.getElementById('addEmployeeByFileModal');
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('active');
+                
+                // Reset form
+                document.getElementById('employeeFile').value = '';
+                document.getElementById('previewSection').classList.add('hidden');
+                document.getElementById('uploadStatus').innerHTML = '';
+            }
+        }
+
+        // Hàm đóng modal thêm nhân viên bằng file
+        function closeAddEmployeeByFileModal() {
+            const modal = document.getElementById('addEmployeeByFileModal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Xử lý sự kiện click bên ngoài modal để đóng
+        window.onclick = function(event) {
+            const modal = document.getElementById('addEmployeeModal');
+            const fileModal = document.getElementById('addEmployeeByFileModal');
+            if (event.target == modal) {
+                closeAddEmployeeModal();
+            }
+            if (event.target == fileModal) {
+                closeAddEmployeeByFileModal();
+            }
+        }
+
+        // Thêm các hàm kiểm tra dữ liệu
+        function validateEmployeeData(employee) {
+            const errors = [];
+
+            // Kiểm tra tên
+            if (!employee.name || employee.name.trim() === '') {
+                errors.push('Tên không được để trống');
+            }
+
+            // Kiểm tra email
+            if (!employee.email) {
+                errors.push('Email không được để trống');
+            } else if (!isValidEmail(employee.email)) {
+                errors.push('Email không hợp lệ');
+            }
+
+            // Kiểm tra số điện thoại
+            if (!employee.phone) {
+                errors.push('Số điện thoại không được để trống');
+            } else if (!isValidPhone(employee.phone)) {
+                errors.push('Số điện thoại phải có 10 chữ số');
+            }
+
+            // Kiểm tra ngày sinh
+            if (employee.birthday) {
+                if (!isValidDate(employee.birthday)) {
+                    errors.push('Ngày sinh không hợp lệ');
+                } else if (isFutureDate(employee.birthday)) {
+                    errors.push('Ngày sinh không thể là ngày trong tương lai');
+                }
+            }
+
+            // Kiểm tra phòng ban
+            if (!employee.department_id) {
+                errors.push('Phòng ban không được để trống');
+            } else if (!isValidDepartment(employee.department_id)) {
+                errors.push('Phòng ban không tồn tại');
+            }
+
+            // Kiểm tra chức vụ
+            if (!employee.position_id && !employee.position_name) {
+                errors.push('Chức vụ không được để trống');
+            }
+
+            // Kiểm tra loại hợp đồng
+            if (!employee.contract_type) {
+                errors.push('Loại hợp đồng không được để trống');
+            } else if (!['Permanent', 'Fixed-Term', 'Intern'].includes(employee.contract_type)) {
+                errors.push('Loại hợp đồng không hợp lệ');
+            }
+
+            // Kiểm tra lương
+            if (!employee.base_salary) {
+                errors.push('Lương cơ bản không được để trống');
+            } else if (isNaN(employee.base_salary) || employee.base_salary <= 0) {
+                errors.push('Lương cơ bản phải là số dương');
+            }
+
+            // Kiểm tra ngày bắt đầu hợp đồng
+            if (!employee.contract_start_date) {
+                errors.push('Ngày bắt đầu hợp đồng không được để trống');
+            } else if (!isValidDate(employee.contract_start_date)) {
+                errors.push('Ngày bắt đầu hợp đồng không hợp lệ');
+            }
+
+            // Kiểm tra ngày kết thúc hợp đồng (nếu có)
+            if (employee.contract_end_date && !isValidDate(employee.contract_end_date)) {
+                errors.push('Ngày kết thúc hợp đồng không hợp lệ');
+            }
+
+            // Kiểm tra thông tin gia đình
+            if (employee.family_members && employee.family_members.length > 0) {
+                employee.family_members.forEach((member, index) => {
+                    if (!member.name || member.name.trim() === '') {
+                        errors.push(`Tên thành viên gia đình thứ ${index + 1} không được để trống`);
+                    }
+                    if (!member.relationship) {
+                        errors.push(`Mối quan hệ của thành viên thứ ${index + 1} không được để trống`);
+                    }
+                    if (member.birthday && !isValidDate(member.birthday)) {
+                        errors.push(`Ngày sinh của thành viên thứ ${index + 1} không hợp lệ`);
+                    }
+                });
+            }
+
+            return errors;
+        }
+
+        // Hàm kiểm tra email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Hàm kiểm tra số điện thoại
+        function isValidPhone(phone) {
+            const phoneRegex = /^\d{10}$/;
+            return phoneRegex.test(phone);
+        }
+
+        // Hàm kiểm tra ngày hợp lệ
+        function isValidDate(dateString) {
+            const date = new Date(dateString);
+            return date instanceof Date && !isNaN(date);
+        }
+
+        // Hàm kiểm tra ngày trong tương lai
+        function isFutureDate(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            return date > today;
+        }
+
+        // Sửa lại hàm previewFile để hiển thị lỗi chi tiết hơn
+        async function previewFile() {
+            const fileInput = document.getElementById('employeeFile');
+            const file = fileInput.files[0];
+            const errorContainer = document.getElementById('uploadError');
+            const previewSection = document.getElementById('previewSection');
+            const previewTableBody = document.getElementById('previewTableBody');
+            const saveToDbBtn = document.getElementById('saveToDbBtn');
+
+            if (!file) {
+                errorContainer.textContent = 'Vui lòng chọn file';
+                errorContainer.style.display = 'block';
+                return;
+            }
+
+            try {
+                showLoading();
+                const text = await file.text();
+                const lines = text.split('\n');
+                let currentEmployee = null;
+                const employees = [];
+                let hasErrors = false;
+                let errorDetails = [];
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    const parts = line.split('|');
+                    if (parts[0] === 'EMP') {
+                        if (currentEmployee) {
+                            // Kiểm tra dữ liệu nhân viên trước khi thêm vào danh sách
+                            const errors = validateEmployeeData(currentEmployee);
+                            if (errors.length > 0) {
+                                hasErrors = true;
+                                errorDetails.push({
+                                    employee: currentEmployee.name,
+                                    line: i,
+                                    errors: errors
                                 });
                             }
-                        } catch (error) {
-                            console.error('Error loading positions:', error);
-                            showNotification('Có lỗi xảy ra khi tải chức vụ', 'error');
+                            employees.push(currentEmployee);
                         }
-                    } else {
-                        // Reset chức vụ nếu không chọn phòng ban
-                        const positionSelect = document.getElementById('positionId');
-                        positionSelect.innerHTML = '<option value="">Chọn chức vụ</option>';
-                    }
-                });
-            }
 
-            // Xử lý khi thay đổi chức vụ
-            const positionSelect = document.getElementById('positionId');
-            if (positionSelect) {
-                positionSelect.addEventListener('change', async function() {
-                    const positionId = this.value;
-                    if (positionId) {
-                        try {
-                            const response = await fetch(`/api/positions/${positionId}/contract-info`);
-                            const data = await response.json();
-                            
-                            if (data.success) {
-                                // Cập nhật thông tin hợp đồng
-                                const contractTypeSelect = document.getElementById('contractType');
-                                const baseSalaryInput = document.getElementById('baseSalary');
-                                const contractStartDateInput = document.getElementById('contractStartDate');
-                                
-                                // Cập nhật loại hợp đồng
-                                if (data.contract_type) {
-                                    contractTypeSelect.value = data.contract_type;
-                                }
-                                
-                                // Cập nhật lương cơ bản
-                                if (data.salary) {
-                                    baseSalaryInput.value = data.salary;
-                                }
-                                
-                                // Cập nhật ngày bắt đầu hợp đồng
-                                if (data.start_date) {
-                                    contractStartDateInput.value = data.start_date;
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Error loading contract info:', error);
-                            showNotification('Có lỗi xảy ra khi tải thông tin hợp đồng', 'error');
-                        }
+                        currentEmployee = {
+                            name: parts[1],
+                            full_name: parts[2],
+                            email: parts[3],
+                            phone: parts[4],
+                            birthday: parts[5],
+                            address: parts[6],
+                            department_id: parts[7],
+                            position_name: parts[8],
+                            contract_type: parts[9],
+                            base_salary: parseFloat(parts[10]),
+                            contract_start_date: parts[11],
+                            contract_end_date: parts[12],
+                            family_members: []
+                        };
+                    } else if (parts[0] === 'FAM' && currentEmployee) {
+                        currentEmployee.family_members.push({
+                            name: parts[1],
+                            relationship: parts[2],
+                            birthday: parts[3],
+                            occupation: parts[4],
+                            is_dependent: parts[5] === '1'
+                        });
                     }
-                });
+                }
+
+                // Kiểm tra nhân viên cuối cùng
+                if (currentEmployee) {
+                    const errors = validateEmployeeData(currentEmployee);
+                    if (errors.length > 0) {
+                        hasErrors = true;
+                        errorDetails.push({
+                            employee: currentEmployee.name,
+                            line: lines.length,
+                            errors: errors
+                        });
+                    }
+                    employees.push(currentEmployee);
+                }
+
+                if (hasErrors) {
+                    // Hiển thị lỗi chi tiết
+                    errorContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h5 class="mb-3">Phát hiện lỗi trong file:</h5>
+                            ${errorDetails.map(detail => `
+                                <div class="mb-3">
+                                    <h6 class="text-danger mb-2">
+                                        <i class="fas fa-user me-2"></i>
+                                        Nhân viên: ${detail.employee}
+                                        <small class="text-muted">(Dòng ${detail.line})</small>
+                                    </h6>
+                                    <ul class="list-group">
+                                        ${detail.errors.map(error => {
+                                            const [field, message] = error.split(': ');
+                                            let correctValue = '';
+                                            
+                                            // Thêm hướng dẫn dữ liệu đúng
+                                            if (field.includes('email')) {
+                                                correctValue = 'Ví dụ: example@company.com';
+                                            } else if (field.includes('phone')) {
+                                                correctValue = 'Ví dụ: 0987654321';
+                                            } else if (field.includes('birthday') || field.includes('ngày')) {
+                                                correctValue = 'Định dạng: YYYY-MM-DD';
+                                            } else if (field.includes('lương')) {
+                                                correctValue = 'Phải là số dương';
+                                            } else if (field.includes('hợp đồng')) {
+                                                correctValue = 'Chỉ được nhập: Permanent, Fixed-Term, Intern';
+                                            }
+                                            
+                                            return `
+                                                <li class="list-group-item list-group-item-danger">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span>${error}</span>
+                                                        ${correctValue ? `<small class="text-muted">${correctValue}</small>` : ''}
+                                                    </div>
+                                                </li>
+                                            `;
+                                        }).join('')}
+                                    </ul>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    errorContainer.style.display = 'block';
+                    previewSection.classList.add('hidden');
+                    saveToDbBtn.style.display = 'none';
+                } else {
+                    // Hiển thị dữ liệu đã kiểm tra
+                    previewTableBody.innerHTML = employees.map(emp => `
+                        <tr>
+                            <td>${emp.name}</td>
+                            <td>${emp.full_name}</td>
+                            <td>${emp.email}</td>
+                            <td>${emp.phone}</td>
+                            <td>${emp.birthday}</td>
+                            <td>${emp.address}</td>
+                            <td>${getDepartmentName(emp.department_id)}</td>
+                            <td>${emp.position_name}</td>
+                            <td>${emp.contract_type}</td>
+                            <td>${emp.base_salary.toLocaleString()}</td>
+                            <td>${emp.contract_start_date}</td>
+                            <td>${emp.contract_end_date || '-'}</td>
+                            <td>
+                                ${emp.family_members.map(member => `
+                                    <div class="mb-1">
+                                        <strong>${member.name}</strong> (${member.relationship})<br>
+                                        ${member.birthday ? `Ngày sinh: ${member.birthday}<br>` : ''}
+                                        ${member.occupation ? `Nghề nghiệp: ${member.occupation}<br>` : ''}
+                                        ${member.is_dependent ? 'Người phụ thuộc' : ''}
+                                    </div>
+                                `).join('')}
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    previewSection.classList.remove('hidden');
+                    saveToDbBtn.style.display = 'inline-block';
+                    errorContainer.style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Error reading file:', error);
+                errorContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5 class="mb-2">Lỗi khi đọc file:</h5>
+                        <p class="mb-0">${error.message}</p>
+                    </div>
+                `;
+                errorContainer.style.display = 'block';
+                previewSection.classList.add('hidden');
+                saveToDbBtn.style.display = 'none';
+            } finally {
+                hideLoading();
             }
-        });
+        }
+
+        // Sửa lại hàm savePreviewedEmployees để hiển thị thông báo thành công
+        async function savePreviewedEmployees() {
+            try {
+                showLoading();
+                
+                // Lấy dữ liệu từ bảng xem trước
+                const employees = [];
+                const rows = document.querySelectorAll('#previewTableBody tr');
+                
+                rows.forEach(row => {
+                    const cells = row.cells;
+                    employees.push({
+                        name: cells[0].textContent,
+                        full_name: cells[1].textContent,
+                        email: cells[2].textContent,
+                        phone: cells[3].textContent,
+                        birthday: cells[4].textContent,
+                        address: cells[5].textContent,
+                        department_id: getDepartmentIdByName(cells[6].textContent),
+                        position_name: cells[7].textContent,
+                        contract_type: cells[8].textContent,
+                        base_salary: parseFloat(cells[9].textContent.replace(/,/g, '')),
+                        contract_start_date: cells[10].textContent,
+                        contract_end_date: cells[11].textContent === '-' ? null : cells[11].textContent,
+                        family_members: parseFamilyMembers(cells[12])
+                    });
+                });
+
+                // Gửi dữ liệu lên server
+                const response = await fetch('/qlnhansu_V2/backend/src/api/employees.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ employees })
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'Lỗi khi lưu dữ liệu');
+                }
+
+                if (result.success) {
+                    // Hiển thị thông báo thành công
+                    const successMessage = `
+                        <div class="alert alert-success">
+                            <h5 class="mb-2">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Chúc mừng bạn đã thêm ${employees.length} nhân viên thành công!
+                            </h5>
+                            <p class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Dữ liệu đã được lưu vào hệ thống. Bạn có thể kiểm tra trong danh sách nhân viên.
+                            </p>
+                        </div>
+                    `;
+                    
+                    document.getElementById('uploadError').innerHTML = successMessage;
+                    document.getElementById('uploadError').style.display = 'block';
+                    
+                    // Đóng modal sau 3 giây
+                    setTimeout(() => {
+                        closeAddEmployeeByFileModal();
+                        loadEmployees(1); // Load lại danh sách nhân viên
+                    }, 3000);
+                }
+
+            } catch (error) {
+                console.error('Error saving employees:', error);
+                document.getElementById('uploadError').innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5 class="mb-2">Lỗi khi lưu dữ liệu:</h5>
+                        <p class="mb-0">${error.message}</p>
+                    </div>
+                `;
+                document.getElementById('uploadError').style.display = 'block';
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Hàm phụ trợ để lấy ID phòng ban từ tên
+        function getDepartmentIdByName(name) {
+            const department = departmentsData.find(dept => dept.name === name);
+            return department ? department.id : null;
+        }
+
+        // Hàm phụ trợ để phân tích thông tin gia đình
+        function parseFamilyMembers(cell) {
+            const members = [];
+            const memberDivs = cell.querySelectorAll('div.mb-1');
+            
+            memberDivs.forEach(div => {
+                const name = div.querySelector('strong').textContent;
+                const relationship = div.textContent.match(/\((.*?)\)/)[1];
+                const birthdayMatch = div.textContent.match(/Ngày sinh: (.*?)(?:\n|$)/);
+                const occupationMatch = div.textContent.match(/Nghề nghiệp: (.*?)(?:\n|$)/);
+                const isDependent = div.textContent.includes('Người phụ thuộc');
+                
+                members.push({
+                    name,
+                    relationship,
+                    birthday: birthdayMatch ? birthdayMatch[1] : null,
+                    occupation: occupationMatch ? occupationMatch[1] : null,
+                    is_dependent: isDependent
+                });
+            });
+            
+            return members;
+        }
     </script>
 </body>
 </html> 

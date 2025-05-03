@@ -1,6 +1,7 @@
 <?php include 'headers.php'; ?>
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
 
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https: 'wasm-unsafe-eval'; connect-src 'self' https:;">
     <title>Quản lý nhân sự - Dashboard</title>
-    
+
     <!-- CSS -->
     <link rel="stylesheet" href="../assets/css/font-awesome/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
@@ -26,522 +27,578 @@
     <!-- Thêm CSS cho hệ thống thông báo -->
     <style>
         .notification-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
 
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 25px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-width: 450px;
-    max-width: 650px;
-    z-index: 9999;
-    animation: slideIn 0.3s ease-in-out;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 25px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 450px;
+            max-width: 650px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease-in-out;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
 
-.notification-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-}
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
 
-.notification i {
-    font-size: 18px;
-    flex-shrink: 0;
-}
+        .notification i {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
 
-.notification-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
 
-.notification-header h4 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-}
+        .notification-header h4 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
 
-.notification-time {
-    font-size: 12px;
-    color: #666;
-}
+        .notification-time {
+            font-size: 12px;
+            color: #666;
+        }
 
-.notification p {
-    margin: 0;
-    font-size: 14px;
-    color: #333;
-    line-height: 1.4;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .notification p {
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-.notification-link {
-    display: inline-block;
-    margin-top: 8px;
-    color: #1a73e8;
-    text-decoration: none;
-    font-size: 12px;
-}
+        .notification-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: #1a73e8;
+            text-decoration: none;
+            font-size: 12px;
+        }
 
-.notification-link:hover {
-    text-decoration: underline;
-}
+        .notification-link:hover {
+            text-decoration: underline;
+        }
 
-.notification.success {
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-    color: #155724;
-}
+        .notification.success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
 
-.notification.error {
-    background-color:rgb(231, 136, 144);
-    border-color:rgb(116, 7, 18);
-    color:rgb(12, 7, 8);
-}
+        .notification.error {
+            background-color: rgb(231, 136, 144);
+            border-color: rgb(116, 7, 18);
+            color: rgb(12, 7, 8);
+        }
 
-.notification.warning {
-    background-color: #fff3cd;
-    border-color: #ffeeba;
-    color: #856404;
-}
+        .notification.warning {
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+            color: #856404;
+        }
 
-.notification.info {
-    background-color: #cce5ff;
-    border-color: #b8daff;
-    color: #004085;
-}
+        .notification.info {
+            background-color: #cce5ff;
+            border-color: #b8daff;
+            color: #004085;
+        }
 
-.close-btn {
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    padding: 0;
-    margin-left: 15px;
-}
+        .close-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 15px;
+        }
 
-.close-btn:hover {
-    opacity: 0.7;
-}
+        .close-btn:hover {
+            opacity: 0.7;
+        }
 
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-} 
-    </style>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <meta name="theme-color" content="#ffffff" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <!-- Content Security Policy -->
-        <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline' https://cdn.jsdelivr.net; script-src * 'unsafe-inline' 'unsafe-eval' https://code.jquery.com; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; font-src * data: 'unsafe-inline';" />
-
-        <title>Admin Dashboard - Quản trị hệ thống</title>
-        
-        <link rel="stylesheet" href="css/libs/bootstrap.min.css">
-        <link rel="stylesheet" href="css/libs/bootstrap-icons.min.css">
-        <link rel="stylesheet" href="css/libs/font-awesome.min.css">
-        <link rel="stylesheet" href="css/libs/roboto.css">
-        <link rel="stylesheet" href="dashboard_admin.css">
-        <link rel="stylesheet" href="css/dark-mode.css">
-       
-        <script src="js/libs/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="js/libs/jquery-3.7.1.min.js"></script>
-        
-        <!-- Configuration -->
-        <script src="js/config.js"></script>
-        <script type="module">
-            import { Dashboard } from './js/modules/dashboard.js';
-            import { DarkMode } from './js/modules/dark-mode.js';
-            
-            document.addEventListener('DOMContentLoaded', () => {
-                const dashboard = new Dashboard();
-                dashboard.init();
-                
-                // Khởi tạo dark mode
-                const darkMode = new DarkMode();
-                darkMode.initialize(); // Thêm dòng này để đảm bảo dark mode được khởi tạo
-            });
-        </script>
-
-        <!-- Main Dashboard Scripts -->
-        <script type="module">
-            import { WidgetManager } from './js/modules/widget-manager.js';
-            import { CommonUtils, AuthUtils, PermissionUtils, NotificationUtils, UIUtils } from './js/modules/utils.js';
-            import { APIUtils } from './js/modules/api.js';
-            import { Dashboard } from './js/modules/dashboard.js';
-            import { APITest } from './js/modules/test.js';
-            import { ChartManager } from './js/modules/chart-manager.js';
-            import { WidgetManager } from './js/modules/widget-manager.js';
-            import { ThemeManager } from './js/modules/theme-manager.js';
-            import { ErrorHandler } from './js/modules/error-handler.js';
-            import { API } from './js/modules/api.js';
-            import { GlobalSearch } from './js/modules/global-search.js';
-            import { MenuSearch } from './js/modules/menu-search.js';
-            import { RecentMenu } from './js/modules/recent-menu.js';
-            import { UserProfile } from './js/modules/user-profile.js';
-            import { ExportData } from './js/modules/export-data.js';
-            import { AIAnalysis } from './js/modules/ai-analysis.js';
-            import { Gamification } from './js/modules/gamification.js';
-            import { MobileStats } from './js/modules/mobile-stats.js';
-            import { ActivityFilter } from './js/modules/activity-filter.js';
-            import { NotificationHandler } from './js/modules/notification-handler.js';
-            import { LoadingOverlay } from './js/modules/loading-overlay.js';
-            import { DarkMode } from './js/modules/dark-mode.js';
-            import { ContentLoader } from './js/modules/content-loader.js';
-                    
-
-            // Khởi tạo các module
-            ContentLoader.init();
-            const widgetManager = new WidgetManager();
-            await widgetManager.initialize();
-            const dashboard = new Dashboard();
-            const globalSearch = new GlobalSearch();
-            const menuSearch = new MenuSearch();
-            const recentMenu = new RecentMenu();
-            const userProfile = new UserProfile();
-            const exportData = new ExportData();
-            const aiAnalysis = new AIAnalysis();
-            // const gamification = new Gamification();
-            const mobileStats = new MobileStats();
-            const activityFilter = new ActivityFilter();
-            const notificationHandler = new NotificationHandler();
-            const loadingOverlay = new LoadingOverlay();
-            const darkMode = new DarkMode();
-
-            // Khởi tạo theo dõi phiên đăng nhập
-            AuthUtils.initSessionMonitoring();
-
-            // Chạy kiểm tra hệ thống
-            APITest.runAllTests();
-
-            // Xử lý sự kiện khi trang được tải
-            document.addEventListener('DOMContentLoaded', async () => {
-                // Kiểm tra xác thực
-                if (!AuthUtils.isAuthenticated()) {
-                    window.location.href = '/login_new.html';
-                    return;
-                }
-
-                // Khởi tạo các module
-                await initializeModules();
-                
-                // Thêm các event listeners
-                addEventListeners();
-            });
-
-            // Khởi tạo các module
-            async function initializeModules() {
-                try {
-                    loadingOverlay.show();
-                    
-                    // Khởi tạo dashboard
-                    await dashboard.loadData();
-                    
-                    // Khởi tạo tìm kiếm
-                    globalSearch.initialize();
-                    menuSearch.initialize();
-                    
-                    // Khởi tạo menu gần đây
-                    recentMenu.initialize();
-                    
-                    // Khởi tạo thông tin người dùng
-                    await userProfile.loadProfile();
-                    
-                    // Khởi tạo phân tích AI
-                    await aiAnalysis.initialize();
-                    
-                    // Khởi tạo gamification
-                    // await gamification.initialize();
-                    
-                    // Khởi tạo thống kê mobile
-                    await mobileStats.initialize();
-                    
-                    // Khởi tạo bộ lọc hoạt động
-                    activityFilter.initialize();
-                    
-                    // Khởi tạo thông báo
-                    await notificationHandler.initialize();
-                    
-                    // Khởi tạo chế độ tối
-                    darkMode.initialize();
-                    
-                    loadingOverlay.hide();
-                } catch (error) {
-                    console.error('Lỗi khởi tạo:', error);
-                    loadingOverlay.hide();
-                }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
             }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline' https://cdn.jsdelivr.net; script-src * 'unsafe-inline' 'unsafe-eval' https://code.jquery.com; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; font-src * data: 'unsafe-inline';" />
+
+    <title>Admin Dashboard - Quản trị hệ thống</title>
+
+    <link rel="stylesheet" href="css/libs/bootstrap.min.css">
+    <link rel="stylesheet" href="css/libs/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/libs/font-awesome.min.css">
+    <link rel="stylesheet" href="css/libs/roboto.css">
+    <link rel="stylesheet" href="dashboard_admin.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+
+    <script src="js/libs/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/libs/jquery-3.7.1.min.js"></script>
+
+    <!-- Configuration -->
+    <script src="js/config.js"></script>
+    <script type="module">
+        import {
+            Dashboard
+        } from './js/modules/dashboard.js';
+        import {
+            DarkMode
+        } from './js/modules/dark-mode.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const dashboard = new Dashboard();
+            dashboard.init();
+
+            // Khởi tạo dark mode
+            const darkMode = new DarkMode();
+            darkMode.initialize(); // Thêm dòng này để đảm bảo dark mode được khởi tạo
+        });
+    </script>
+
+    <!-- Main Dashboard Scripts -->
+    <script type="module">
+        import {
+            WidgetManager
+        } from './js/modules/widget-manager.js';
+        import {
+            CommonUtils,
+            AuthUtils,
+            PermissionUtils,
+            NotificationUtils,
+            UIUtils
+        } from './js/modules/utils.js';
+        import {
+            APIUtils
+        } from './js/modules/api.js';
+        import {
+            Dashboard
+        } from './js/modules/dashboard.js';
+        import {
+            APITest
+        } from './js/modules/test.js';
+        import {
+            ChartManager
+        } from './js/modules/chart-manager.js';
+        import {
+            WidgetManager
+        } from './js/modules/widget-manager.js';
+        import {
+            ThemeManager
+        } from './js/modules/theme-manager.js';
+        import {
+            ErrorHandler
+        } from './js/modules/error-handler.js';
+        import {
+            API
+        } from './js/modules/api.js';
+        import {
+            GlobalSearch
+        } from './js/modules/global-search.js';
+        import {
+            MenuSearch
+        } from './js/modules/menu-search.js';
+        import {
+            RecentMenu
+        } from './js/modules/recent-menu.js';
+        import {
+            UserProfile
+        } from './js/modules/user-profile.js';
+        import {
+            ExportData
+        } from './js/modules/export-data.js';
+        import {
+            AIAnalysis
+        } from './js/modules/ai-analysis.js';
+        import {
+            Gamification
+        } from './js/modules/gamification.js';
+        import {
+            MobileStats
+        } from './js/modules/mobile-stats.js';
+        import {
+            ActivityFilter
+        } from './js/modules/activity-filter.js';
+        import {
+            NotificationHandler
+        } from './js/modules/notification-handler.js';
+        import {
+            LoadingOverlay
+        } from './js/modules/loading-overlay.js';
+        import {
+            DarkMode
+        } from './js/modules/dark-mode.js';
+        import {
+            ContentLoader
+        } from './js/modules/content-loader.js';
+
+
+        // Khởi tạo các module
+        ContentLoader.init();
+        const widgetManager = new WidgetManager();
+        await widgetManager.initialize();
+        const dashboard = new Dashboard();
+        const globalSearch = new GlobalSearch();
+        const menuSearch = new MenuSearch();
+        const recentMenu = new RecentMenu();
+        const userProfile = new UserProfile();
+        const exportData = new ExportData();
+        const aiAnalysis = new AIAnalysis();
+        // const gamification = new Gamification();
+        const mobileStats = new MobileStats();
+        const activityFilter = new ActivityFilter();
+        const notificationHandler = new NotificationHandler();
+        const loadingOverlay = new LoadingOverlay();
+        const darkMode = new DarkMode();
+
+        // Khởi tạo theo dõi phiên đăng nhập
+        AuthUtils.initSessionMonitoring();
+
+        // Chạy kiểm tra hệ thống
+        APITest.runAllTests();
+
+        // Xử lý sự kiện khi trang được tải
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Kiểm tra xác thực
+            if (!AuthUtils.isAuthenticated()) {
+                window.location.href = '/login_new.html';
+                return;
+            }
+
+            // Khởi tạo các module
+            await initializeModules();
 
             // Thêm các event listeners
-            function addEventListeners() {
-                // Xử lý tìm kiếm toàn cục
-                document.getElementById('globalSearch').addEventListener('input', (e) => {
-                    globalSearch.search(e.target.value);
-                });
+            addEventListeners();
+        });
 
-                // Xử lý tìm kiếm menu
-                document.querySelector('.menu-search input').addEventListener('input', (e) => {
-                    menuSearch.search(e.target.value);
-                });
+        // Khởi tạo các module
+        async function initializeModules() {
+            try {
+                loadingOverlay.show();
 
-                // Xử lý chuyển đổi chế độ tối
-                document.getElementById('themeToggle').addEventListener('click', () => {
-                    darkMode.toggle();
-                });
+                // Khởi tạo dashboard
+                await dashboard.loadData();
 
-                // Xử lý làm mới hoạt động
-                document.getElementById('refreshActivities').addEventListener('click', async () => {
-                    await activityFilter.refresh();
-                });
+                // Khởi tạo tìm kiếm
+                globalSearch.initialize();
+                menuSearch.initialize();
 
-                // Xử lý làm mới thông báo
-                document.getElementById('refreshNotifications').addEventListener('click', async () => {
-                    await notificationHandler.refresh();
-                });
+                // Khởi tạo menu gần đây
+                recentMenu.initialize();
 
-                // Xử lý xuất dữ liệu
-                document.querySelectorAll('.export-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        exportData.export(btn.dataset.type);
-                    });
-                });
+                // Khởi tạo thông tin người dùng
+                await userProfile.loadProfile();
 
-                // Xử lý cập nhật phân tích AI
-                document.getElementById('updateAnalysis').addEventListener('click', async () => {
-                    await aiAnalysis.update();
-                });
+                // Khởi tạo phân tích AI
+                await aiAnalysis.initialize();
 
-                // Xử lý cập nhật gamification
-                // document.getElementById('updateGamification').addEventListener('click', async () => {
-                //     await gamification.update();
-                // });
+                // Khởi tạo gamification
+                // await gamification.initialize();
 
-                // Xử lý cập nhật thống kê mobile
-                document.getElementById('updateMobileStats').addEventListener('click', async () => {
-                    await mobileStats.update();
-                });
+                // Khởi tạo thống kê mobile
+                await mobileStats.initialize();
 
-                // Xử lý đăng xuất
-                document.getElementById('logoutBtn').addEventListener('click', () => {
-                    AuthUtils.logout();
-                });
+                // Khởi tạo bộ lọc hoạt động
+                activityFilter.initialize();
 
-                // Xử lý các nút quick action
-                document.querySelectorAll('.quick-action-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const action = btn.dataset.action;
-                        handleQuickAction(action);
-                    });
-                });
+                // Khởi tạo thông báo
+                await notificationHandler.initialize();
 
-                // Xử lý các selector
-                document.querySelectorAll('select').forEach(select => {
-                    select.addEventListener('change', (e) => {
-                        const type = select.id;
-                        handleSelectorChange(type, e.target.value);
-                    });
-                });
+                // Khởi tạo chế độ tối
+                darkMode.initialize();
+
+                loadingOverlay.hide();
+            } catch (error) {
+                console.error('Lỗi khởi tạo:', error);
+                loadingOverlay.hide();
             }
+        }
 
-            // Xử lý quick action
-            function handleQuickAction(action) {
-                switch (action) {
-                    case 'add-employee':
-                        window.location.href = 'employees/add.html';
-                        break;
-                    case 'check-attendance':
-                        window.location.href = 'attendance/check.html';
-                        break;
-                    case 'register-leave':
-                        window.location.href = 'leave/register.html';
-                        break;
-                    case 'calculate-salary':
-                        window.location.href = 'salary/calculate.html';
-                        break;
-                }
-            }
-
-            // Xử lý thay đổi selector
-            function handleSelectorChange(type, value) {
-                switch (type) {
-                    case 'performanceTimeRange':
-                        dashboard.updatePerformanceChart(value);
-                        break;
-                    case 'attendancePeriod':
-                        dashboard.updateAttendanceChart(value);
-                        break;
-                    case 'activityType':
-                        activityFilter.filterByType(value);
-                        break;
-                }
-            }
-
-            // Xử lý sự kiện khi trang bị đóng
-            window.addEventListener('beforeunload', () => {
-                dashboard.cleanup();
-                globalSearch.cleanup();
-                menuSearch.cleanup();
-                recentMenu.cleanup();
-                userProfile.cleanup();
-                aiAnalysis.cleanup();
-                // gamification.cleanup();
-                mobileStats.cleanup();
-                activityFilter.cleanup();
-                notificationHandler.cleanup();
-                loadingOverlay.cleanup();
-                darkMode.cleanup();
+        // Thêm các event listeners
+        function addEventListeners() {
+            // Xử lý tìm kiếm toàn cục
+            document.getElementById('globalSearch').addEventListener('input', (e) => {
+                globalSearch.search(e.target.value);
             });
-        </script>
+
+            // Xử lý tìm kiếm menu
+            document.querySelector('.menu-search input').addEventListener('input', (e) => {
+                menuSearch.search(e.target.value);
+            });
+
+            // Xử lý chuyển đổi chế độ tối
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                darkMode.toggle();
+            });
+
+            // Xử lý làm mới hoạt động
+            document.getElementById('refreshActivities').addEventListener('click', async () => {
+                await activityFilter.refresh();
+            });
+
+            // Xử lý làm mới thông báo
+            document.getElementById('refreshNotifications').addEventListener('click', async () => {
+                await notificationHandler.refresh();
+            });
+
+            // Xử lý xuất dữ liệu
+            document.querySelectorAll('.export-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    exportData.export(btn.dataset.type);
+                });
+            });
+
+            // Xử lý cập nhật phân tích AI
+            document.getElementById('updateAnalysis').addEventListener('click', async () => {
+                await aiAnalysis.update();
+            });
+
+            // Xử lý cập nhật gamification
+            // document.getElementById('updateGamification').addEventListener('click', async () => {
+            //     await gamification.update();
+            // });
+
+            // Xử lý cập nhật thống kê mobile
+            document.getElementById('updateMobileStats').addEventListener('click', async () => {
+                await mobileStats.update();
+            });
+
+            // Xử lý đăng xuất
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                AuthUtils.logout();
+            });
+
+            // Xử lý các nút quick action
+            document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const action = btn.dataset.action;
+                    handleQuickAction(action);
+                });
+            });
+
+            // Xử lý các selector
+            document.querySelectorAll('select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const type = select.id;
+                    handleSelectorChange(type, e.target.value);
+                });
+            });
+        }
+
+        // Xử lý quick action
+        function handleQuickAction(action) {
+            switch (action) {
+                case 'add-employee':
+                    window.location.href = 'employees/add.html';
+                    break;
+                case 'check-attendance':
+                    window.location.href = 'attendance/check.html';
+                    break;
+                case 'register-leave':
+                    window.location.href = 'leave/register.html';
+                    break;
+                case 'calculate-salary':
+                    window.location.href = 'salary/calculate.html';
+                    break;
+            }
+        }
+
+        // Xử lý thay đổi selector
+        function handleSelectorChange(type, value) {
+            switch (type) {
+                case 'performanceTimeRange':
+                    dashboard.updatePerformanceChart(value);
+                    break;
+                case 'attendancePeriod':
+                    dashboard.updateAttendanceChart(value);
+                    break;
+                case 'activityType':
+                    activityFilter.filterByType(value);
+                    break;
+            }
+        }
+
+        // Xử lý sự kiện khi trang bị đóng
+        window.addEventListener('beforeunload', () => {
+            dashboard.cleanup();
+            globalSearch.cleanup();
+            menuSearch.cleanup();
+            recentMenu.cleanup();
+            userProfile.cleanup();
+            aiAnalysis.cleanup();
+            // gamification.cleanup();
+            mobileStats.cleanup();
+            activityFilter.cleanup();
+            notificationHandler.cleanup();
+            loadingOverlay.cleanup();
+            darkMode.cleanup();
+        });
+    </script>
     <style>
-        
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        left: calc(-1 * var(--sidebar-width));
-        transition: left 0.3s ease;
-        z-index: 1030;
-        max-height: 100vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        width: var(--sidebar-width);
-        background-color: #F2F2F2;
-    }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: calc(-1 * var(--sidebar-width));
+                transition: left 0.3s ease;
+                z-index: 1030;
+                max-height: 100vh;
+                overflow-y: auto;
+                overflow-x: hidden;
+                width: var(--sidebar-width);
+                background-color: #F2F2F2;
+            }
 
-    .sidebar.active {
-        left: 0;
-    }
+            .sidebar.active {
+                left: 0;
+            }
 
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1029;
-    }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1029;
+            }
 
-    .sidebar-overlay.active {
-        display: block;
-    }
+            .sidebar-overlay.active {
+                display: block;
+            }
 
-    /* Mobile sidebar improvements */
-    .sidebar-header {
-        padding: 1rem;
-        position: sticky;
-        top: 0;
-        background-color: #F2F2F2;
-        z-index: 1;
-    }
+            /* Mobile sidebar improvements */
+            .sidebar-header {
+                padding: 1rem;
+                position: sticky;
+                top: 0;
+                background-color: #F2F2F2;
+                z-index: 1;
+            }
 
-    .user-info {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
+            .user-info {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
 
-    .user-avatar {
-        margin-bottom: 0.5rem;
-    }
+            .user-avatar {
+                margin-bottom: 0.5rem;
+            }
 
-    .nav-list {
-        padding: 0.5rem;
-        margin: 0;
-        list-style: none;
-    }
+            .nav-list {
+                padding: 0.5rem;
+                margin: 0;
+                list-style: none;
+            }
 
-    .nav-item {
-        margin-bottom: 0.25rem;
-        position: relative;
-    }
+            .nav-item {
+                margin-bottom: 0.25rem;
+                position: relative;
+            }
 
-    .nav-link {
-        padding: 0.75rem 1rem;
-        display: flex;
-        align-items: center;
-        color: #333;
-        text-decoration: none;
-        transition: background-color 0.3s;
-    }
+            .nav-link {
+                padding: 0.75rem 1rem;
+                display: flex;
+                align-items: center;
+                color: #333;
+                text-decoration: none;
+                transition: background-color 0.3s;
+            }
 
-    .nav-link i {
-        font-size: 1.1rem;
-        margin-right: 10px;
-        width: 20px;
-        text-align: center;
-    }
+            .nav-link i {
+                font-size: 1.1rem;
+                margin-right: 10px;
+                width: 20px;
+                text-align: center;
+            }
 
-    .nav-link span {
-        font-size: 0.9rem;
-        flex: 1;
-    }
+            .nav-link span {
+                font-size: 0.9rem;
+                flex: 1;
+            }
 
-    .submenu {
-        list-style: none;
-        padding-left: 2rem;
-        margin: 0;
-        display: none;
-    }
+            .submenu {
+                list-style: none;
+                padding-left: 2rem;
+                margin: 0;
+                display: none;
+            }
 
-    .nav-item.has-submenu.open .submenu {
-        display: block;
-    }
+            .nav-item.has-submenu.open .submenu {
+                display: block;
+            }
 
-    .submenu .nav-link {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-    }
+            .submenu .nav-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
 
-    .submenu-toggle {
-        display: inline-flex;
-        margin-left: auto;
-        transition: transform 0.3s ease;
-    }
+            .submenu-toggle {
+                display: inline-flex;
+                margin-left: auto;
+                transition: transform 0.3s ease;
+            }
 
-    .nav-item.has-submenu.open .submenu-toggle {
-        transform: rotate(90deg);
-    }
-}
+            .nav-item.has-submenu.open .submenu-toggle {
+                transform: rotate(90deg);
+            }
+        }
+
         /* Header Styles */
         .header {
             position: fixed;
@@ -556,7 +613,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
             transition: left 0.3s ease;
         }
 
@@ -627,7 +684,7 @@
         }
 
         .header-controls .btn:hover {
-            background: rgba(0,0,0,0.05);
+            background: rgba(0, 0, 0, 0.05);
         }
 
         /* Responsive adjustments */
@@ -635,7 +692,7 @@
             .header-title {
                 max-width: 200px;
             }
-            
+
             .header-controls {
                 gap: 10px;
             }
@@ -645,11 +702,11 @@
             .header-title {
                 max-width: 150px;
             }
-            
+
             .header-controls .btn-warning span {
                 display: none;
             }
-            
+
             .header-controls .form-select {
                 min-width: 100px;
             }
@@ -660,25 +717,25 @@
                 left: 0;
                 padding: 0 15px;
             }
-            
+
             .header-title {
                 max-width: 120px;
                 font-size: 1.2rem;
             }
-            
+
             .header-controls {
                 gap: 8px;
             }
-            
+
             .header-controls .btn-warning {
                 padding: 8px;
             }
-            
+
             .header-controls .form-select {
                 min-width: 80px;
                 padding: 8px;
             }
-            
+
             .header-controls .btn {
                 padding: 8px;
             }
@@ -689,7 +746,7 @@
                 height: 50px;
                 padding: 0 10px;
             }
-            
+
             .header-title {
                 max-width: 100px;
                 font-size: 1rem;
@@ -697,18 +754,18 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
-            
+
             .header-controls {
                 gap: 5px;
                 flex-wrap: nowrap;
             }
-            
+
             .header-controls .btn-warning,
             .header-controls .btn {
                 padding: 6px;
                 font-size: 0.8rem;
             }
-            
+
             .header-controls .form-select {
                 min-width: 60px;
                 padding: 6px;
@@ -729,16 +786,16 @@
                 height: 45px;
                 padding: 0 5px;
             }
-            
+
             .header-title {
                 max-width: 80px;
                 font-size: 0.9rem;
             }
-            
+
             .header-controls .btn {
                 padding: 4px 6px;
             }
-            
+
             .header-controls .form-select {
                 min-width: 50px;
                 padding: 4px;
@@ -747,7 +804,7 @@
 
         /* Search Styles */
         .search-container {
-           margin-top: 15px;
+            margin-top: 15px;
             position: relative;
             width: 300px;
         }
@@ -860,7 +917,7 @@
             background: #fff;
             border: 1px solid #e0e0e0;
             border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             min-width: 180px;
             padding: 8px 0;
             opacity: 0;
@@ -1020,7 +1077,8 @@
         .nav-icon,
         .nav-link i:not(.fa-chevron-right),
         .submenu .nav-link i {
-            display: none !important; /* Hide all menu icons */
+            display: none !important;
+            /* Hide all menu icons */
         }
 
         /* Show only Dashboard icon */
@@ -1043,25 +1101,33 @@
 
         /* Menu styles */
         .nav-list {
-            list-style: none; /* Remove bullet points from menu */
+            list-style: none;
+            /* Remove bullet points from menu */
             overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
         }
 
         .nav-list::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
+            /* Chrome, Safari, Opera */
         }
 
         .submenu {
-            list-style: none; /* Remove bullet points from submenu */
+            list-style: none;
+            /* Remove bullet points from submenu */
             overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
         }
 
         .submenu::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
+            /* Chrome, Safari, Opera */
         }
 
         /* Remove underline on menu hover */
@@ -1086,14 +1152,14 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             height: 90px;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .stat-content {
@@ -1113,7 +1179,7 @@
             justify-content: center;
             font-size: 1.25rem;
             color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
         }
 
@@ -1180,7 +1246,7 @@
         /* Dark Mode Support */
         [data-theme="dark"] .stat-card {
             background: #2d2d2d;
-            border-color: rgba(255,255,255,0.1);
+            border-color: rgba(255, 255, 255, 0.1);
         }
 
         [data-theme="dark"] .stat-title {
@@ -1202,21 +1268,21 @@
             .statistics-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .stat-content {
                 padding: 0.75rem;
             }
-            
+
             .stat-icon-wrapper {
                 width: 40px;
                 height: 40px;
                 font-size: 1.1rem;
             }
-            
+
             .stat-title {
                 font-size: 0.75rem;
             }
-            
+
             .stat-value {
                 font-size: 1.25rem;
             }
@@ -1241,7 +1307,7 @@
             border-radius: 50%;
             overflow: hidden;
             border: 2px solid #dee2e6;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .user-avatar img {
@@ -1319,30 +1385,39 @@
 
         /* Menu styles */
         .nav-list {
-            list-style: none; /* Remove bullet points from menu */
+            list-style: none;
+            /* Remove bullet points from menu */
             overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
         }
 
         .nav-list::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
+            /* Chrome, Safari, Opera */
         }
 
         .submenu {
-            list-style: none; /* Remove bullet points from submenu */
+            list-style: none;
+            /* Remove bullet points from submenu */
             overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
         }
 
         .submenu::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
+            /* Chrome, Safari, Opera */
         }
 
         /* Icon styles */
         .nav-icon {
-            display: none; /* Hide all menu icons */
+            display: none;
+            /* Hide all menu icons */
         }
 
         /* Show only Dashboard icon */
@@ -1364,25 +1439,33 @@
 
         /* Menu styles */
         .nav-list {
-            list-style: none; /* Remove bullet points from menu */
+            list-style: none;
+            /* Remove bullet points from menu */
             overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
         }
 
         .nav-list::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
+            /* Chrome, Safari, Opera */
         }
 
         .submenu {
-            list-style: none; /* Remove bullet points from submenu */
+            list-style: none;
+            /* Remove bullet points from submenu */
             overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
         }
 
         .submenu::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
+            /* Chrome, Safari, Opera */
         }
 
         /* Remove underline on menu hover */
@@ -1414,7 +1497,7 @@
         .dashboard-card {
             background: #fff;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             overflow: hidden;
             height: 100%;
@@ -1445,7 +1528,8 @@
             flex-shrink: 0;
         }
 
-        .department-stats, .sentiment-stats {
+        .department-stats,
+        .sentiment-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
@@ -1613,14 +1697,14 @@
 
         .activity-section .card {
             border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
         }
 
         .activity-section .card-header {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             padding: 1rem 1.5rem;
         }
 
@@ -1884,21 +1968,21 @@
             .dashboard-stats-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .dashboard-stat-content {
                 padding: 1rem;
             }
-            
+
             .dashboard-stat-icon {
                 width: 40px;
                 height: 40px;
                 font-size: 1.1rem;
             }
-            
+
             .dashboard-stat-label {
                 font-size: 0.8rem;
             }
-            
+
             .dashboard-stat-number {
                 font-size: 1.25rem;
             }
@@ -1909,12 +1993,15 @@
             height: 300px;
             width: 100%;
         }
+
         .card-body {
             padding: 1rem;
         }
+
         .dashboard-stats-grid {
             margin-bottom: 0.5rem !important;
         }
+
         .charts-row {
             margin-top: 0 !important;
         }
@@ -1922,7 +2009,7 @@
         /* Scroll Driven Animations for Activities */
         @media (prefers-reduced-motion: no-preference) {
             .activity-timeline {
-                & > .activity-item {
+                &>.activity-item {
                     animation: slide-in-from-left linear both;
                     animation-timeline: view();
                     animation-range: entry 0% entry 100%;
@@ -1935,6 +2022,7 @@
                 transform: translateX(-100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -1946,7 +2034,7 @@
             margin-bottom: 10px;
             background: #fff;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
         }
 
@@ -2111,7 +2199,7 @@
             border-radius: 4px;
             padding: 8px 12px;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .menu-toggle i {
@@ -2137,7 +2225,7 @@
                 z-index: 1040;
                 transition: left 0.3s ease;
                 background: #fff;
-                box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
             }
 
             .sidebar.active {
@@ -2151,7 +2239,7 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(0,0,0,0.5);
+                background: rgba(0, 0, 0, 0.5);
                 z-index: 1030;
             }
 
@@ -2165,6 +2253,7 @@
         }
     </style>
 </head>
+
 <body class="theme-transition">
     <div class="dashboard-container">
         <!-- Menu Toggle Button -->
@@ -2199,12 +2288,13 @@
                             <span>Nhân viên</span>
                         </a>
                     </li>
-                    <!-- <li class="nav-item" data-menu-id="attendance">
+                    <li class="nav-item" data-menu-id="attendance">
                         <a href="pages/attendance.php" class="nav-link">
                             <i class="fas fa-clock"></i>
-                            <span>Chấm công</span>
+                            <span style="color:rgb(137, 21, 8);">Chấm công</span>
                         </a>
                     </li>
+                    <!--
                     <li class="nav-item" data-menu-id="payroll">
                         <a href="pages/payroll.php" class="nav-link">
                             <i class="fas fa-money-bill-wave"></i>
@@ -2270,7 +2360,7 @@
                 border-radius: 4px;
                 padding: 8px 12px;
                 cursor: pointer;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             }
 
             .menu-toggle i {
@@ -2290,7 +2380,7 @@
                 bottom: 0;
                 width: 280px;
                 background: #fff;
-                box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
                 z-index: 1040;
                 transition: left 0.3s ease;
             }
@@ -2302,7 +2392,7 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(0,0,0,0.5);
+                background: rgba(0, 0, 0, 0.5);
                 z-index: 1030;
             }
 
@@ -2630,217 +2720,217 @@
                 </div>
 
                 <style>
-                /* Statistics Cards */
-                .stat-card {
-                    border-radius: 10px;
-                    padding: 20px;
-                    height: 100%;
-                    transition: transform 0.3s ease, box-shadow 0.3s ease;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                }
+                    /* Statistics Cards */
+                    .stat-card {
+                        border-radius: 10px;
+                        padding: 20px;
+                        height: 100%;
+                        transition: transform 0.3s ease, box-shadow 0.3s ease;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    }
 
-                .stat-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-                }
+                    .stat-card:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+                    }
 
-                .stat-icon {
-                    font-size: 2.5rem;
-                    margin-bottom: 15px;
-                    opacity: 0.8;
-                }
+                    .stat-icon {
+                        font-size: 2.5rem;
+                        margin-bottom: 15px;
+                        opacity: 0.8;
+                    }
 
-                .stat-content h3 {
-                    font-size: 2rem;
-                    font-weight: 600;
-                    margin-bottom: 5px;
-                }
+                    .stat-content h3 {
+                        font-size: 2rem;
+                        font-weight: 600;
+                        margin-bottom: 5px;
+                    }
 
-                .stat-content p {
-                    font-size: 1rem;
-                    opacity: 0.9;
-                    margin-bottom: 0;
-                }
+                    .stat-content p {
+                        font-size: 1rem;
+                        opacity: 0.9;
+                        margin-bottom: 0;
+                    }
 
-                .bg-primary {
-                    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-                }
+                    .bg-primary {
+                        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+                    }
 
-                .bg-success {
-                    background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
-                }
+                    .bg-success {
+                        background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+                    }
 
-                .bg-warning {
-                    background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
-                }
+                    .bg-warning {
+                        background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+                    }
 
-                .bg-info {
-                    background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
-                }
+                    .bg-info {
+                        background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+                    }
 
-                /* Activity Filters */
-                .activity-filters {
-                    width: 200px;
-                }
+                    /* Activity Filters */
+                    .activity-filters {
+                        width: 200px;
+                    }
 
-                /* Activity Items */
-                .activity-item {
-                    display: flex;
-                    align-items: center;
-                    padding: 0.8rem;
-                    margin-bottom: 0.8rem;
-                    background: #ffffff;
-                    border-radius: 8px;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                    transition: all 0.3s ease;
-                    border-left: 3px solid transparent;
-                }
+                    /* Activity Items */
+                    .activity-item {
+                        display: flex;
+                        align-items: center;
+                        padding: 0.8rem;
+                        margin-bottom: 0.8rem;
+                        background: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                        transition: all 0.3s ease;
+                        border-left: 3px solid transparent;
+                    }
 
-                .activity-item:hover {
-                    transform: translateY(-1px);
-                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                }
+                    .activity-item:hover {
+                        transform: translateY(-1px);
+                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                    }
 
-                .activity-item .icon-wrapper {
-                    width: 36px;
-                    height: 36px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 8px;
-                    margin-right: 0.8rem;
-                    background: rgba(0, 0, 0, 0.03);
-                }
+                    .activity-item .icon-wrapper {
+                        width: 36px;
+                        height: 36px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 8px;
+                        margin-right: 0.8rem;
+                        background: rgba(0, 0, 0, 0.03);
+                    }
 
-                .activity-item .icon-wrapper i {
-                    font-size: 1.2rem;
-                }
+                    .activity-item .icon-wrapper i {
+                        font-size: 1.2rem;
+                    }
 
-                .activity-item .content {
-                    flex: 1;
-                }
+                    .activity-item .content {
+                        flex: 1;
+                    }
 
-                .activity-item .title {
-                    font-size: 0.95rem;
-                    font-weight: 600;
-                    color: #2c3e50;
-                    margin-bottom: 0.2rem;
-                }
+                    .activity-item .title {
+                        font-size: 0.95rem;
+                        font-weight: 600;
+                        color: #2c3e50;
+                        margin-bottom: 0.2rem;
+                    }
 
-                .activity-item .value {
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #34495e;
-                    margin: 0;
-                }
+                    .activity-item .value {
+                        font-size: 1.4rem;
+                        font-weight: 700;
+                        color: #34495e;
+                        margin: 0;
+                    }
 
-                .activity-item[data-status="success"] {
-                    border-left-color: #2ecc71;
-                }
+                    .activity-item[data-status="success"] {
+                        border-left-color: #2ecc71;
+                    }
 
-                .activity-item[data-status="success"] .icon-wrapper {
-                    background: rgba(46, 204, 113, 0.1);
-                }
+                    .activity-item[data-status="success"] .icon-wrapper {
+                        background: rgba(46, 204, 113, 0.1);
+                    }
 
-                .activity-item[data-status="success"] .icon-wrapper i {
-                    color: #2ecc71;
-                }
+                    .activity-item[data-status="success"] .icon-wrapper i {
+                        color: #2ecc71;
+                    }
 
-                .activity-item[data-status="warning"] {
-                    border-left-color: #f1c40f;
-                }
+                    .activity-item[data-status="warning"] {
+                        border-left-color: #f1c40f;
+                    }
 
-                .activity-item[data-status="warning"] .icon-wrapper {
-                    background: rgba(241, 196, 15, 0.1);
-                }
+                    .activity-item[data-status="warning"] .icon-wrapper {
+                        background: rgba(241, 196, 15, 0.1);
+                    }
 
-                .activity-item[data-status="warning"] .icon-wrapper i {
-                    color: #f1c40f;
-                }
+                    .activity-item[data-status="warning"] .icon-wrapper i {
+                        color: #f1c40f;
+                    }
 
-                .activity-item[data-status="error"] {
-                    border-left-color: #e74c3c;
-                }
+                    .activity-item[data-status="error"] {
+                        border-left-color: #e74c3c;
+                    }
 
-                .activity-item[data-status="error"] .icon-wrapper {
-                    background: rgba(231, 76, 60, 0.1);
-                }
+                    .activity-item[data-status="error"] .icon-wrapper {
+                        background: rgba(231, 76, 60, 0.1);
+                    }
 
-                .activity-item[data-status="error"] .icon-wrapper i {
-                    color: #e74c3c;
-                }
+                    .activity-item[data-status="error"] .icon-wrapper i {
+                        color: #e74c3c;
+                    }
 
-                .activity-item[data-status="info"] {
-                    border-left-color: #3498db;
-                }
+                    .activity-item[data-status="info"] {
+                        border-left-color: #3498db;
+                    }
 
-                .activity-item[data-status="info"] .icon-wrapper {
-                    background: rgba(52, 152, 219, 0.1);
-                }
+                    .activity-item[data-status="info"] .icon-wrapper {
+                        background: rgba(52, 152, 219, 0.1);
+                    }
 
-                .activity-item[data-status="info"] .icon-wrapper i {
-                    color: #3498db;
-                }
+                    .activity-item[data-status="info"] .icon-wrapper i {
+                        color: #3498db;
+                    }
 
-                /* Status colors */
-                .activity-item[data-status="success"] {
-                    border-left-color: #28a745;
-                }
+                    /* Status colors */
+                    .activity-item[data-status="success"] {
+                        border-left-color: #28a745;
+                    }
 
-                .activity-item[data-status="success"] .icon-wrapper i {
-                    color: #28a745;
-                }
+                    .activity-item[data-status="success"] .icon-wrapper i {
+                        color: #28a745;
+                    }
 
-                .activity-item[data-status="warning"] {
-                    border-left-color: #ffc107;
-                }
+                    .activity-item[data-status="warning"] {
+                        border-left-color: #ffc107;
+                    }
 
-                .activity-item[data-status="warning"] .icon-wrapper i {
-                    color: #ffc107;
-                }
+                    .activity-item[data-status="warning"] .icon-wrapper i {
+                        color: #ffc107;
+                    }
 
-                .activity-item[data-status="error"] {
-                    border-left-color: #dc3545;
-                }
+                    .activity-item[data-status="error"] {
+                        border-left-color: #dc3545;
+                    }
 
-                .activity-item[data-status="error"] .icon-wrapper i {
-                    color: #dc3545;
-                }
+                    .activity-item[data-status="error"] .icon-wrapper i {
+                        color: #dc3545;
+                    }
 
-                .activity-item[data-status="info"] {
-                    border-left-color: #17a2b8;
-                }
+                    .activity-item[data-status="info"] {
+                        border-left-color: #17a2b8;
+                    }
 
-                .activity-item[data-status="info"] .icon-wrapper i {
-                    border-left-color: #17a2b8;
-                }
+                    .activity-item[data-status="info"] .icon-wrapper i {
+                        border-left-color: #17a2b8;
+                    }
 
-                .activity-item[data-status="info"] .icon-wrapper i {
-                    color: #17a2b8;
-                }
+                    .activity-item[data-status="info"] .icon-wrapper i {
+                        color: #17a2b8;
+                    }
                 </style>
 
                 <script>
-                async function loadRecentActivities() {
-                    try {
-                        const response = await fetch('../../api/activities/recent.php');
-                        
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        
-                        const data = await response.json();
-                        
-                        if (!data.success) {
-                            throw new Error(data.message || 'API returned unsuccessful response');
-                        }
-                        
-                        if (!data.data || !Array.isArray(data.data)) {
-                            throw new Error('Invalid data format received from API');
-                        }
-                        
-                        const activityTimeline = document.getElementById('recent-activities');
-                        activityTimeline.innerHTML = data.data.map(activity => `
+                    async function loadRecentActivities() {
+                        try {
+                            const response = await fetch('../../api/activities/recent.php');
+
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+
+                            const data = await response.json();
+
+                            if (!data.success) {
+                                throw new Error(data.message || 'API returned unsuccessful response');
+                            }
+
+                            if (!data.data || !Array.isArray(data.data)) {
+                                throw new Error('Invalid data format received from API');
+                            }
+
+                            const activityTimeline = document.getElementById('recent-activities');
+                            activityTimeline.innerHTML = data.data.map(activity => `
                             <div class="activity-item mb-3" data-type="${activity.type}">
                                 <div class="d-flex align-items-center">
                                     <div class="activity-icon me-3">
@@ -2857,10 +2947,10 @@
                                 </div>
                             </div>
                         `).join('');
-                    } catch (error) {
-                        console.error('Error loading activities:', error);
-                        const activityTimeline = document.getElementById('recent-activities');
-                        activityTimeline.innerHTML = `
+                        } catch (error) {
+                            console.error('Error loading activities:', error);
+                            const activityTimeline = document.getElementById('recent-activities');
+                            activityTimeline.innerHTML = `
                             <div class="alert alert-danger">
                                 <h6 class="alert-heading">Có lỗi xảy ra khi tải dữ liệu</h6>
                                 <p class="mb-0">${error.message}</p>
@@ -2868,41 +2958,41 @@
                                 <p class="mb-0 small">Vui lòng thử lại sau hoặc liên hệ quản trị viên nếu lỗi vẫn tiếp diễn.</p>
                             </div>
                         `;
-                    }
-                }
-
-                function getActivityIcon(type) {
-                    const icons = {
-                        'LOGIN': 'fa-sign-in-alt',
-                        'LOGOUT': 'fa-sign-out-alt',
-                        'UPDATE_PROFILE': 'fa-user-edit',
-                        'CREATE_LEAVE': 'fa-calendar-plus',
-                        'APPROVE_LEAVE': 'fa-check-circle',
-                        'UPLOAD_DOCUMENT': 'fa-file-upload',
-                        'ASSIGN_ASSET': 'fa-box',
-                        'GENERATE_REPORT': 'fa-chart-bar',
-                        'CREATE_PROJECT': 'fa-project-diagram',
-                        'COMPLETE_TASK': 'fa-tasks'
-                    };
-                    return icons[type] || 'fa-info-circle';
-                }
-
-                // Load activities when page loads
-                document.addEventListener('DOMContentLoaded', loadRecentActivities);
-
-                // Add event listener for filter change
-                document.getElementById('activity-filter').addEventListener('change', function(e) {
-                    const filter = e.target.value;
-                    const activities = document.querySelectorAll('.activity-item');
-                    
-                    activities.forEach(activity => {
-                        if (filter === 'all' || activity.dataset.type === filter) {
-                            activity.style.display = '';
-                        } else {
-                            activity.style.display = 'none';
                         }
+                    }
+
+                    function getActivityIcon(type) {
+                        const icons = {
+                            'LOGIN': 'fa-sign-in-alt',
+                            'LOGOUT': 'fa-sign-out-alt',
+                            'UPDATE_PROFILE': 'fa-user-edit',
+                            'CREATE_LEAVE': 'fa-calendar-plus',
+                            'APPROVE_LEAVE': 'fa-check-circle',
+                            'UPLOAD_DOCUMENT': 'fa-file-upload',
+                            'ASSIGN_ASSET': 'fa-box',
+                            'GENERATE_REPORT': 'fa-chart-bar',
+                            'CREATE_PROJECT': 'fa-project-diagram',
+                            'COMPLETE_TASK': 'fa-tasks'
+                        };
+                        return icons[type] || 'fa-info-circle';
+                    }
+
+                    // Load activities when page loads
+                    document.addEventListener('DOMContentLoaded', loadRecentActivities);
+
+                    // Add event listener for filter change
+                    document.getElementById('activity-filter').addEventListener('change', function(e) {
+                        const filter = e.target.value;
+                        const activities = document.querySelectorAll('.activity-item');
+
+                        activities.forEach(activity => {
+                            if (filter === 'all' || activity.dataset.type === filter) {
+                                activity.style.display = '';
+                            } else {
+                                activity.style.display = 'none';
+                            }
+                        });
                     });
-                });
                 </script>
 
                 <!-- Quick Actions -->
@@ -2934,7 +3024,7 @@
                     </div>
                 </div>
 
-                
+
 
                 <div class="row">
                     <div class="col-md-6">
@@ -3061,7 +3151,7 @@
                                                     backgroundColor: [
                                                         '#2ecc71', // Xanh lá cho tích cực
                                                         '#f1c40f', // Vàng cho trung lập
-                                                        '#e74c3c'  // Đỏ cho tiêu cực
+                                                        '#e74c3c' // Đỏ cho tiêu cực
                                                     ]
                                                 }]
                                             },
@@ -3115,122 +3205,122 @@
                 <p>&copy; 2023 VNPT. All rights reserved.</p>
             </footer>
         </main>
-                            </div>
+    </div>
 
-        <!-- Form thêm nhân viên -->
-        <div id="addEmployeeModal" class="modal-overlay">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Thêm nhân viên mới</h3>
-                    <button style="color: brown;" type="button" class="modal-close-btn" onclick="closeAddEmployeeModal()">&times;</button>
-                                    </div>
-                <div class="modal-body">
-                    <form id="addEmployeeForm" class="employee-form" enctype="multipart/form-data">
-                        <div class="form-grid">
-                            <!-- Thông tin cá nhân -->
-                            <div class="form-group">
-                                <label class="form-label required">Họ</label>
-                                <input type="text" class="form-control" name="first_name" required>
+    <!-- Form thêm nhân viên -->
+    <div id="addEmployeeModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Thêm nhân viên mới</h3>
+                <button style="color: brown;" type="button" class="modal-close-btn" onclick="closeAddEmployeeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addEmployeeForm" class="employee-form" enctype="multipart/form-data">
+                    <div class="form-grid">
+                        <!-- Thông tin cá nhân -->
+                        <div class="form-group">
+                            <label class="form-label required">Họ</label>
+                            <input type="text" class="form-control" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Tên</label>
+                            <input type="text" class="form-control" name="last_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Số điện thoại</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Phòng ban</label>
+                            <select class="form-select" name="department_id" required>
+                                <option value="">Chọn phòng ban</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Vị trí</label>
+                            <select class="form-select" name="position_id" required>
+                                <option value="">Chọn vị trí</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Ngày bắt đầu</label>
+                            <input type="date" class="form-control" name="hire_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Mức lương</label>
+                            <input type="number" class="form-control" name="salary" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" name="status">
+                                <option value="active">Đang làm việc</option>
+                                <option value="inactive">Nghỉ việc</option>
+                                <option value="probation">Thử việc</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" name="address" rows="3"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Ảnh đại diện</label>
+                            <div class="avatar-upload" onclick="document.getElementById('avatar').click()">
+                                <input type="file" id="avatar" name="avatar" accept="image/*" style="display: none">
+                                <div id="avatarPreview" class="avatar-placeholder">
+                                    <i class="fas fa-user"></i>
                                 </div>
-                            <div class="form-group">
-                                <label class="form-label required">Tên</label>
-                                <input type="text" class="form-control" name="last_name" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label required">Email</label>
-                                <input type="email" class="form-control" name="email" required>
-                        </div>
-                            <div class="form-group">
-                                <label class="form-label required">Số điện thoại</label>
-                                <input type="tel" class="form-control" name="phone" required>
-                                    </div>
-                            <div class="form-group">
-                                <label class="form-label required">Phòng ban</label>
-                                <select class="form-select" name="department_id" required>
-                                    <option value="">Chọn phòng ban</option>
-                                </select>
-                                    </div>
-                            <div class="form-group">
-                                <label class="form-label required">Vị trí</label>
-                                <select class="form-select" name="position_id" required>
-                                    <option value="">Chọn vị trí</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label required">Ngày bắt đầu</label>
-                                <input type="date" class="form-control" name="hire_date" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label required">Mức lương</label>
-                                <input type="number" class="form-control" name="salary" required>
-                        </div>
-                            <div class="form-group">
-                                <label class="form-label">Trạng thái</label>
-                                <select class="form-select" name="status">
-                                    <option value="active">Đang làm việc</option>
-                                    <option value="inactive">Nghỉ việc</option>
-                                    <option value="probation">Thử việc</option>
-                                </select>
-                            </div>
-                            <div class="form-group full-width">
-                                <label class="form-label">Địa chỉ</label>
-                                <textarea class="form-control" name="address" rows="3"></textarea>
-                            </div>
-                            <div class="form-group full-width">
-                                <label class="form-label">Ảnh đại diện</label>
-                                <div class="avatar-upload" onclick="document.getElementById('avatar').click()">
-                                    <input type="file" id="avatar" name="avatar" accept="image/*" style="display: none">
-                                    <div id="avatarPreview" class="avatar-placeholder">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <span>Nhấn để tải ảnh lên</span>
-                                </div>
+                                <span>Nhấn để tải ảnh lên</span>
                             </div>
                         </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn-cancel" onclick="closeAddEmployeeModal()">Hủy</button>
-                            <button type="submit" class="btn-submit">Thêm nhân viên</button>
-                        </div>
-                    </form>
-                </div>
                     </div>
-                </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="closeAddEmployeeModal()">Hủy</button>
+                        <button type="submit" class="btn-submit">Thêm nhân viên</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-        <!-- Modal chấm công -->
-        <div id="attendanceModal" class="modal-overlay">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">
-                        <i class="fas fa-clock"></i>
-                        Chấm công nhân viên
-                    </h3>
-                    <button type="button" class="modal-close-btn" onclick="closeAttendanceModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="attendanceForm" class="attendance-form">
-                        <!-- Phần tìm kiếm nhân viên -->
-                        <div class="form-section employee-search-section">
-                            <h4 class="section-title">Tìm kiếm nhân viên</h4>
-                            <div class="search-container">
-                                <div class="search-input-group">
-                                    <input type="text" 
-                                           id="employeeSearch" 
-                                           name="employeeSearch"
-                                           class="form-control search-input" 
-                                           placeholder="Nhập tên, mã nhân viên hoặc email..."
-                                           autocomplete="off"
-                                           style="z-index: 1;">
-                                    <button type="button" class="search-btn">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                                <div id="searchResults" class="search-results" style="z-index: 2;"></div>
+    <!-- Modal chấm công -->
+    <div id="attendanceModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-clock"></i>
+                    Chấm công nhân viên
+                </h3>
+                <button type="button" class="modal-close-btn" onclick="closeAttendanceModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="attendanceForm" class="attendance-form">
+                    <!-- Phần tìm kiếm nhân viên -->
+                    <div class="form-section employee-search-section">
+                        <h4 class="section-title">Tìm kiếm nhân viên</h4>
+                        <div class="search-container">
+                            <div class="search-input-group">
+                                <input type="text"
+                                    id="employeeSearch"
+                                    name="employeeSearch"
+                                    class="form-control search-input"
+                                    placeholder="Nhập tên, mã nhân viên hoặc email..."
+                                    autocomplete="off"
+                                    style="z-index: 1;">
+                                <button type="button" class="search-btn">
+                                    <i class="fas fa-search"></i>
+                                </button>
                             </div>
+                            <div id="searchResults" class="search-results" style="z-index: 2;"></div>
                         </div>
+                    </div>
 
-                        <style>
+                    <style>
                         .search-container {
                             position: relative;
                             width: 100%;
@@ -3258,7 +3348,7 @@
 
                         .search-input:focus {
                             border-color: #007bff;
-                            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+                            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
                             outline: none;
                         }
 
@@ -3287,7 +3377,7 @@
                             max-height: 200px;
                             overflow-y: auto;
                             margin-top: 5px;
-                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
                             display: none;
                         }
 
@@ -3304,128 +3394,128 @@
                         .search-result-item:last-child {
                             border-bottom: none;
                         }
-                        </style>
+                    </style>
 
-                        <!-- Thông tin nhân viên -->
-                        <div class="form-section employee-info-section">
-                            <h4 class="section-title">Thông tin nhân viên</h4>
-                            <div class="employee-info-grid">
-                                <div class="info-item">
-                                    <label>Mã nhân viên</label>
-                                    <input type="text" id="employeeId" class="form-control" readonly>
-                                </div>
-                                <div class="info-item">
-                                    <label>Tên nhân viên</label>
-                        <input type="text" id="employeeName" class="form-control" readonly>
-                                </div>
-                                <div class="info-item">
-                                    <label>Phòng ban</label>
-                                    <input type="text" id="employeeDepartment" class="form-control" readonly>
-                                </div>
-                                <div class="info-item">
-                                    <label>Vị trí</label>
-                                    <input type="text" id="employeePosition" class="form-control" readonly>
-                                </div>
+                    <!-- Thông tin nhân viên -->
+                    <div class="form-section employee-info-section">
+                        <h4 class="section-title">Thông tin nhân viên</h4>
+                        <div class="employee-info-grid">
+                            <div class="info-item">
+                                <label>Mã nhân viên</label>
+                                <input type="text" id="employeeId" class="form-control" readonly>
+                            </div>
+                            <div class="info-item">
+                                <label>Tên nhân viên</label>
+                                <input type="text" id="employeeName" class="form-control" readonly>
+                            </div>
+                            <div class="info-item">
+                                <label>Phòng ban</label>
+                                <input type="text" id="employeeDepartment" class="form-control" readonly>
+                            </div>
+                            <div class="info-item">
+                                <label>Vị trí</label>
+                                <input type="text" id="employeePosition" class="form-control" readonly>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Thông tin chấm công -->
-                        <div class="form-section attendance-info-section">
-                            <h4 class="section-title">Thông tin chấm công</h4>
-                            <div class="attendance-info-grid">
-                                <div class="info-item">
-                                    <label>Ngày chấm công</label>
-                        <input type="date" id="attendanceDate" class="form-control" required>
-                    </div>
-                                <div class="info-item">
-                                    <label>Thời gian</label>
-                        <input type="time" id="recordedTime" class="form-control" required>
-                    </div>
+                    <!-- Thông tin chấm công -->
+                    <div class="form-section attendance-info-section">
+                        <h4 class="section-title">Thông tin chấm công</h4>
+                        <div class="attendance-info-grid">
+                            <div class="info-item">
+                                <label>Ngày chấm công</label>
+                                <input type="date" id="attendanceDate" class="form-control" required>
+                            </div>
+                            <div class="info-item">
+                                <label>Thời gian</label>
+                                <input type="time" id="recordedTime" class="form-control" required>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Ký hiệu chấm công -->
-                        <div class="form-section attendance-symbols-section">
                     <!-- Ký hiệu chấm công -->
                     <div class="form-section attendance-symbols-section">
-                        <h4 class="section-title">Ký hiệu chấm công</h4>
-                        <div class="symbols-grid">
-                            <button type="button" class="symbol-btn" data-symbol="P" data-color="success">
-                                <i class="fas fa-check-circle"></i>
-                                <span>P - Có mặt</span>
+                        <!-- Ký hiệu chấm công -->
+                        <div class="form-section attendance-symbols-section">
+                            <h4 class="section-title">Ký hiệu chấm công</h4>
+                            <div class="symbols-grid">
+                                <button type="button" class="symbol-btn" data-symbol="P" data-color="success">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>P - Có mặt</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="Ô" data-color="warning">
+                                    <i class="fas fa-procedures"></i>
+                                    <span>Ô - Nghỉ ốm</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="Cô" data-color="info">
+                                    <i class="fas fa-baby"></i>
+                                    <span>Cô - Chăm sóc con ốm</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="TS" data-color="primary">
+                                    <i class="fas fa-female"></i>
+                                    <span>TS - Nghỉ thai sản</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="T" data-color="danger">
+                                    <i class="fas fa-ambulance"></i>
+                                    <span>T - Tai nạn lao động</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="CN" data-color="secondary">
+                                    <i class="fas fa-calendar-week"></i>
+                                    <span>CN - Chủ nhật</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="NL" data-color="secondary">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span>NL - Nghỉ lễ</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="NB" data-color="info">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span>NB - Nghỉ bù</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="1/2K" data-color="warning">
+                                    <i class="fas fa-clock"></i>
+                                    <span>1/2K - Nghỉ nửa ngày không lương</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="K" data-color="danger">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <span>K - Nghỉ nguyên ngày không lương</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="N" data-color="danger">
+                                    <i class="fas fa-ban"></i>
+                                    <span>N - Ngừng làm việc</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="P" data-color="success">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span>P - Nghỉ phép</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="1/2P" data-color="success">
+                                    <i class="fas fa-clock"></i>
+                                    <span>1/2P - Nghỉ nửa ngày phép</span>
+                                </button>
+                                <button type="button" class="symbol-btn" data-symbol="NN" data-color="info">
+                                    <i class="fas fa-clock"></i>
+                                    <span>NN - Làm nửa ngày</span>
+                                </button>
+                            </div>
+                            <input type="hidden" id="attendanceSymbol" required>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="form-section notes-section">
+                            <h4 class="section-title">Ghi chú</h4>
+                            <textarea id="notes" class="form-control" rows="3"
+                                placeholder="Nhập ghi chú (nếu có)..."></textarea>
+                        </div>
+
+                        <!-- Nút thao tác -->
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeAttendanceModal()">
+                                <i class="fas fa-times"></i> Hủy
                             </button>
-                            <button type="button" class="symbol-btn" data-symbol="Ô" data-color="warning">
-                                <i class="fas fa-procedures"></i>
-                                <span>Ô - Nghỉ ốm</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="Cô" data-color="info">
-                                <i class="fas fa-baby"></i>
-                                <span>Cô - Chăm sóc con ốm</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="TS" data-color="primary">
-                                <i class="fas fa-female"></i>
-                                <span>TS - Nghỉ thai sản</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="T" data-color="danger">
-                                <i class="fas fa-ambulance"></i>
-                                <span>T - Tai nạn lao động</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="CN" data-color="secondary">
-                                <i class="fas fa-calendar-week"></i>
-                                <span>CN - Chủ nhật</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="NL" data-color="secondary">
-                                <i class="fas fa-calendar-day"></i>
-                                <span>NL - Nghỉ lễ</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="NB" data-color="info">
-                                <i class="fas fa-exchange-alt"></i>
-                                <span>NB - Nghỉ bù</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="1/2K" data-color="warning">
-                                <i class="fas fa-clock"></i>
-                                <span>1/2K - Nghỉ nửa ngày không lương</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="K" data-color="danger">
-                                <i class="fas fa-calendar-times"></i>
-                                <span>K - Nghỉ nguyên ngày không lương</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="N" data-color="danger">
-                                <i class="fas fa-ban"></i>
-                                <span>N - Ngừng làm việc</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="P" data-color="success">
-                                <i class="fas fa-calendar-check"></i>
-                                <span>P - Nghỉ phép</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="1/2P" data-color="success">
-                                <i class="fas fa-clock"></i>
-                                <span>1/2P - Nghỉ nửa ngày phép</span>
-                            </button>
-                            <button type="button" class="symbol-btn" data-symbol="NN" data-color="info">
-                                <i class="fas fa-clock"></i>
-                                <span>NN - Làm nửa ngày</span>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu chấm công
                             </button>
                         </div>
-                        <input type="hidden" id="attendanceSymbol" required>
-                    </div>
-
-                    <!-- Ghi chú -->
-                    <div class="form-section notes-section">
-                        <h4 class="section-title">Ghi chú</h4>
-                        <textarea id="notes" class="form-control" rows="3" 
-                                  placeholder="Nhập ghi chú (nếu có)..."></textarea>
-                    </div>
-
-                    <!-- Nút thao tác -->
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeAttendanceModal()">
-                            <i class="fas fa-times"></i> Hủy
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Lưu chấm công
-                        </button>
-                    </div>
                 </form>
             </div>
         </div>
@@ -3442,121 +3532,121 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
-        backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
         }
 
         .modal-overlay.active {
             display: flex;
             justify-content: center;
             align-items: center;
-        animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.3s ease;
         }
 
         .modal-content {
             background: white;
-        border-radius: 12px;
+            border-radius: 12px;
             width: 90%;
             max-width: 800px;
             max-height: 90vh;
             overflow-y: auto;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        animation: slideIn 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
         }
 
         .modal-header {
-        padding: 20px;
-        border-bottom: 1px solid #eee;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        background: #f8f9fa;
-        border-radius: 12px 12px 0 0;
+            background: #f8f9fa;
+            border-radius: 12px 12px 0 0;
         }
 
         .modal-title {
             margin: 0;
             font-size: 1.5rem;
             color: #333;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .modal-close-btn {
             background: none;
             border: none;
-        font-size: 1.2rem;
+            font-size: 1.2rem;
             cursor: pointer;
-        padding: 5px;
-        color: #666;
-        transition: color 0.3s;
-    }
+            padding: 5px;
+            color: #666;
+            transition: color 0.3s;
+        }
 
-    .modal-close-btn:hover {
-        color: #333;
+        .modal-close-btn:hover {
+            color: #333;
         }
 
         .modal-body {
             padding: 20px;
         }
 
-    /* Style cho form sections */
-    .form-section {
-        margin-bottom: 25px;
-        padding: 15px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
+        /* Style cho form sections */
+        .form-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
 
-    .section-title {
-        font-size: 1.1rem;
-        color: #333;
+        .section-title {
+            font-size: 1.1rem;
+            color: #333;
             margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-        text-decoration: none;
-    }
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            text-decoration: none;
+        }
 
-    /* Style cho tìm kiếm nhân viên */
-    .search-container {
-        position: relative;
-        width: 100%;
-    }
-
-    .search-input-group {
-        display: flex;
-        gap: 10px;
+        /* Style cho tìm kiếm nhân viên */
+        .search-container {
+            position: relative;
             width: 100%;
-    }
+        }
 
-    .search-input-group input {
-        flex: 1;
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .search-input-group input {
+            flex: 1;
             padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
-        outline: none;
-        transition: border-color 0.3s;
-    }
+            outline: none;
+            transition: border-color 0.3s;
+        }
 
-    .search-input-group input:focus {
+        .search-input-group input:focus {
             border-color: #007bff;
-        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-    }
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
 
-    .search-btn {
-        padding: 8px 15px;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
+        .search-btn {
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
 
-    .search-btn:hover {
-        background: #0056b3;
+        .search-btn:hover {
+            background: #0056b3;
         }
 
         .search-results {
@@ -3571,365 +3661,377 @@
             overflow-y: auto;
             z-index: 1000;
             display: none;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .search-result-item {
-        padding: 10px 15px;
+            padding: 10px 15px;
             cursor: pointer;
-        transition: background 0.2s;
+            transition: background 0.2s;
         }
 
         .search-result-item:hover {
-        background: #f8f9fa;
-    }
+            background: #f8f9fa;
+        }
 
-    /* Style cho thông tin nhân viên */
-    .employee-info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-    }
+        /* Style cho thông tin nhân viên */
+        .employee-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
 
-    .info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
 
-    .info-item label {
-        font-size: 0.9rem;
-        color: #666;
+        .info-item label {
+            font-size: 0.9rem;
+            color: #666;
         }
 
         /* Style cho ký hiệu chấm công */
-    .symbols-grid {
+        .symbols-grid {
             display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px;
         }
 
         .symbol-btn {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
             border: 1px solid #ddd;
-        border-radius: 6px;
-        background: white;
+            border-radius: 6px;
+            background: white;
             cursor: pointer;
-        transition: all 0.3s;
+            transition: all 0.3s;
             text-align: left;
         }
 
         .symbol-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .symbol-btn.active {
             background: #007bff;
-        color: white;
+            color: white;
             border-color: #007bff;
         }
 
-    .symbol-btn[data-color="success"]:hover {
-        background: #28a745;
-        color: white;
-        border-color: #28a745;
-    }
-
-    .symbol-btn[data-color="warning"]:hover {
-        background: #ffc107;
-        color: white;
-        border-color: #ffc107;
-    }
-
-    .symbol-btn[data-color="danger"]:hover {
-        background: #dc3545;
+        .symbol-btn[data-color="success"]:hover {
+            background: #28a745;
             color: white;
-        border-color: #dc3545;
-    }
-
-    .symbol-btn[data-color="info"]:hover {
-        background: #17a2b8;
-        color: white;
-        border-color: #17a2b8;
-    }
-
-    .symbol-btn[data-color="primary"]:hover {
-        background: #007bff;
-        color: white;
-        border-color: #007bff;
-    }
-
-    .symbol-btn[data-color="secondary"]:hover {
-        background: #6c757d;
-        color: white;
-        border-color: #6c757d;
-    }
-
-    /* Style cho nút thao tác */
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #eee;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes slideIn {
-        from { transform: translateY(-20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .modal-content {
-            width: 95%;
-            margin: 10px;
+            border-color: #28a745;
         }
-        
-        .employee-info-grid,
-        .symbols-grid {
-            grid-template-columns: 1fr;
+
+        .symbol-btn[data-color="warning"]:hover {
+            background: #ffc107;
+            color: white;
+            border-color: #ffc107;
         }
-    }
+
+        .symbol-btn[data-color="danger"]:hover {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .symbol-btn[data-color="info"]:hover {
+            background: #17a2b8;
+            color: white;
+            border-color: #17a2b8;
+        }
+
+        .symbol-btn[data-color="primary"]:hover {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .symbol-btn[data-color="secondary"]:hover {
+            background: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+
+        /* Style cho nút thao tác */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+
+            .employee-info-grid,
+            .symbols-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
     <script>
-    // Initialize theme
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check for saved theme preference
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.body.setAttribute('data-theme', savedTheme);
-        }
-
-        // Initialize charts
-        initCharts();
-    });
-
-    // Theme toggle functionality
-    function toggleTheme() {
-        const currentTheme = document.body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    }
-
-    // Initialize all charts
-    function initCharts() {
-        // Performance Chart
-        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-        new Chart(performanceCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-                datasets: [{
-                    label: 'Hiệu suất trung bình',
-                    data: [75, 82, 78, 85],
-                    backgroundColor: '#2196F3',
-                    borderColor: '#1976D2',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
+        // Initialize theme
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
             }
+
+            // Initialize charts
+            initCharts();
         });
 
-        // Salary Chart
-        const salaryCtx = document.getElementById('salaryChart').getContext('2d');
-        new Chart(salaryCtx, {
-            type: 'line',
-            data: {
-                labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
-                datasets: [{
-                    label: 'Tổng chi phí lương',
-                    data: [50000000, 52000000, 51000000, 53000000, 54000000, 55000000],
-                    borderColor: '#FFC107',
-                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString('vi-VN') + 'đ';
+        // Theme toggle functionality
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Initialize all charts
+        function initCharts() {
+            // Performance Chart
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [{
+                        label: 'Hiệu suất trung bình',
+                        data: [75, 82, 78, 85],
+                        backgroundColor: '#2196F3',
+                        borderColor: '#1976D2',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Salary Chart
+            const salaryCtx = document.getElementById('salaryChart').getContext('2d');
+            new Chart(salaryCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
+                    datasets: [{
+                        label: 'Tổng chi phí lương',
+                        data: [50000000, 52000000, 51000000, 53000000, 54000000, 55000000],
+                        borderColor: '#FFC107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN') + 'đ';
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
 
-        // Leave Chart
-        const leaveCtx = document.getElementById('leaveChart').getContext('2d');
-        new Chart(leaveCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Nghỉ phép', 'Nghỉ ốm', 'Nghỉ không lương'],
-                datasets: [{
-                    data: [120, 45, 30],
-                    backgroundColor: [
-                        '#4CAF50',
-                        '#2196F3',
-                        '#FFC107'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
+            // Leave Chart
+            const leaveCtx = document.getElementById('leaveChart').getContext('2d');
+            new Chart(leaveCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Nghỉ phép', 'Nghỉ ốm', 'Nghỉ không lương'],
+                    datasets: [{
+                        data: [120, 45, 30],
+                        backgroundColor: [
+                            '#4CAF50',
+                            '#2196F3',
+                            '#FFC107'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
+                }
+            });
+
+            // Recruitment Chart
+            const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
+            new Chart(recruitmentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Đã tuyển', 'Đang phỏng vấn', 'Đã từ chối', 'Đang chờ'],
+                    datasets: [{
+                        data: [15, 8, 12, 5],
+                        backgroundColor: [
+                            '#4CAF50',
+                            '#2196F3',
+                            '#F44336',
+                            '#FFC107'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Training Chart
+            const trainingCtx = document.getElementById('trainingChart').getContext('2d');
+            new Chart(trainingCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Kỹ năng mềm', 'Kỹ thuật', 'Quản lý', 'An toàn'],
+                    datasets: [{
+                        label: 'Số người tham gia',
+                        data: [45, 30, 25, 40],
+                        backgroundColor: '#9C27B0'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Assets Chart
+            const assetsCtx = document.getElementById('assetsChart').getContext('2d');
+            new Chart(assetsCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Đang sử dụng', 'Đang bảo trì', 'Đã thanh lý', 'Chưa cấp phát'],
+                    datasets: [{
+                        data: [60, 15, 10, 15],
+                        backgroundColor: [
+                            '#4CAF50',
+                            '#2196F3',
+                            '#F44336',
+                            '#FFC107'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Search functionality
+        function handleSearch(event) {
+            event.preventDefault();
+            const searchTerm = document.querySelector('.search-input').value;
+            // Implement search logic here
+            console.log('Searching for:', searchTerm);
+        }
+
+        // User menu toggle
+        function toggleUserMenu() {
+            const userMenu = document.querySelector('.user-menu');
+            userMenu.classList.toggle('show');
+        }
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const userButton = document.querySelector('.user-button');
+            if (userMenu && userButton) {
+                if (!userButton.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove('show');
                 }
             }
         });
 
-        // Recruitment Chart
-        const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
-        new Chart(recruitmentCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Đã tuyển', 'Đang phỏng vấn', 'Đã từ chối', 'Đang chờ'],
-                datasets: [{
-                    data: [15, 8, 12, 5],
-                    backgroundColor: [
-                        '#4CAF50',
-                        '#2196F3',
-                        '#F44336',
-                        '#FFC107'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-
-        // Training Chart
-        const trainingCtx = document.getElementById('trainingChart').getContext('2d');
-        new Chart(trainingCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Kỹ năng mềm', 'Kỹ thuật', 'Quản lý', 'An toàn'],
-                datasets: [{
-                    label: 'Số người tham gia',
-                    data: [45, 30, 25, 40],
-                    backgroundColor: '#9C27B0'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-
-        // Assets Chart
-        const assetsCtx = document.getElementById('assetsChart').getContext('2d');
-        new Chart(assetsCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Đang sử dụng', 'Đang bảo trì', 'Đã thanh lý', 'Chưa cấp phát'],
-                datasets: [{
-                    data: [60, 15, 10, 15],
-                    backgroundColor: [
-                        '#4CAF50',
-                        '#2196F3',
-                        '#F44336',
-                        '#FFC107'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-    }
-
-    // Search functionality
-    function handleSearch(event) {
-        event.preventDefault();
-        const searchTerm = document.querySelector('.search-input').value;
-        // Implement search logic here
-        console.log('Searching for:', searchTerm);
-    }
-
-    // User menu toggle
-    function toggleUserMenu() {
-        const userMenu = document.querySelector('.user-menu');
-        userMenu.classList.toggle('show');
-    }
-
-    // Close user menu when clicking outside
-    document.addEventListener('click', function(event) {
-        const userMenu = document.querySelector('.user-menu');
-        const userButton = document.querySelector('.user-button');
-        if (userMenu && userButton) {
-            if (!userButton.contains(event.target) && !userMenu.contains(event.target)) {
-                userMenu.classList.remove('show');
-            }
-        }
-    });
-
-    // Hàm hiển thị modal thêm nhân viên
-    function showAddEmployeeModal() {
-        const modal = document.getElementById('addEmployeeModal');
-        if (!modal) {
-            console.error('Modal element not found');
+        // Hàm hiển thị modal thêm nhân viên
+        function showAddEmployeeModal() {
+            const modal = document.getElementById('addEmployeeModal');
+            if (!modal) {
+                console.error('Modal element not found');
                 return;
             }
-            
-        modal.classList.add('active');
-        
-        // Reset form
-        const form = document.getElementById('addEmployeeForm');
-        if (form) {
-            form.reset();
-        }
-        
-        // Reset avatar preview
-        const avatarPreview = document.getElementById('avatarPreview');
-        if (avatarPreview) {
-            avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
-        }
-    }
 
-    // Hàm đóng modal thêm nhân viên
+            modal.classList.add('active');
+
+            // Reset form
+            const form = document.getElementById('addEmployeeForm');
+            if (form) {
+                form.reset();
+            }
+
+            // Reset avatar preview
+            const avatarPreview = document.getElementById('avatarPreview');
+            if (avatarPreview) {
+                avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
+            }
+        }
+
+        // Hàm đóng modal thêm nhân viên
         function closeAddEmployeeModal() {
-        const modal = document.getElementById('addEmployeeModal');
-        if (modal) {
-            modal.classList.remove('active');
+            const modal = document.getElementById('addEmployeeModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
         }
-    }
 
-    // Hàm hiển thị modal chấm công
-    function showAttendanceModal() {
+        // Hàm hiển thị modal chấm công
+        function showAttendanceModal() {
             const modal = document.getElementById('attendanceModal');
             if (!modal) {
                 console.error('Modal element not found');
@@ -3937,343 +4039,343 @@
             }
 
             modal.classList.add('active');
-            
+
             // Set default date to today
             const today = new Date();
             const dateInput = document.getElementById('attendanceDate');
             const timeInput = document.getElementById('recordedTime');
-            
+
             if (dateInput && timeInput) {
                 dateInput.valueAsDate = today;
-                timeInput.value = today.toTimeString().slice(0,5);
+                timeInput.value = today.toTimeString().slice(0, 5);
             }
-            
+
             // Reset form
             const form = document.getElementById('attendanceForm');
             if (form) {
                 form.reset();
             }
-            
+
             // Reset employee fields
-        const employeeFields = ['employeeId', 'employeeName', 'employeeDepartment', 'employeePosition'];
-        employeeFields.forEach(field => {
-            const element = document.getElementById(field);
-            if (element) element.value = '';
-        });
-            
+            const employeeFields = ['employeeId', 'employeeName', 'employeeDepartment', 'employeePosition'];
+            employeeFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) element.value = '';
+            });
+
             // Reset attendance symbol
             const symbolInput = document.getElementById('attendanceSymbol');
             if (symbolInput) {
                 symbolInput.value = '';
             }
-            
+
             // Remove active class from all symbol buttons
             document.querySelectorAll('.symbol-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
         }
 
-    // Hàm đóng modal chấm công
+        // Hàm đóng modal chấm công
         function closeAttendanceModal() {
             const modal = document.getElementById('attendanceModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-}
-
-    // Xử lý sự kiện khi trang được tải
-    document.addEventListener('DOMContentLoaded', function() {
-        // Xử lý modal thêm nhân viên
-        const addEmployeeBtn = document.querySelector('.add-employee-btn');
-        if (addEmployeeBtn) {
-            addEmployeeBtn.addEventListener('click', showAddEmployeeModal);
+            if (modal) {
+                modal.classList.remove('active');
+            }
         }
 
-        // Xử lý sự kiện khi click ra ngoài modal thêm nhân viên
-        const employeeModal = document.getElementById('addEmployeeModal');
-        if (employeeModal) {
-            employeeModal.addEventListener('click', function(e) {
-                if (e.target === employeeModal) {
-                    closeAddEmployeeModal();
-                }
-            });
-        }
+        // Xử lý sự kiện khi trang được tải
+        document.addEventListener('DOMContentLoaded', function() {
+            // Xử lý modal thêm nhân viên
+            const addEmployeeBtn = document.querySelector('.add-employee-btn');
+            if (addEmployeeBtn) {
+                addEmployeeBtn.addEventListener('click', showAddEmployeeModal);
+            }
 
-        // Xử lý sự kiện khi click ra ngoài modal chấm công
-        const attendanceModal = document.getElementById('attendanceModal');
-        if (attendanceModal) {
-            attendanceModal.addEventListener('click', function(e) {
-                if (e.target === attendanceModal) {
-        closeAttendanceModal();
-    }
-});
-        }
-
-        // Xử lý sự kiện khi tải ảnh đại diện
-        const avatarInput = document.getElementById('avatar');
-        if (avatarInput) {
-            avatarInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const avatarPreview = document.getElementById('avatarPreview');
-                        if (avatarPreview) {
-                            avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
-                        }
+            // Xử lý sự kiện khi click ra ngoài modal thêm nhân viên
+            const employeeModal = document.getElementById('addEmployeeModal');
+            if (employeeModal) {
+                employeeModal.addEventListener('click', function(e) {
+                    if (e.target === employeeModal) {
+                        closeAddEmployeeModal();
                     }
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
+                });
+            }
 
-        // Xử lý form thêm nhân viên
-        const employeeForm = document.getElementById('addEmployeeForm');
-        if (employeeForm) {
-            employeeForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-            const submitButton = employeeForm.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-            
-            try {
-                const formData = new FormData(employeeForm);
-                
-                const response = await fetch('/api/employees/add.php', {
-                    method: 'POST',
-                    body: formData
+            // Xử lý sự kiện khi click ra ngoài modal chấm công
+            const attendanceModal = document.getElementById('attendanceModal');
+            if (attendanceModal) {
+                attendanceModal.addEventListener('click', function(e) {
+                    if (e.target === attendanceModal) {
+                        closeAttendanceModal();
+                    }
+                });
+            }
+
+            // Xử lý sự kiện khi tải ảnh đại diện
+            const avatarInput = document.getElementById('avatar');
+            if (avatarInput) {
+                avatarInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const avatarPreview = document.getElementById('avatarPreview');
+                            if (avatarPreview) {
+                                avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+                            }
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Xử lý form thêm nhân viên
+            const employeeForm = document.getElementById('addEmployeeForm');
+            if (employeeForm) {
+                employeeForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const submitButton = employeeForm.querySelector('button[type="submit"]');
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
+                    try {
+                        const formData = new FormData(employeeForm);
+
+                        const response = await fetch('/api/employees/add.php', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showNotification('success', 'Thành công', 'Thêm nhân viên thành công');
+                            closeAddEmployeeModal();
+                            // Reload danh sách nhân viên nếu cần
+                        } else {
+                            throw new Error(result.message || 'Có lỗi xảy ra khi thêm nhân viên');
+                        }
+                    } catch (error) {
+                        showNotification('error', 'Lỗi', error.message);
+                    } finally {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = 'Thêm nhân viên';
+                    }
+                });
+            }
+
+            // Xử lý form chấm công
+            const attendanceForm = document.getElementById('attendanceForm');
+            if (attendanceForm) {
+                attendanceForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const submitButton = attendanceForm.querySelector('button[type="submit"]');
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
+                    try {
+                        const formData = new FormData(attendanceForm);
+
+                        const response = await fetch('/api/attendance/save.php', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showNotification('success', 'Thành công', 'Chấm công thành công');
+                            closeAttendanceModal();
+                        } else {
+                            throw new Error(result.message || 'Có lỗi xảy ra khi chấm công');
+                        }
+                    } catch (error) {
+                        showNotification('error', 'Lỗi', error.message);
+                    } finally {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = 'Lưu chấm công';
+                    }
+                });
+            }
+
+            // Xử lý tìm kiếm nhân viên trong modal chấm công
+            let searchTimeout;
+            const employeeSearch = document.getElementById('employeeSearch');
+            const searchResults = document.getElementById('searchResults');
+
+            if (employeeSearch) {
+                // Xử lý khi click ra ngoài để đóng kết quả tìm kiếm
+                document.addEventListener('click', (e) => {
+                    if (!employeeSearch.contains(e.target) && !searchResults.contains(e.target)) {
+                        searchResults.style.display = 'none';
+                    }
                 });
 
-                const result = await response.json();
-                
-                if (result.success) {
-                    showNotification('success', 'Thành công', 'Thêm nhân viên thành công');
-                    closeAddEmployeeModal();
-                    // Reload danh sách nhân viên nếu cần
-                } else {
-                    throw new Error(result.message || 'Có lỗi xảy ra khi thêm nhân viên');
-                }
-            } catch (error) {
-                showNotification('error', 'Lỗi', error.message);
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Thêm nhân viên';
-            }
-        });
-    }
+                // Xử lý khi nhấn ESC để đóng kết quả tìm kiếm
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        searchResults.style.display = 'none';
+                    }
+                });
 
-        // Xử lý form chấm công
-        const attendanceForm = document.getElementById('attendanceForm');
-        if (attendanceForm) {
-            attendanceForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitButton = attendanceForm.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-        
-        try {
-                const formData = new FormData(attendanceForm);
+                employeeSearch.addEventListener('input', (e) => {
+                    clearTimeout(searchTimeout);
+                    const searchTerm = e.target.value.trim();
 
-            const response = await fetch('/api/attendance/save.php', {
-                method: 'POST',
-                    body: formData
-            });
+                    if (searchTerm.length < 2) {
+                        searchResults.style.display = 'none';
+                        return;
+                    }
 
-            const result = await response.json();
-            
-            if (result.success) {
-                showNotification('success', 'Thành công', 'Chấm công thành công');
-                closeAttendanceModal();
-            } else {
-                    throw new Error(result.message || 'Có lỗi xảy ra khi chấm công');
-            }
-        } catch (error) {
-            showNotification('error', 'Lỗi', error.message);
-        } finally {
-            submitButton.disabled = false;
-                submitButton.innerHTML = 'Lưu chấm công';
-        }
-    });
-    }
+                    searchTimeout = setTimeout(async () => {
+                        try {
+                            const response = await fetch(`/api/employees/search.php?q=${encodeURIComponent(searchTerm)}`);
+                            const data = await response.json();
 
-        // Xử lý tìm kiếm nhân viên trong modal chấm công
-    let searchTimeout;
-    const employeeSearch = document.getElementById('employeeSearch');
-    const searchResults = document.getElementById('searchResults');
-    
-    if (employeeSearch) {
-        // Xử lý khi click ra ngoài để đóng kết quả tìm kiếm
-        document.addEventListener('click', (e) => {
-            if (!employeeSearch.contains(e.target) && !searchResults.contains(e.target)) {
-                searchResults.style.display = 'none';
-            }
-        });
+                            searchResults.innerHTML = '';
 
-        // Xử lý khi nhấn ESC để đóng kết quả tìm kiếm
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                searchResults.style.display = 'none';
-            }
-        });
-
-        employeeSearch.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        const searchTerm = e.target.value.trim();
-        
-        if (searchTerm.length < 2) {
-                searchResults.style.display = 'none';
-            return;
-        }
-
-        searchTimeout = setTimeout(async () => {
-            try {
-                const response = await fetch(`/api/employees/search.php?q=${encodeURIComponent(searchTerm)}`);
-                const data = await response.json();
-                
-                    searchResults.innerHTML = '';
-                
-                if (data.length > 0) {
-                    data.forEach(employee => {
-                        const div = document.createElement('div');
-                        div.className = 'search-result-item';
-                            div.innerHTML = `
+                            if (data.length > 0) {
+                                data.forEach(employee => {
+                                    const div = document.createElement('div');
+                                    div.className = 'search-result-item';
+                                    div.innerHTML = `
                                 <div class="employee-id">${employee.employee_id}</div>
                                 <div class="employee-name">${employee.full_name}</div>
                                 <div class="employee-department">${employee.department_name}</div>
                             `;
-                            div.onclick = () => {
-                                selectEmployee(employee);
+                                    div.onclick = () => {
+                                        selectEmployee(employee);
+                                        searchResults.style.display = 'none';
+                                    };
+                                    searchResults.appendChild(div);
+                                });
+                                searchResults.style.display = 'block';
+                            } else {
                                 searchResults.style.display = 'none';
-                            };
-                            searchResults.appendChild(div);
-                        });
-                        searchResults.style.display = 'block';
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            searchResults.style.display = 'none';
+                        }
+                    }, 300);
+                });
+            }
+
+            // Xử lý chọn ký hiệu chấm công
+            document.querySelectorAll('.symbol-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.symbol-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.style.backgroundColor = '';
+                        btn.style.color = '';
+                        btn.style.borderColor = '';
+                    });
+
+                    button.classList.add('active');
+                    const color = button.dataset.color;
+                    button.style.backgroundColor = `var(--${color})`;
+                    button.style.color = 'white';
+                    button.style.borderColor = `var(--${color})`;
+
+                    document.getElementById('attendanceSymbol').value = button.dataset.symbol;
+                });
+            });
+        });
+
+        // Hàm chọn nhân viên từ kết quả tìm kiếm
+        function selectEmployee(employee) {
+            document.getElementById('employeeId').value = employee.employee_id;
+            document.getElementById('employeeName').value = employee.full_name;
+            document.getElementById('employeeDepartment').value = employee.department_name;
+            document.getElementById('employeePosition').value = employee.position_name;
+
+            document.getElementById('employeeSearch').value = '';
+            document.getElementById('searchResults').style.display = 'none';
+        }
+
+        // Hàm hiển thị modal nghỉ phép
+        function showLeaveModal() {
+            // TODO: Thêm modal nghỉ phép
+            console.log('Show leave modal');
+        }
+
+        // Hàm hiển thị modal tính lương
+        function showSalaryModal() {
+            // TODO: Thêm modal tính lương
+            console.log('Show salary modal');
+        }
+
+        // Function to update dashboard statistics
+        async function updateDashboardStats() {
+            try {
+                const response = await fetch('/qlnhansu_V2/backend/src/api/dashboard/stats.php?type=departments');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update total employees
+                    const totalEmployees = document.getElementById('totalEmployees');
+                    if (totalEmployees) {
+                        totalEmployees.textContent = data.data.totalEmployees.toLocaleString();
+                    }
+
+                    // Update on-time percentage
+                    const onTimePercentage = document.getElementById('onTimePercentage');
+                    if (onTimePercentage) {
+                        onTimePercentage.textContent = data.data.onTimePercentage + '%';
+                    }
+
+                    // Update present today
+                    const presentToday = document.getElementById('presentToday');
+                    if (presentToday) {
+                        presentToday.textContent = data.data.presentToday.toLocaleString();
+                    }
+
+                    // Update absent today
+                    const absentToday = document.getElementById('absentToday');
+                    if (absentToday) {
+                        absentToday.textContent = data.data.absentToday.toLocaleString();
+                    }
                 } else {
-                        searchResults.style.display = 'none';
+                    console.error('Error fetching dashboard stats:', data.message);
+                    // Show error message to user
+                    showNotification('error', 'Lỗi', 'Không thể tải dữ liệu thống kê: ' + data.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                    searchResults.style.display = 'none';
+                // Show error message to user
+                showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi tải dữ liệu thống kê');
             }
-        }, 300);
-    });
-    }
-
-    // Xử lý chọn ký hiệu chấm công
-    document.querySelectorAll('.symbol-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            document.querySelectorAll('.symbol-btn').forEach(btn => {
-                btn.classList.remove('active');
-                btn.style.backgroundColor = '';
-                btn.style.color = '';
-                btn.style.borderColor = '';
-            });
-            
-            button.classList.add('active');
-            const color = button.dataset.color;
-            button.style.backgroundColor = `var(--${color})`;
-            button.style.color = 'white';
-            button.style.borderColor = `var(--${color})`;
-            
-            document.getElementById('attendanceSymbol').value = button.dataset.symbol;
-        });
-    });
-});
-
-// Hàm chọn nhân viên từ kết quả tìm kiếm
-function selectEmployee(employee) {
-    document.getElementById('employeeId').value = employee.employee_id;
-    document.getElementById('employeeName').value = employee.full_name;
-    document.getElementById('employeeDepartment').value = employee.department_name;
-    document.getElementById('employeePosition').value = employee.position_name;
-    
-    document.getElementById('employeeSearch').value = '';
-    document.getElementById('searchResults').style.display = 'none';
-}
-
-// Hàm hiển thị modal nghỉ phép
-function showLeaveModal() {
-    // TODO: Thêm modal nghỉ phép
-    console.log('Show leave modal');
-}
-
-// Hàm hiển thị modal tính lương
-function showSalaryModal() {
-    // TODO: Thêm modal tính lương
-    console.log('Show salary modal');
-}
-
-// Function to update dashboard statistics
-async function updateDashboardStats() {
-    try {
-        const response = await fetch('/qlnhansu_V2/backend/src/api/dashboard/stats.php?type=departments');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
-        
-        if (data.success) {
-            // Update total employees
-            const totalEmployees = document.getElementById('totalEmployees');
-            if (totalEmployees) {
-                totalEmployees.textContent = data.data.totalEmployees.toLocaleString();
+
+        // Function to show notification
+        function showNotification(type, title, message, duration = 5000) {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+
+            // Set icon based on type
+            let icon = '';
+            switch (type) {
+                case 'success':
+                    icon = '<i class="fas fa-check-circle"></i>';
+                    break;
+                case 'error':
+                    icon = '<i class="fas fa-exclamation-circle"></i>';
+                    break;
+                case 'warning':
+                    icon = '<i class="fas fa-exclamation-triangle"></i>';
+                    break;
+                case 'info':
+                    icon = '<i class="fas fa-info-circle"></i>';
+                    break;
             }
 
-            // Update on-time percentage
-            const onTimePercentage = document.getElementById('onTimePercentage');
-            if (onTimePercentage) {
-                onTimePercentage.textContent = data.data.onTimePercentage + '%';
-            }
-
-            // Update present today
-            const presentToday = document.getElementById('presentToday');
-            if (presentToday) {
-                presentToday.textContent = data.data.presentToday.toLocaleString();
-            }
-
-            // Update absent today
-            const absentToday = document.getElementById('absentToday');
-            if (absentToday) {
-                absentToday.textContent = data.data.absentToday.toLocaleString();
-            }
-        } else {
-            console.error('Error fetching dashboard stats:', data.message);
-            // Show error message to user
-            showNotification('error', 'Lỗi', 'Không thể tải dữ liệu thống kê: ' + data.message);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        // Show error message to user
-        showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi tải dữ liệu thống kê');
-    }
-}
-
-// Function to show notification
-function showNotification(type, title, message, duration = 5000) {
-    const container = document.getElementById('notificationContainer');
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    // Set icon based on type
-    let icon = '';
-    switch(type) {
-        case 'success':
-            icon = '<i class="fas fa-check-circle"></i>';
-            break;
-        case 'error':
-            icon = '<i class="fas fa-exclamation-circle"></i>';
-            break;
-        case 'warning':
-            icon = '<i class="fas fa-exclamation-triangle"></i>';
-            break;
-        case 'info':
-            icon = '<i class="fas fa-info-circle"></i>';
-            break;
-    }
-
-    notification.innerHTML = `
+            notification.innerHTML = `
         <div class="notification-icon">${icon}</div>
         <div class="notification-content">
             <div class="notification-title">${title}</div>
@@ -4287,46 +4389,46 @@ function showNotification(type, title, message, duration = 5000) {
         </div>
     `;
 
-    // Add to container
-    container.appendChild(notification);
+            // Add to container
+            container.appendChild(notification);
 
-    // Start progress bar
-    const progressBar = notification.querySelector('.notification-progress-bar');
-    let width = 100;
-    const interval = setInterval(() => {
-        width -= 0.1;
-        progressBar.style.width = width + '%';
-        if (width <= 0) {
-            clearInterval(interval);
-            removeNotification(notification);
+            // Start progress bar
+            const progressBar = notification.querySelector('.notification-progress-bar');
+            let width = 100;
+            const interval = setInterval(() => {
+                width -= 0.1;
+                progressBar.style.width = width + '%';
+                if (width <= 0) {
+                    clearInterval(interval);
+                    removeNotification(notification);
+                }
+            }, duration / 1000);
+
+            // Close button click
+            const closeBtn = notification.querySelector('.notification-close');
+            closeBtn.addEventListener('click', () => {
+                clearInterval(interval);
+                removeNotification(notification);
+            });
+
+            // Auto remove after duration
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    removeNotification(notification);
+                }
+            }, duration);
         }
-    }, duration / 1000);
 
-    // Close button click
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', () => {
-        clearInterval(interval);
-        removeNotification(notification);
-    });
-
-    // Auto remove after duration
-    setTimeout(() => {
-        if (notification.parentNode) {
-            removeNotification(notification);
+        function removeNotification(notification) {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            notification.addEventListener('animationend', () => {
+                notification.remove();
+            });
         }
-    }, duration);
-}
 
-function removeNotification(notification) {
-    notification.style.animation = 'slideOut 0.3s ease-out';
-    notification.addEventListener('animationend', () => {
-        notification.remove();
-    });
-}
-
-// Add slideOut animation
-const style = document.createElement('style');
-style.textContent = `
+        // Add slideOut animation
+        const style = document.createElement('style');
+        style.textContent = `
     @keyframes slideOut {
         from {
             transform: translateX(0);
@@ -4338,794 +4440,790 @@ style.textContent = `
         }
     }
 `;
-document.head.appendChild(style);
+        document.head.appendChild(style);
 
-// Example usage:
-// showNotification('success', 'Thành công', 'Thao tác đã được thực hiện thành công');
-// showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi thực hiện thao tác');
-// showNotification('warning', 'Cảnh báo', 'Vui lòng kiểm tra lại thông tin');
-// showNotification('info', 'Thông tin', 'Có thông báo mới từ hệ thống');
-// ... existing code ...
+        // Example usage:
+        // showNotification('success', 'Thành công', 'Thao tác đã được thực hiện thành công');
+        // showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi thực hiện thao tác');
+        // showNotification('warning', 'Cảnh báo', 'Vui lòng kiểm tra lại thông tin');
+        // showNotification('info', 'Thông tin', 'Có thông báo mới từ hệ thống');
+        // ... existing code ...
 
-// Update stats when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Initial update
-    updateDashboardStats();
-    
-    // Update stats every 5 minutes
-    setInterval(updateDashboardStats, 300000);
-});
+        // Update stats when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial update
+            updateDashboardStats();
 
-// Function to fetch and update dashboard statistics
-function updateDashboardStats() {
-    fetch('../api/dashboard_stats.php')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update total employees
-                document.getElementById('totalEmployees').textContent = data.data.totalEmployees;
-                
-                // Update present today
-                document.getElementById('presentToday').textContent = data.data.presentToday;
-                
-                // Update absent today
-                document.getElementById('absentToday').textContent = data.data.absentToday;
-                
-                // Update on-time percentage with % symbol
-                document.getElementById('onTimePercentage').textContent = data.data.onTimePercentage + '%';
-            } else {
-                console.error('Failed to fetch dashboard stats:', data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching dashboard stats:', error);
+            // Update stats every 5 minutes
+            setInterval(updateDashboardStats, 300000);
         });
-}
 
-// Update stats when page loads
-document.addEventListener('DOMContentLoaded', updateDashboardStats);
+        // Function to fetch and update dashboard statistics
+        function updateDashboardStats() {
+            fetch('../api/dashboard_stats.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update total employees
+                        document.getElementById('totalEmployees').textContent = data.data.totalEmployees;
 
-// Update stats every 5 minutes
-setInterval(updateDashboardStats, 300000);
+                        // Update present today
+                        document.getElementById('presentToday').textContent = data.data.presentToday;
 
-// Function to fetch chart data
-async function fetchChartData() {
-    try {
-        const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/dashboard_charts.php');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+                        // Update absent today
+                        document.getElementById('absentToday').textContent = data.data.absentToday;
+
+                        // Update on-time percentage with % symbol
+                        document.getElementById('onTimePercentage').textContent = data.data.onTimePercentage + '%';
+                    } else {
+                        console.error('Failed to fetch dashboard stats:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching dashboard stats:', error);
+                });
         }
-        const data = await response.json();
-        return data.data;
-    } catch (error) {
-        console.error('Error fetching chart data:', error);
-        return null;
-    }
-}
 
-// Initialize all charts with real data
-async function initCharts() {
-    const chartData = await fetchChartData();
-    if (!chartData) return;
+        // Update stats when page loads
+        document.addEventListener('DOMContentLoaded', updateDashboardStats);
 
-    // 1. Performance Chart
-    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-    const performanceLabels = chartData.performance.map(item => `Q${item.quarter}`);
-    const performanceData = chartData.performance.map(item => item.avg_score);
+        // Update stats every 5 minutes
+        setInterval(updateDashboardStats, 300000);
 
-    new Chart(performanceCtx, {
-        type: 'bar',
-        data: {
-            labels: performanceLabels,
-            datasets: [{
-                label: 'Hiệu suất trung bình',
-                data: performanceData,
-                backgroundColor: '#2196F3',
-                borderColor: '#1976D2',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
+        // Function to fetch chart data
+        async function fetchChartData() {
+            try {
+                const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/dashboard_charts.php');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                return data.data;
+            } catch (error) {
+                console.error('Error fetching chart data:', error);
+                return null;
+            }
+        }
+
+        // Initialize all charts with real data
+        async function initCharts() {
+            const chartData = await fetchChartData();
+            if (!chartData) return;
+
+            // 1. Performance Chart
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            const performanceLabels = chartData.performance.map(item => `Q${item.quarter}`);
+            const performanceData = chartData.performance.map(item => item.avg_score);
+
+            new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: performanceLabels,
+                    datasets: [{
+                        label: 'Hiệu suất trung bình',
+                        data: performanceData,
+                        backgroundColor: '#2196F3',
+                        borderColor: '#1976D2',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-    });
+            });
 
-    // 2. Salary Chart
-    const salaryCtx = document.getElementById('salaryChart').getContext('2d');
-    const salaryLabels = chartData.salary.map(item => item.month);
-    const salaryData = chartData.salary.map(item => item.total_salary);
+            // 2. Salary Chart
+            const salaryCtx = document.getElementById('salaryChart').getContext('2d');
+            const salaryLabels = chartData.salary.map(item => item.month);
+            const salaryData = chartData.salary.map(item => item.total_salary);
 
-    new Chart(salaryCtx, {
-        type: 'line',
-        data: {
-            labels: salaryLabels,
-            datasets: [{
-                label: 'Tổng chi phí lương',
-                data: salaryData,
-                borderColor: '#FFC107',
-                backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('vi-VN') + 'đ';
+            new Chart(salaryCtx, {
+                type: 'line',
+                data: {
+                    labels: salaryLabels,
+                    datasets: [{
+                        label: 'Tổng chi phí lương',
+                        data: salaryData,
+                        borderColor: '#FFC107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN') + 'đ';
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-    });
+            });
 
-    // 3. Leave Chart
-    const leaveCtx = document.getElementById('leaveChart').getContext('2d');
-    const leaveLabels = chartData.leaves.map(item => item.leave_type);
-    const leaveData = chartData.leaves.map(item => item.count);
+            // 3. Leave Chart
+            const leaveCtx = document.getElementById('leaveChart').getContext('2d');
+            const leaveLabels = chartData.leaves.map(item => item.leave_type);
+            const leaveData = chartData.leaves.map(item => item.count);
 
-    new Chart(leaveCtx, {
-        type: 'bar',
-        data: {
-            labels: leaveLabels,
-            datasets: [{
-                data: leaveData,
-                backgroundColor: [
-                    '#4CAF50',
-                    '#2196F3',
-                    '#FFC107'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
-        }
-    });
-
-    // 4. Recruitment Chart
-    const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
-    const recruitmentLabels = chartData.recruitment.map(item => item.status);
-    const recruitmentData = chartData.recruitment.map(item => item.count);
-
-    new Chart(recruitmentCtx, {
-        type: 'doughnut',
-        data: {
-            labels: recruitmentLabels,
-            datasets: [{
-                data: recruitmentData,
-                backgroundColor: [
-                    '#4CAF50',
-                    '#2196F3',
-                    '#F44336',
-                    '#FFC107'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-
-    // 5. Training Chart
-    const trainingCtx = document.getElementById('trainingChart').getContext('2d');
-    const trainingLabels = chartData.training.map(item => item.category);
-    const trainingData = chartData.training.map(item => item.participant_count);
-
-    new Chart(trainingCtx, {
-        type: 'bar',
-        data: {
-            labels: trainingLabels,
-            datasets: [{
-                label: 'Số người tham gia',
-                data: trainingData,
-                backgroundColor: '#9C27B0'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-
-    // 6. Assets Chart
-    const assetsCtx = document.getElementById('assetsChart').getContext('2d');
-    const assetsLabels = chartData.assets.map(item => item.status);
-    const assetsData = chartData.assets.map(item => item.count);
-
-    new Chart(assetsCtx, {
-        type: 'pie',
-        data: {
-            labels: assetsLabels,
-            datasets: [{
-                data: assetsData,
-                backgroundColor: [
-                    '#4CAF50',
-                    '#2196F3',
-                    '#F44336',
-                    '#FFC107'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
-
-// Initialize charts when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initCharts();
-    
-    // Refresh charts every 5 minutes
-    setInterval(initCharts, 300000);
-});
-
-// Function to fetch new chart data
-function fetchNewChartData() {
-    fetch('/qlnhansu_V2/backend/src/public/admin/api/new_charts.php')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                initNewCharts(data.data);
-            }
-        })
-        .catch(error => console.error('Error fetching chart data:', error));
-}
-
-// Function to initialize new charts
-function initNewCharts(chartData) {
-    /* Comment out HR Status Chart initialization
-    // HR Chart (Pie)
-    const hrCtx = document.getElementById('hrChart').getContext('2d');
-    new Chart(hrCtx, {
-        type: 'pie',
-        data: {
-            labels: ['Đang làm việc', 'Nghỉ việc', 'Thử việc'],
-            datasets: [{
-                data: [
-                    chartData.hr.active,
-                    chartData.hr.inactive,
-                    chartData.hr.probation
-                ],
-                backgroundColor: ['#4e73df', '#e74a3b', '#f6c23e']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
-    */
-
-    // Finance Chart (Bar)
-    const financeCtx = document.getElementById('financeChart').getContext('2d');
-    new Chart(financeCtx, {
-        type: 'bar',
-        data: {
-            labels: chartData.finance.map(item => `Tháng ${item.month}`),
-            datasets: [{
-                label: 'Tổng lương (VND)',
-                data: chartData.finance.map(item => item.total_salary),
-                backgroundColor: '#1cc88a'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('vi-VN') + ' VND';
+            new Chart(leaveCtx, {
+                type: 'bar',
+                data: {
+                    labels: leaveLabels,
+                    datasets: [{
+                        data: leaveData,
+                        backgroundColor: [
+                            '#4CAF50',
+                            '#2196F3',
+                            '#FFC107'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
                         }
                     }
                 }
-            }
-        }
-    });
+            });
 
-    // Training Chart (Line)
-    const trainingCtx = document.getElementById('trainingChart').getContext('2d');
-    new Chart(trainingCtx, {
-        type: 'line',
-        data: {
-            labels: chartData.training.map(item => `Tháng ${item.month}`),
-            datasets: [
-                {
-                    label: 'Số khóa học',
-                    data: chartData.training.map(item => item.total_courses),
-                    borderColor: '#36b9cc',
-                    fill: false
+            // 4. Recruitment Chart
+            const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
+            const recruitmentLabels = chartData.recruitment.map(item => item.status);
+            const recruitmentData = chartData.recruitment.map(item => item.count);
+
+            new Chart(recruitmentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: recruitmentLabels,
+                    datasets: [{
+                        data: recruitmentData,
+                        backgroundColor: [
+                            '#4CAF50',
+                            '#2196F3',
+                            '#F44336',
+                            '#FFC107'
+                        ]
+                    }]
                 },
-                {
-                    label: 'Số người tham gia',
-                    data: chartData.training.map(item => item.total_participants),
-                    borderColor: '#f6c23e',
-                    fill: false
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+            });
 
-    // Recruitment Chart (Bar)
-    const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
-    new Chart(recruitmentCtx, {
-        type: 'bar',
-        data: {
-            labels: chartData.recruitment.map(item => `Tháng ${item.month}`),
-            datasets: [
-                {
-                    label: 'Tổng đơn ứng tuyển',
-                    data: chartData.recruitment.map(item => item.total_applications),
-                    backgroundColor: '#4e73df'
+            // 5. Training Chart
+            const trainingCtx = document.getElementById('trainingChart').getContext('2d');
+            const trainingLabels = chartData.training.map(item => item.category);
+            const trainingData = chartData.training.map(item => item.participant_count);
+
+            new Chart(trainingCtx, {
+                type: 'bar',
+                data: {
+                    labels: trainingLabels,
+                    datasets: [{
+                        label: 'Số người tham gia',
+                        data: trainingData,
+                        backgroundColor: '#9C27B0'
+                    }]
                 },
-                {
-                    label: 'Đã phỏng vấn',
-                    data: chartData.recruitment.map(item => item.interviewed),
-                    backgroundColor: '#1cc88a'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 6. Assets Chart
+            const assetsCtx = document.getElementById('assetsChart').getContext('2d');
+            const assetsLabels = chartData.assets.map(item => item.status);
+            const assetsData = chartData.assets.map(item => item.count);
+
+            new Chart(assetsCtx, {
+                type: 'pie',
+                data: {
+                    labels: assetsLabels,
+                    datasets: [{
+                        data: assetsData,
+                        backgroundColor: [
+                            '#4CAF50',
+                            '#2196F3',
+                            '#F44336',
+                            '#FFC107'
+                        ]
+                    }]
                 },
-                {
-                    label: 'Đã tuyển dụng',
-                    data: chartData.recruitment.map(item => item.hired),
-                    backgroundColor: '#36b9cc'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            });
         }
-    });
-}
 
-// Fetch chart data on page load
-document.addEventListener('DOMContentLoaded', function() {
-    fetchNewChartData();
-    // Refresh chart data every 5 minutes
-    setInterval(fetchNewChartData, 300000);
-});
+        // Initialize charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
 
-// Function to fetch and update HR statistics
-async function updateHRStats() {
-    try {
-        const response = await fetch('../api/hr_stats.php');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Refresh charts every 5 minutes
+            setInterval(initCharts, 300000);
+        });
+
+        // Function to fetch new chart data
+        function fetchNewChartData() {
+            fetch('/qlnhansu_V2/backend/src/public/admin/api/new_charts.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        initNewCharts(data.data);
+                    }
+                })
+                .catch(error => console.error('Error fetching chart data:', error));
         }
-        const data = await response.json();
-        
-        if (data.success) {
-            // Update HR stats
-            const hrData = data.data.hr;
-            document.getElementById('totalEmployees').textContent = hrData.total_employees;
-            document.getElementById('activeEmployees').textContent = hrData.active_employees;
-            document.getElementById('inactiveEmployees').textContent = hrData.inactive_employees;
-            document.getElementById('probationEmployees').textContent = hrData.probation_employees;
 
-            // Update finance chart
-            updateFinanceChart(data.data.finance);
-
-            // Update training chart
-            updateTrainingChart(data.data.training);
-
-            // Update recruitment chart
-            updateRecruitmentChart(data.data.recruitment);
-        } else {
-            console.error('Error fetching HR stats:', data.message);
-            showNotification('error', 'Lỗi', 'Không thể tải dữ liệu nhân sự: ' + data.message);
-        }
-    } catch (error) {
-        // console.error('Error:', error);
-        // showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi tải dữ liệu nhân sự');
-    }
-}
-
-// Function to update finance chart
-function updateFinanceChart(financeData) {
-    const ctx = document.getElementById('financeChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: financeData.map(item => `Tháng ${item.month}`),
-            datasets: [{
-                label: 'Tổng lương (VND)',
-                data: financeData.map(item => item.total_salary),
-                backgroundColor: '#1cc88a'
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('vi-VN') + ' VND';
+        // Function to initialize new charts
+        function initNewCharts(chartData) {
+            /* Comment out HR Status Chart initialization
+            // HR Chart (Pie)
+            const hrCtx = document.getElementById('hrChart').getContext('2d');
+            new Chart(hrCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Đang làm việc', 'Nghỉ việc', 'Thử việc'],
+                    datasets: [{
+                        data: [
+                            chartData.hr.active,
+                            chartData.hr.inactive,
+                            chartData.hr.probation
+                        ],
+                        backgroundColor: ['#4e73df', '#e74a3b', '#f6c23e']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
                         }
                     }
                 }
+            });
+            */
+
+            // Finance Chart (Bar)
+            const financeCtx = document.getElementById('financeChart').getContext('2d');
+            new Chart(financeCtx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.finance.map(item => `Tháng ${item.month}`),
+                    datasets: [{
+                        label: 'Tổng lương (VND)',
+                        data: chartData.finance.map(item => item.total_salary),
+                        backgroundColor: '#1cc88a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN') + ' VND';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Training Chart (Line)
+            const trainingCtx = document.getElementById('trainingChart').getContext('2d');
+            new Chart(trainingCtx, {
+                type: 'line',
+                data: {
+                    labels: chartData.training.map(item => `Tháng ${item.month}`),
+                    datasets: [{
+                            label: 'Số khóa học',
+                            data: chartData.training.map(item => item.total_courses),
+                            borderColor: '#36b9cc',
+                            fill: false
+                        },
+                        {
+                            label: 'Số người tham gia',
+                            data: chartData.training.map(item => item.total_participants),
+                            borderColor: '#f6c23e',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Recruitment Chart (Bar)
+            const recruitmentCtx = document.getElementById('recruitmentChart').getContext('2d');
+            new Chart(recruitmentCtx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.recruitment.map(item => `Tháng ${item.month}`),
+                    datasets: [{
+                            label: 'Tổng đơn ứng tuyển',
+                            data: chartData.recruitment.map(item => item.total_applications),
+                            backgroundColor: '#4e73df'
+                        },
+                        {
+                            label: 'Đã phỏng vấn',
+                            data: chartData.recruitment.map(item => item.interviewed),
+                            backgroundColor: '#1cc88a'
+                        },
+                        {
+                            label: 'Đã tuyển dụng',
+                            data: chartData.recruitment.map(item => item.hired),
+                            backgroundColor: '#36b9cc'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch chart data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchNewChartData();
+            // Refresh chart data every 5 minutes
+            setInterval(fetchNewChartData, 300000);
+        });
+
+        // Function to fetch and update HR statistics
+        async function updateHRStats() {
+            try {
+                const response = await fetch('../api/hr_stats.php');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update HR stats
+                    const hrData = data.data.hr;
+                    document.getElementById('totalEmployees').textContent = hrData.total_employees;
+                    document.getElementById('activeEmployees').textContent = hrData.active_employees;
+                    document.getElementById('inactiveEmployees').textContent = hrData.inactive_employees;
+                    document.getElementById('probationEmployees').textContent = hrData.probation_employees;
+
+                    // Update finance chart
+                    updateFinanceChart(data.data.finance);
+
+                    // Update training chart
+                    updateTrainingChart(data.data.training);
+
+                    // Update recruitment chart
+                    updateRecruitmentChart(data.data.recruitment);
+                } else {
+                    console.error('Error fetching HR stats:', data.message);
+                    showNotification('error', 'Lỗi', 'Không thể tải dữ liệu nhân sự: ' + data.message);
+                }
+            } catch (error) {
+                // console.error('Error:', error);
+                // showNotification('error', 'Lỗi', 'Có lỗi xảy ra khi tải dữ liệu nhân sự');
             }
         }
-    });
-}
 
-// Function to update training chart
-function updateTrainingChart(trainingData) {
-    const ctx = document.getElementById('trainingChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: trainingData.map(item => `Tháng ${item.month}`),
-            datasets: [
-                {
-                    label: 'Số khóa học',
-                    data: trainingData.map(item => item.total_courses),
-                    borderColor: '#36b9cc',
-                    fill: false
+        // Function to update finance chart
+        function updateFinanceChart(financeData) {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: financeData.map(item => `Tháng ${item.month}`),
+                    datasets: [{
+                        label: 'Tổng lương (VND)',
+                        data: financeData.map(item => item.total_salary),
+                        backgroundColor: '#1cc88a'
+                    }]
                 },
-                {
-                    label: 'Số người tham gia',
-                    data: trainingData.map(item => item.total_participants),
-                    borderColor: '#f6c23e',
-                    fill: false
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN') + ' VND';
+                                }
+                            }
+                        }
+                    }
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            });
         }
-    });
-}
 
-// Function to update recruitment chart
-function updateRecruitmentChart(recruitmentData) {
-    const ctx = document.getElementById('recruitmentChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: recruitmentData.map(item => `Tháng ${item.month}`),
-            datasets: [
-                {
-                    label: 'Tổng đơn ứng tuyển',
-                    data: recruitmentData.map(item => item.total_applications),
-                    backgroundColor: '#4e73df'
+        // Function to update training chart
+        function updateTrainingChart(trainingData) {
+            const ctx = document.getElementById('trainingChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trainingData.map(item => `Tháng ${item.month}`),
+                    datasets: [{
+                            label: 'Số khóa học',
+                            data: trainingData.map(item => item.total_courses),
+                            borderColor: '#36b9cc',
+                            fill: false
+                        },
+                        {
+                            label: 'Số người tham gia',
+                            data: trainingData.map(item => item.total_participants),
+                            borderColor: '#f6c23e',
+                            fill: false
+                        }
+                    ]
                 },
-                {
-                    label: 'Đã phỏng vấn',
-                    data: recruitmentData.map(item => item.interviewed),
-                    backgroundColor: '#1cc88a'
-                },
-                {
-                    label: 'Đã tuyển dụng',
-                    data: recruitmentData.map(item => item.hired),
-                    backgroundColor: '#36b9cc'
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            });
         }
-    });
-}
 
-// Update stats when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Initial update
-    updateHRStats();
-    
-    // Update stats every 5 minutes
-    setInterval(updateHRStats, 300000);
-});
+        // Function to update recruitment chart
+        function updateRecruitmentChart(recruitmentData) {
+            const ctx = document.getElementById('recruitmentChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: recruitmentData.map(item => `Tháng ${item.month}`),
+                    datasets: [{
+                            label: 'Tổng đơn ứng tuyển',
+                            data: recruitmentData.map(item => item.total_applications),
+                            backgroundColor: '#4e73df'
+                        },
+                        {
+                            label: 'Đã phỏng vấn',
+                            data: recruitmentData.map(item => item.interviewed),
+                            backgroundColor: '#1cc88a'
+                        },
+                        {
+                            label: 'Đã tuyển dụng',
+                            data: recruitmentData.map(item => item.hired),
+                            backgroundColor: '#36b9cc'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
 
-// Function to load department data
-async function loadDepartmentData() {
-    try {
-        const response = await fetch('../api/departments.php');
-        const data = await response.json();
+        // Update stats when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial update
+            updateHRStats();
 
-        if (data.success) {
-            // Update total departments count
-            document.getElementById('total-users').textContent = data.data.length;
+            // Update stats every 5 minutes
+            setInterval(updateHRStats, 300000);
+        });
 
-            // Update department list if needed
-            const departmentList = document.getElementById('departmentList');
-            if (departmentList) {
-                departmentList.innerHTML = data.data.map(dept => `
+        // Function to load department data
+        async function loadDepartmentData() {
+            try {
+                const response = await fetch('../api/departments.php');
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update total departments count
+                    document.getElementById('total-users').textContent = data.data.length;
+
+                    // Update department list if needed
+                    const departmentList = document.getElementById('departmentList');
+                    if (departmentList) {
+                        departmentList.innerHTML = data.data.map(dept => `
                     <div class="department-item">
                         <span class="department-name">${dept.name}</span>
                         <span class="department-count">${dept.employee_count} nhân viên</span>
                     </div>
                 `).join('');
+                    }
+                } else {
+                    console.error('Error loading department data:', data.message);
+                }
+            } catch (error) {
+                console.error('Error loading department data:', error);
             }
-        } else {
-            console.error('Error loading department data:', data.message);
         }
-    } catch (error) {
-        console.error('Error loading department data:', error);
-    }
-}
 
-// Load department data when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    loadDepartmentData();
-    // Refresh department data every 5 minutes
-    setInterval(loadDepartmentData, 300000);
-});
+        // Load department data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDepartmentData();
+            // Refresh department data every 5 minutes
+            setInterval(loadDepartmentData, 300000);
+        });
 
-// Function to load database tables
-async function loadDatabaseTables() {
-    try {
-        const response = await fetch('/api/database/tables');
-        const data = await response.json();
-        
-        if (data.success) {
-            const tableList = document.getElementById('tableList');
-            tableList.innerHTML = data.tables.map(table => `
+        // Function to load database tables
+        async function loadDatabaseTables() {
+            try {
+                const response = await fetch('/api/database/tables');
+                const data = await response.json();
+
+                if (data.success) {
+                    const tableList = document.getElementById('tableList');
+                    tableList.innerHTML = data.tables.map(table => `
                 <a href="#" class="list-group-item list-group-item-action" data-table="${table}">
                     <i class="fas fa-table me-2"></i>${table}
                 </a>
             `).join('');
-            
-            // Add click event to table items
-            tableList.querySelectorAll('.list-group-item').forEach(item => {
-                item.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    const tableName = e.currentTarget.dataset.table;
-                    await loadTableData(tableName);
-                    
-                    // Update active state
-                    tableList.querySelectorAll('.list-group-item').forEach(i => i.classList.remove('active'));
-                    e.currentTarget.classList.add('active');
-                });
-            });
-            
-            // Load first table by default
-            if (data.tables.length > 0) {
-                await loadTableData(data.tables[0]);
-                tableList.querySelector('.list-group-item').classList.add('active');
+
+                    // Add click event to table items
+                    tableList.querySelectorAll('.list-group-item').forEach(item => {
+                        item.addEventListener('click', async (e) => {
+                            e.preventDefault();
+                            const tableName = e.currentTarget.dataset.table;
+                            await loadTableData(tableName);
+
+                            // Update active state
+                            tableList.querySelectorAll('.list-group-item').forEach(i => i.classList.remove('active'));
+                            e.currentTarget.classList.add('active');
+                        });
+                    });
+
+                    // Load first table by default
+                    if (data.tables.length > 0) {
+                        await loadTableData(data.tables[0]);
+                        tableList.querySelector('.list-group-item').classList.add('active');
+                    }
+                } else {
+                    console.error('Error loading tables:', data.message);
+                }
+            } catch (error) {
+                console.error('Error loading tables:', error);
             }
-        } else {
-            console.error('Error loading tables:', data.message);
         }
-    } catch (error) {
-        console.error('Error loading tables:', error);
-    }
-}
 
-// Function to load table data
-async function loadTableData(tableName) {
-    try {
-        console.log('Loading data for table:', tableName);
-        const response = await fetch(`/api/database/table/${tableName}`);
-        console.log('API Response:', response);
-        const data = await response.json();
-        console.log('Parsed Data:', data);
-        
-        if (data.success) {
-            const dataTable = document.getElementById('dataTable');
-            const thead = dataTable.querySelector('thead tr');
-            const tbody = dataTable.querySelector('tbody');
-            
-            // Clear existing data
-            thead.innerHTML = '';
-            tbody.innerHTML = '';
-            
-            // Add headers
-            data.data.headers.forEach(header => {
-                thead.innerHTML += `<th>${header}</th>`;
-            });
-            
-            // Add rows
-            data.data.rows.forEach(row => {
-                const tr = document.createElement('tr');
-                Object.values(row).forEach(cell => {
-                    tr.innerHTML += `<td>${cell}</td>`;
-                });
-                tbody.appendChild(tr);
-            });
-        } else {
-            console.error('Error loading table data:', data.message);
-            showError('Không thể tải dữ liệu: ' + data.message);
+        // Function to load table data
+        async function loadTableData(tableName) {
+            try {
+                console.log('Loading data for table:', tableName);
+                const response = await fetch(`/api/database/table/${tableName}`);
+                console.log('API Response:', response);
+                const data = await response.json();
+                console.log('Parsed Data:', data);
+
+                if (data.success) {
+                    const dataTable = document.getElementById('dataTable');
+                    const thead = dataTable.querySelector('thead tr');
+                    const tbody = dataTable.querySelector('tbody');
+
+                    // Clear existing data
+                    thead.innerHTML = '';
+                    tbody.innerHTML = '';
+
+                    // Add headers
+                    data.data.headers.forEach(header => {
+                        thead.innerHTML += `<th>${header}</th>`;
+                    });
+
+                    // Add rows
+                    data.data.rows.forEach(row => {
+                        const tr = document.createElement('tr');
+                        Object.values(row).forEach(cell => {
+                            tr.innerHTML += `<td>${cell}</td>`;
+                        });
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    console.error('Error loading table data:', data.message);
+                    showError('Không thể tải dữ liệu: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error loading table data:', error);
+                showError('Lỗi khi tải dữ liệu: ' + error.message);
+            }
         }
-    } catch (error) {
-        console.error('Error loading table data:', error);
-        showError('Lỗi khi tải dữ liệu: ' + error.message);
-    }
-}
 
-// Initialize when document is ready
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Initialize View Data button
-//     const viewDataBtn = document.getElementById('viewDataBtn');
-//     const databaseViewModal = document.getElementById('databaseViewModal');
-//     const modal = new bootstrap.Modal(databaseViewModal);
-    
-//     viewDataBtn.addEventListener('click', async (e) => {
-//         e.preventDefault();
-//         modal.show();
-//         await loadDatabaseTables();
-//     });
+        // Initialize when document is ready
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     // Initialize View Data button
+        //     const viewDataBtn = document.getElementById('viewDataBtn');
+        //     const databaseViewModal = document.getElementById('databaseViewModal');
+        //     const modal = new bootstrap.Modal(databaseViewModal);
 
-//     // Prevent modal from closing when clicking outside
-//     databaseViewModal.addEventListener('click', (e) => {
-//         if (e.target === databaseViewModal) {
-//             e.stopPropagation();
-//         }
-//     });
-// });
+        //     viewDataBtn.addEventListener('click', async (e) => {
+        //         e.preventDefault();
+        //         modal.show();
+        //         await loadDatabaseTables();
+        //     });
 
-function showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'alert alert-danger alert-dismissible fade show';
-    errorDiv.role = 'alert';
-    errorDiv.innerHTML = `
+        //     // Prevent modal from closing when clicking outside
+        //     databaseViewModal.addEventListener('click', (e) => {
+        //         if (e.target === databaseViewModal) {
+        //             e.stopPropagation();
+        //         }
+        //     });
+        // });
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+            errorDiv.role = 'alert';
+            errorDiv.innerHTML = `
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
-    
-    const modalBody = document.querySelector('#databaseViewModal .modal-body');
-    modalBody.insertBefore(errorDiv, modalBody.firstChild);
-    
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        errorDiv.remove();
-    }, 5000);
-}
 
-// Function to initialize HR department chart
-async function initHRDepartmentChart() {
-    const chartContainer = document.getElementById('hrDepartmentChart');
-    if (!chartContainer) {
-        console.error('Chart container not found');
-        return;
-    }
+            const modalBody = document.querySelector('#databaseViewModal .modal-body');
+            modalBody.insertBefore(errorDiv, modalBody.firstChild);
 
-    try {
-        // Hiển thị trạng thái đang tải
-        chartContainer.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-
-        const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/hr_department_chart.php');
-        
-        // Kiểm tra lỗi HTTP khi gọi API
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Kiểm tra nếu API trả về lỗi
-        if (!data.success) {
-            throw new Error(data.message || 'Failed to load HR department data');
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
         }
 
-        // Kiểm tra nếu không có dữ liệu phòng ban
-        if (!data.data || data.data.length === 0) {
-            throw new Error('No department data available');
-        }
+        // Function to initialize HR department chart
+        async function initHRDepartmentChart() {
+            const chartContainer = document.getElementById('hrDepartmentChart');
+            if (!chartContainer) {
+                console.error('Chart container not found');
+                return;
+            }
 
-        const departments = data.data;
-        
-        // Xóa trạng thái đang tải và tạo canvas mới
-        chartContainer.innerHTML = '<canvas></canvas>';
-        const ctx = chartContainer.querySelector('canvas').getContext('2d');
-        
-        // Hủy biểu đồ cũ nếu tồn tại
-        if (window.hrDepartmentChart) {
-            window.hrDepartmentChart.destroy();
-        }
-        
-        // Create new chart instance
-        window.hrDepartmentChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: departments.map(dept => dept.name),
-                datasets: [{
-                    data: departments.map(dept => dept.count),
-                    backgroundColor: departments.map(dept => dept.color)
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            generateLabels: function(chart) {
-                                const data = chart.data;
-                                if (data.labels.length && data.datasets.length) {
-                                    return data.labels.map((label, i) => {
-                                        const value = data.datasets[0].data[i];
-                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return {
-                                            text: `${label} (${value} - ${percentage}%)`,
-                                            fillStyle: data.datasets[0].backgroundColor[i],
-                                            hidden: false,
-                                            lineCap: 'butt',
-                                            lineDash: [],
-                                            lineDashOffset: 0,
-                                            lineJoin: 'miter',
-                                            lineWidth: 1,
-                                            strokeStyle: data.datasets[0].backgroundColor[i],
-                                            pointStyle: 'circle',
-                                            rotation: 0
-                                        };
-                                    });
-                                }
-                                return [];
-                            }
-                        }
+            try {
+                // Hiển thị trạng thái đang tải
+                chartContainer.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+                const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/hr_department_chart.php');
+
+                // Kiểm tra lỗi HTTP khi gọi API
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Kiểm tra nếu API trả về lỗi
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to load HR department data');
+                }
+
+                // Kiểm tra nếu không có dữ liệu phòng ban
+                if (!data.data || data.data.length === 0) {
+                    throw new Error('No department data available');
+                }
+
+                const departments = data.data;
+
+                // Xóa trạng thái đang tải và tạo canvas mới
+                chartContainer.innerHTML = '<canvas></canvas>';
+                const ctx = chartContainer.querySelector('canvas').getContext('2d');
+
+                // Hủy biểu đồ cũ nếu tồn tại
+                if (window.hrDepartmentChart) {
+                    window.hrDepartmentChart.destroy();
+                }
+
+                // Create new chart instance
+                window.hrDepartmentChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: departments.map(dept => dept.name),
+                        datasets: [{
+                            data: departments.map(dept => dept.count),
+                            backgroundColor: departments.map(dept => dept.color)
+                        }]
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((value / total) * 100).toFixed(1);
-                                return `${label}: ${value} (${percentage}%)`;
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    generateLabels: function(chart) {
+                                        const data = chart.data;
+                                        if (data.labels.length && data.datasets.length) {
+                                            return data.labels.map((label, i) => {
+                                                const value = data.datasets[0].data[i];
+                                                const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(1);
+                                                return {
+                                                    text: `${label} (${value} - ${percentage}%)`,
+                                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                                    hidden: false,
+                                                    lineCap: 'butt',
+                                                    lineDash: [],
+                                                    lineDashOffset: 0,
+                                                    lineJoin: 'miter',
+                                                    lineWidth: 1,
+                                                    strokeStyle: data.datasets[0].backgroundColor[i],
+                                                    pointStyle: 'circle',
+                                                    rotation: 0
+                                                };
+                                            });
+                                        }
+                                        return [];
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Error initializing HR department chart:', error);
-        chartContainer.innerHTML = `
+                });
+            } catch (error) {
+                console.error('Error initializing HR department chart:', error);
+                chartContainer.innerHTML = `
             <div class="alert alert-danger" role="alert">
                 <h4 class="alert-heading">Lỗi khi tải dữ liệu nhân sự</h4>
                 <p>${error.message}</p>
@@ -5133,103 +5231,103 @@ async function initHRDepartmentChart() {
                 <p class="mb-0">Vui lòng thử lại sau hoặc liên hệ quản trị viên.</p>
             </div>
         `;
-    }
-}
-
-// Initialize chart after all resources are loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait for all resources to load
-    window.addEventListener('load', function() {
-        // Small delay to ensure other charts are initialized
-        setTimeout(initHRDepartmentChart, 100);
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize department chart
-    initDepartmentChart();
-});
-
-async function initDepartmentChart() {
-    try {
-        const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/hr_department_chart.php');
-        const data = await response.json();
-        
-        if (!data.success) {
-            console.error('Failed to load department data:', data.message);
-            return;
+            }
         }
 
-        const departments = data.data;
-        const chartCtx = document.getElementById('hrDepartmentChart');
-        
-        if (!chartCtx) {
-            console.error('HR Department Chart container not found');
-            return;
-        }
+        // Initialize chart after all resources are loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for all resources to load
+            window.addEventListener('load', function() {
+                // Small delay to ensure other charts are initialized
+                setTimeout(initHRDepartmentChart, 100);
+            });
+        });
 
-        // Destroy existing chart if it exists
-        if (window.departmentChart) {
-            window.departmentChart.destroy();
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize department chart
+            initDepartmentChart();
+        });
 
-        // Create new chart
-        window.departmentChart = new Chart(chartCtx.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: departments.map(dept => dept.name),
-                datasets: [{
-                    label: 'Số lượng nhân viên',
-                    data: departments.map(dept => dept.count),
-                    backgroundColor: departments.map(dept => dept.color),
-                    borderColor: departments.map(dept => dept.color),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
+        async function initDepartmentChart() {
+            try {
+                const response = await fetch('/qlnhansu_V2/backend/src/public/admin/api/hr_department_chart.php');
+                const data = await response.json();
+
+                if (!data.success) {
+                    console.error('Failed to load department data:', data.message);
+                    return;
+                }
+
+                const departments = data.data;
+                const chartCtx = document.getElementById('hrDepartmentChart');
+
+                if (!chartCtx) {
+                    console.error('HR Department Chart container not found');
+                    return;
+                }
+
+                // Destroy existing chart if it exists
+                if (window.departmentChart) {
+                    window.departmentChart.destroy();
+                }
+
+                // Create new chart
+                window.departmentChart = new Chart(chartCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: departments.map(dept => dept.name),
+                        datasets: [{
+                            label: 'Số lượng nhân viên',
+                            data: departments.map(dept => dept.count),
+                            backgroundColor: departments.map(dept => dept.color),
+                            borderColor: departments.map(dept => dept.color),
+                            borderWidth: 1
+                        }]
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.parsed.y} nhân viên`;
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.parsed.y} nhân viên`;
+                                    }
+                                }
                             }
                         }
                     }
-                }
+                });
+            } catch (error) {
+                console.error('Error initializing department chart:', error);
+            }
+        }
+
+        // ... existing code ...
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize View Data button
+            const viewDataBtn = document.getElementById('viewDataBtn');
+            if (viewDataBtn) {
+                viewDataBtn.addEventListener('click', function() {
+                    window.location.href = 'check_data.php';
+                });
             }
         });
-    } catch (error) {
-        console.error('Error initializing department chart:', error);
-    }
-}
+        // ... existing code ...
+    </script>
 
-// ... existing code ...
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize View Data button
-    const viewDataBtn = document.getElementById('viewDataBtn');
-    if (viewDataBtn) {
-        viewDataBtn.addEventListener('click', function() {
-            window.location.href = 'check_data.php';
-        });
-    }
-});
-// ... existing code ...
-                    </script>
-
-                    </div>
+    </div>
 
     <!-- Database View Modal -->
     <div class="modal fade" id="databaseViewModal" tabindex="-1" aria-labelledby="databaseViewModalLabel" aria-hidden="true">
@@ -5240,14 +5338,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-database text-warning me-2"></i>Database Tables
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
+                </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="list-group" id="tableList">
                                 <!-- Tables will be loaded here -->
-                                </div>
                             </div>
+                        </div>
                         <div class="col-md-9">
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover" id="dataTable">
@@ -5260,13 +5358,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <!-- Table data will be loaded here -->
                                     </tbody>
                                 </table>
+                            </div>
                         </div>
-                                    </div>
-                                    </div>
-                            </div>
-                            </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
     <!-- JavaScript Files -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -5307,37 +5405,37 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const menuToggle = document.createElement('button');
-        menuToggle.className = 'menu-toggle';
-        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
-        document.body.appendChild(menuToggle);
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.createElement('button');
+            menuToggle.className = 'menu-toggle';
+            menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            document.body.appendChild(menuToggle);
 
-        const sidebar = document.querySelector('.sidebar');
-        const overlay = document.createElement('div');
-        overlay.className = 'sidebar-overlay';
-        document.body.appendChild(overlay);
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
 
-        menuToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        });
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
 
-        overlay.addEventListener('click', function() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        });
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
 
-        // Close menu when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            if (window.innerWidth <= 768) {
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
+            // Close menu when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768) {
+                    if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                    }
                 }
-            }
+            });
         });
-    });
     </script>
     <!-- Add this before closing body tag -->
     <script src="js/modules/menu-handler.js"></script>
@@ -5348,4 +5446,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     </script>
 </body>
+
 </html>

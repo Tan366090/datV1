@@ -37,6 +37,15 @@ try {
             }
             break;
             
+        case 'departments/list':
+        case 'departments':
+            require_once __DIR__ . '/departments.php';
+            break;
+            
+        case 'contract-types':
+            require_once __DIR__ . '/contract-types.php';
+            break;
+            
         case 'dashboard':
             require_once __DIR__ . '/dashboard_api.php';
             $endpoint = $_GET['endpoint'] ?? '';

@@ -191,12 +191,10 @@ $router->get('/api/departments', function($request, $response) {
 
 // API để lấy danh sách chức vụ
 $router->get('/api/positions', function($request, $response) {
-    $positionController = new PositionController();
-    $positions = $positionController->getPositions();
-    return $response->withJson([
-        'success' => true,
-        'data' => $positions
-    ]);
+    global $db;
+    $positionController = new PositionController($db);
+    $result = $positionController->getAll();
+    return $response->withJson($result);
 });
 
 // API để lấy danh sách loại hợp đồng

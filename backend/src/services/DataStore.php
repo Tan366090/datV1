@@ -48,8 +48,18 @@ class DataStore {
             );
         } catch (Exception $e) {
             error_log("Database connection failed: " . $e->getMessage());
-            throw new Exception("Database connection failed: " . $e->getMessage());
+            throw new Exception("Database connection failed");
         }
+    }
+
+    private function handleError($message, $code = 500) {
+        http_response_code($code);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'error' => $message
+        ]);
+        exit;
     }
 
     private function tableExists($table) {
@@ -76,11 +86,9 @@ class DataStore {
     }
 
     public function getData($table, $conditions = [], $forceRefresh = false) {
-        // Kiểm tra bảng tồn tại và lấy tên bảng thực tế
         $actualTable = $this->tableExists($table);
         if (!$actualTable) {
-            error_log("Table $table does not exist in database {$this->config['database']}");
-            throw new Exception("Table $table does not exist");
+            $this->handleError("Table $table does not exist", 404);
         }
 
         $cacheKey = $actualTable . '_' . md5(json_encode($conditions));
@@ -124,14 +132,13 @@ class DataStore {
             return $data;
         } catch (Exception $e) {
             error_log("Error getting data from $actualTable: " . $e->getMessage());
-            throw new Exception("Error getting data from $actualTable: " . $e->getMessage());
+            $this->handleError("Error getting data from $actualTable", 500);
         }
     }
 
     public function insertData($table, $data) {
         if (!$this->tableExists($table)) {
-            error_log("Table $table does not exist in database {$this->config['database']}");
-            throw new Exception("Table $table does not exist");
+            $this->handleError("Table $table does not exist", 404);
         }
 
         try {
@@ -151,14 +158,13 @@ class DataStore {
             return $this->pdo->lastInsertId();
         } catch (Exception $e) {
             error_log("Error inserting data into $table: " . $e->getMessage());
-            throw new Exception("Error inserting data into $table: " . $e->getMessage());
+            $this->handleError("Error inserting data into $table", 500);
         }
     }
 
     public function updateData($table, $data, $conditions) {
         if (!$this->tableExists($table)) {
-            error_log("Table $table does not exist in database {$this->config['database']}");
-            throw new Exception("Table $table does not exist");
+            $this->handleError("Table $table does not exist", 404);
         }
 
         try {
@@ -195,14 +201,13 @@ class DataStore {
             return $stmt->rowCount();
         } catch (Exception $e) {
             error_log("Error updating data in $table: " . $e->getMessage());
-            throw new Exception("Error updating data in $table: " . $e->getMessage());
+            $this->handleError("Error updating data in $table", 500);
         }
     }
 
     public function deleteData($table, $conditions) {
         if (!$this->tableExists($table)) {
-            error_log("Table $table does not exist in database {$this->config['database']}");
-            throw new Exception("Table $table does not exist");
+            $this->handleError("Table $table does not exist", 404);
         }
 
         try {
@@ -231,7 +236,7 @@ class DataStore {
             return $stmt->rowCount();
         } catch (Exception $e) {
             error_log("Error deleting data from $table: " . $e->getMessage());
-            throw new Exception("Error deleting data from $table: " . $e->getMessage());
+            $this->handleError("Error deleting data from $table", 500);
         }
     }
 

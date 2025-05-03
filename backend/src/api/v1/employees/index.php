@@ -8,6 +8,12 @@ use App\Handlers\Response;
 use App\Handlers\ErrorHandler;
 use App\Services\DataStore;
 
+// Set headers for JSON response
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
 // Apply CORS middleware
 $cors = new CorsMiddleware();
 $cors->handle();
@@ -17,7 +23,12 @@ $auth = new AuthMiddleware();
 $user = $auth->handle();
 
 if (!$user) {
-    ErrorHandler::handleUnauthorized();
+    http_response_code(401);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Unauthorized'
+    ]);
+    exit;
 }
 
 // Get request method and path
@@ -42,7 +53,12 @@ try {
                     // Get employee details with related data
                     $employee = $dataStore->getData('employees', ['id' => $id]);
                     if (!$employee) {
-                        ErrorHandler::handleNotFound();
+                        http_response_code(404);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Employee not found'
+                        ]);
+                        exit;
                     }
                     
                     $employee = $employee[0];
@@ -54,13 +70,24 @@ try {
                     $employee['certificates'] = $dataStore->getData('certificates', ['employee_id' => $id]);
                     $employee['family_members'] = $dataStore->getData('family_members', ['employee_id' => $id]);
                     
-                    Response::success($employee);
+                    echo json_encode([
+                        'success' => true,
+                        'data' => $employee
+                    ]);
                 } else {
                     $employee = $dataStore->getData('employees', ['id' => $id]);
                     if (!$employee) {
-                        ErrorHandler::handleNotFound();
+                        http_response_code(404);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Employee not found'
+                        ]);
+                        exit;
                     }
-                    Response::success($employee[0]);
+                    echo json_encode([
+                        'success' => true,
+                        'data' => $employee[0]
+                    ]);
                 }
             } else {
                 $page = $_GET['page'] ?? 1;
@@ -89,113 +116,366 @@ try {
                     'per_page' => $perPage,
                     'conditions' => $conditions
                 ]);
-                Response::paginated($employees['data'], $employees['total'], $page, $perPage);
+                echo json_encode([
+                    'success' => true,
+                    'data' => $employees['data'],
+                    'total' => $employees['total'],
+                    'page' => $page,
+                    'per_page' => $perPage
+                ]);
             }
             break;
 
         case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
             
+            if (!$data) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Invalid JSON data'
+                ]);
+                exit;
+            }
+            
             // Validate input
             $rules = [
-                'first_name' => 'required|min:2|max:50',
-                'last_name' => 'required|min:2|max:50',
-                'email' => 'required|email|unique:employees',
-                'phone' => 'required|min:10|max:15',
-                'address' => 'required|min:5|max:255',
+                'username' => 'required|min:3|max:50|unique:users',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|min:6',
+                'full_name' => 'required|min:2|max:100',
+                'phone_number' => 'required|min:10|max:15',
+                'date_of_birth' => 'required|date',
                 'gender' => 'required|in:male,female,other',
-                'birth_date' => 'required|date',
-                'hire_date' => 'required|date',
+                'permanent_address' => 'required|min:5|max:255',
+                'current_address' => 'required|min:5|max:255',
+                'bank_account_number' => 'required|min:10|max:20',
+                'bank_name' => 'required|min:2|max:100',
+                'tax_code' => 'required|min:10|max:20',
                 'department_id' => 'required|integer|exists:departments,id',
                 'position_id' => 'required|integer|exists:positions,id',
-                'status' => 'required|in:active,inactive,on_leave,terminated',
-                'salary' => 'required|numeric|min:0',
-                'emergency_contact' => 'required|min:5|max:255',
-                'emergency_phone' => 'required|min:10|max:15',
-                'national_id' => 'required|min:9|max:20',
-                'tax_code' => 'required|min:10|max:20',
-                'bank_account' => 'required|min:10|max:20',
-                'bank_name' => 'required|min:2|max:100'
+                'employment_type' => 'required|in:full_time,part_time,contract,intern',
+                'join_date' => 'required|date',
+                'contract_start_date' => 'required|date',
+                'contract_end_date' => 'date',
+                'status' => 'required|in:active,inactive,terminated,on_leave'
             ];
             
             $validator = new ValidationMiddleware($rules);
             if (!$validator->validate($data)) {
-                ErrorHandler::handleValidationError($validator->getErrors());
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Validation failed',
+                    'errors' => $validator->getErrors()
+                ]);
+                exit;
             }
 
-            $employeeId = $dataStore->insertData('employees', $data);
-            $employee = $dataStore->getData('employees', ['id' => $employeeId]);
-            Response::created($employee[0]);
+            try {
+                // Start transaction
+                $dataStore->beginTransaction();
+
+                // 1. Create user record
+                $userData = [
+                    'username' => $data['username'],
+                    'email' => $data['email'],
+                    'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
+                    'role_id' => 4, // Default employee role
+                    'is_active' => 1,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+                $userId = $dataStore->insertData('users', $userData);
+
+                // 2. Create user profile
+                $profileData = [
+                    'user_id' => $userId,
+                    'full_name' => $data['full_name'],
+                    'phone_number' => $data['phone_number'],
+                    'email' => $data['email'],
+                    'date_of_birth' => $data['date_of_birth'],
+                    'gender' => $data['gender'],
+                    'permanent_address' => $data['permanent_address'],
+                    'current_address' => $data['current_address'],
+                    'bank_account_number' => $data['bank_account_number'],
+                    'bank_name' => $data['bank_name'],
+                    'tax_code' => $data['tax_code'],
+                    'status' => 'active',
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+                $dataStore->insertData('user_profiles', $profileData);
+
+                // 3. Generate employee code
+                $employeeCode = 'NV' . str_pad($userId, 6, '0', STR_PAD_LEFT);
+
+                // 4. Create employee record
+                $employeeData = [
+                    'user_id' => $userId,
+                    'employee_code' => $employeeCode,
+                    'department_id' => $data['department_id'],
+                    'position_id' => $data['position_id'],
+                    'employment_type' => $data['employment_type'],
+                    'hire_date' => $data['join_date'],
+                    'contract_type' => $data['employment_type'],
+                    'contract_start_date' => $data['contract_start_date'],
+                    'contract_end_date' => $data['contract_end_date'] ?? null,
+                    'status' => $data['status'],
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+                $employeeId = $dataStore->insertData('employees', $employeeData);
+
+                // Commit transaction
+                $dataStore->commit();
+
+                // Get the created employee with details
+                $employee = $dataStore->getData('employees', ['id' => $employeeId]);
+                http_response_code(201);
+                echo json_encode([
+                    'success' => true,
+                    'data' => $employee[0]
+                ]);
+            } catch (Exception $e) {
+                // Rollback transaction on error
+                $dataStore->rollback();
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]);
+            }
             break;
 
         case 'PUT':
             if (!$id) {
-                ErrorHandler::handleNotFound();
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Employee ID is required'
+                ]);
+                exit;
             }
 
             $data = json_decode(file_get_contents('php://input'), true);
             
+            if (!$data) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Invalid JSON data'
+                ]);
+                exit;
+            }
+            
             // Validate input
             $rules = [
-                'first_name' => 'min:2|max:50',
-                'last_name' => 'min:2|max:50',
-                'email' => 'email|unique:employees',
-                'phone' => 'min:10|max:15',
-                'address' => 'min:5|max:255',
+                'username' => 'min:3|max:50|unique:users',
+                'email' => 'email|unique:users',
+                'password' => 'min:6',
+                'full_name' => 'min:2|max:100',
+                'phone_number' => 'min:10|max:15',
+                'date_of_birth' => 'date',
                 'gender' => 'in:male,female,other',
-                'birth_date' => 'date',
-                'hire_date' => 'date',
+                'permanent_address' => 'min:5|max:255',
+                'current_address' => 'min:5|max:255',
+                'bank_account_number' => 'min:10|max:20',
+                'bank_name' => 'min:2|max:100',
+                'tax_code' => 'min:10|max:20',
                 'department_id' => 'integer|exists:departments,id',
                 'position_id' => 'integer|exists:positions,id',
-                'status' => 'in:active,inactive,on_leave,terminated',
-                'salary' => 'numeric|min:0',
-                'emergency_contact' => 'min:5|max:255',
-                'emergency_phone' => 'min:10|max:15',
-                'national_id' => 'min:9|max:20',
-                'tax_code' => 'min:10|max:20',
-                'bank_account' => 'min:10|max:20',
-                'bank_name' => 'min:2|max:100'
+                'employment_type' => 'in:full_time,part_time,contract,intern',
+                'join_date' => 'date',
+                'contract_start_date' => 'date',
+                'contract_end_date' => 'date',
+                'probation_end_date' => 'date',
+                'manager_id' => 'integer|exists:employees,id',
+                'status' => 'in:active,inactive,on_leave,terminated'
             ];
             
             $validator = new ValidationMiddleware($rules);
             if (!$validator->validate($data)) {
-                ErrorHandler::handleValidationError($validator->getErrors());
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Validation failed',
+                    'errors' => $validator->getErrors()
+                ]);
+                exit;
             }
 
-            $dataStore->updateData('employees', $data, ['id' => $id]);
-            $employee = $dataStore->getData('employees', ['id' => $id]);
-            Response::updated($employee[0]);
+            try {
+                // Start transaction
+                $dataStore->beginTransaction();
+
+                // Get employee to update
+                $employee = $dataStore->getData('employees', ['id' => $id]);
+                if (!$employee) {
+                    http_response_code(404);
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Employee not found'
+                    ]);
+                    exit;
+                }
+
+                $employee = $employee[0];
+                $userId = $employee['user_id'];
+
+                // Update user record if needed
+                if (isset($data['username']) || isset($data['email']) || isset($data['password'])) {
+                    $userData = [];
+                    if (isset($data['username'])) $userData['username'] = $data['username'];
+                    if (isset($data['email'])) $userData['email'] = $data['email'];
+                    if (isset($data['password'])) $userData['password_hash'] = password_hash($data['password'], PASSWORD_DEFAULT);
+                    $userData['updated_at'] = date('Y-m-d H:i:s');
+                    $dataStore->updateData('users', $userData, ['id' => $userId]);
+                }
+
+                // Update user profile if needed
+                if (isset($data['full_name']) || isset($data['phone_number']) || isset($data['email']) || 
+                    isset($data['date_of_birth']) || isset($data['gender']) || isset($data['permanent_address']) || 
+                    isset($data['current_address']) || isset($data['bank_account_number']) || 
+                    isset($data['bank_name']) || isset($data['tax_code'])) {
+                    $profileData = [];
+                    if (isset($data['full_name'])) $profileData['full_name'] = $data['full_name'];
+                    if (isset($data['phone_number'])) $profileData['phone_number'] = $data['phone_number'];
+                    if (isset($data['email'])) $profileData['email'] = $data['email'];
+                    if (isset($data['date_of_birth'])) $profileData['date_of_birth'] = $data['date_of_birth'];
+                    if (isset($data['gender'])) $profileData['gender'] = $data['gender'];
+                    if (isset($data['permanent_address'])) $profileData['permanent_address'] = $data['permanent_address'];
+                    if (isset($data['current_address'])) $profileData['current_address'] = $data['current_address'];
+                    if (isset($data['bank_account_number'])) $profileData['bank_account_number'] = $data['bank_account_number'];
+                    if (isset($data['bank_name'])) $profileData['bank_name'] = $data['bank_name'];
+                    if (isset($data['tax_code'])) $profileData['tax_code'] = $data['tax_code'];
+                    $profileData['updated_at'] = date('Y-m-d H:i:s');
+                    $dataStore->updateData('user_profiles', $profileData, ['user_id' => $userId]);
+                }
+
+                // Update employee record if needed
+                if (isset($data['department_id']) || isset($data['position_id']) || isset($data['employment_type']) || 
+                    isset($data['join_date']) || isset($data['contract_start_date']) || isset($data['contract_end_date']) || 
+                    isset($data['probation_end_date']) || isset($data['manager_id']) || isset($data['status'])) {
+                    $employeeData = [];
+                    if (isset($data['department_id'])) $employeeData['department_id'] = $data['department_id'];
+                    if (isset($data['position_id'])) $employeeData['position_id'] = $data['position_id'];
+                    if (isset($data['employment_type'])) $employeeData['employment_type'] = $data['employment_type'];
+                    if (isset($data['join_date'])) $employeeData['join_date'] = $data['join_date'];
+                    if (isset($data['contract_start_date'])) $employeeData['contract_start_date'] = $data['contract_start_date'];
+                    if (isset($data['contract_end_date'])) $employeeData['contract_end_date'] = $data['contract_end_date'];
+                    if (isset($data['probation_end_date'])) $employeeData['probation_end_date'] = $data['probation_end_date'];
+                    if (isset($data['manager_id'])) $employeeData['manager_id'] = $data['manager_id'];
+                    if (isset($data['status'])) $employeeData['status'] = $data['status'];
+                    $employeeData['updated_at'] = date('Y-m-d H:i:s');
+                    $dataStore->updateData('employees', $employeeData, ['id' => $id]);
+                }
+
+                // Commit transaction
+                $dataStore->commit();
+
+                // Get the updated employee with details
+                $employee = $dataStore->getData('employees', ['id' => $id]);
+                echo json_encode([
+                    'success' => true,
+                    'data' => $employee[0]
+                ]);
+            } catch (Exception $e) {
+                // Rollback transaction on error
+                $dataStore->rollback();
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]);
+            }
             break;
 
         case 'DELETE':
             if (!$id) {
-                ErrorHandler::handleNotFound();
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Employee ID is required'
+                ]);
+                exit;
             }
 
-            // Check if employee has related records
-            $hasRelatedRecords = false;
-            $relatedTables = ['contracts', 'certificates', 'family_members', 'attendance', 'salaries'];
-            
-            foreach ($relatedTables as $table) {
-                $records = $dataStore->getData($table, ['employee_id' => $id]);
-                if (!empty($records)) {
-                    $hasRelatedRecords = true;
-                    break;
+            try {
+                // Start transaction
+                $dataStore->beginTransaction();
+
+                // Get employee to delete
+                $employee = $dataStore->getData('employees', ['id' => $id]);
+                if (!$employee) {
+                    http_response_code(404);
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Employee not found'
+                    ]);
+                    exit;
                 }
-            }
 
-            if ($hasRelatedRecords) {
-                ErrorHandler::handle('Cannot delete employee with related records', 400);
-            }
+                $employee = $employee[0];
+                $userId = $employee['user_id'];
 
-            $dataStore->deleteData('employees', ['id' => $id]);
-            Response::deleted();
+                // Check if employee has related records
+                $hasRelatedRecords = false;
+                $relatedTables = ['contracts', 'certificates', 'family_members', 'attendance', 'salaries'];
+                
+                foreach ($relatedTables as $table) {
+                    $records = $dataStore->getData($table, ['employee_id' => $id]);
+                    if (!empty($records)) {
+                        $hasRelatedRecords = true;
+                        break;
+                    }
+                }
+
+                if ($hasRelatedRecords) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Cannot delete employee with related records'
+                    ]);
+                    exit;
+                }
+
+                // Delete employee record
+                $dataStore->deleteData('employees', ['id' => $id]);
+
+                // Delete user profile
+                $dataStore->deleteData('user_profiles', ['user_id' => $userId]);
+
+                // Delete user record
+                $dataStore->deleteData('users', ['id' => $userId]);
+
+                // Commit transaction
+                $dataStore->commit();
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Employee deleted successfully'
+                ]);
+            } catch (Exception $e) {
+                // Rollback transaction on error
+                $dataStore->rollback();
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]);
+            }
             break;
 
         default:
-            ErrorHandler::handle('Method not allowed', 405);
+            http_response_code(405);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Method not allowed'
+            ]);
     }
-} catch (\Exception $e) {
-    ErrorHandler::handle($e);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
 }
 ?> 

@@ -1,18 +1,41 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type');
+// Bật error reporting để debug
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-require_once __DIR__ . '/../config/Database.php';
+// Cấu hình CORS
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Content-Type: application/json');
+
+// Xử lý preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Kiểm tra kết nối database
+try {
+    require_once __DIR__ . '/../config/Database.php';
+    $database = new Database();
+    $conn = $database->getConnection();
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Lỗi kết nối database: ' . $e->getMessage()
+    ]);
+    exit();
+}
 
 class EmployeeAPI {
     private $conn;
     private $table_name = "employees";
 
     public function __construct() {
-        $database = new Database();
-        $this->conn = $database->getConnection();
+        global $conn;
+        $this->conn = $conn;
     }
 
     // Lấy danh sách nhân viên với phân trang và bộ lọc
@@ -113,6 +136,151 @@ class EmployeeAPI {
         }
     }
 
+    // Thêm nhân viên mới
+    public function addEmployee() {
+        try {
+            // Lấy dữ liệu từ request body
+            $data = json_decode(file_get_contents('php://input'), true);
+            
+            if (!$data) {
+                throw new Exception('Dữ liệu không hợp lệ');
+            }
+
+            // Validate dữ liệu
+            $required_fields = ['email', 'phone', 'employee_code', 'department_id', 'hire_date', 'contract_type', 'base_salary', 'contract_start_date'];
+            foreach ($required_fields as $field) {
+                if (empty($data[$field])) {
+                    throw new Exception("Trường {$field} là bắt buộc");
+                }
+            }
+
+            // Validate email
+            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new Exception('Email không hợp lệ');
+            }
+
+            // Validate phone
+            if (!preg_match('/^[0-9]{10,11}$/', $data['phone'])) {
+                throw new Exception('Số điện thoại không hợp lệ');
+            }
+
+            // Kiểm tra email đã tồn tại chưa
+            $check_email = "SELECT user_id FROM users WHERE email = ?";
+            $stmt = $this->conn->prepare($check_email);
+            $stmt->execute([$data['email']]);
+            if ($stmt->rowCount() > 0) {
+                throw new Exception('Email đã tồn tại');
+            }
+
+            // Kiểm tra mã nhân viên đã tồn tại chưa
+            $check_code = "SELECT id FROM employees WHERE employee_code = ?";
+            $stmt = $this->conn->prepare($check_code);
+            $stmt->execute([$data['employee_code']]);
+            if ($stmt->rowCount() > 0) {
+                throw new Exception('Mã nhân viên đã tồn tại');
+            }
+
+            // Bắt đầu transaction
+            $this->conn->beginTransaction();
+
+            try {
+                // Thêm user
+                $user_query = "INSERT INTO users (email, username, password, role) VALUES (?, ?, ?, 'employee')";
+                $stmt = $this->conn->prepare($user_query);
+                $stmt->execute([
+                    $data['email'],
+                    $data['email'],
+                    password_hash('123456', PASSWORD_DEFAULT) // Mật khẩu mặc định
+                ]);
+                $user_id = $this->conn->lastInsertId();
+
+                // Thêm user profile
+                $profile_query = "INSERT INTO user_profiles (user_id, full_name, phone_number, date_of_birth, gender, permanent_address) 
+                                VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt = $this->conn->prepare($profile_query);
+                $stmt->execute([
+                    $user_id,
+                    $data['name'],
+                    $data['phone'],
+                    $data['birthday'] ?? null,
+                    $data['gender'] ?? null,
+                    $data['address'] ?? null
+                ]);
+
+                // Xử lý chức vụ mới nếu có
+                $position_id = null;
+                if (isset($data['position_name']) && isset($data['department_id'])) {
+                    // Thêm chức vụ mới
+                    $position_query = "INSERT INTO positions (name, department_id) VALUES (?, ?)";
+                    $stmt = $this->conn->prepare($position_query);
+                    $stmt->execute([$data['position_name'], $data['department_id']]);
+                    $position_id = $this->conn->lastInsertId();
+                } else if (isset($data['position_id'])) {
+                    $position_id = $data['position_id'];
+                }
+
+                // Thêm employee
+                $employee_query = "INSERT INTO employees (user_id, employee_code, department_id, position_id, hire_date, 
+                                contract_type, base_salary, contract_start_date, status) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')";
+                $stmt = $this->conn->prepare($employee_query);
+                $stmt->execute([
+                    $user_id,
+                    $data['employee_code'],
+                    $data['department_id'],
+                    $position_id,
+                    $data['hire_date'],
+                    $data['contract_type'],
+                    $data['base_salary'],
+                    $data['contract_start_date']
+                ]);
+                $employee_id = $this->conn->lastInsertId();
+
+                // Nếu có thông tin gia đình
+                if (!empty($data['family_members'])) {
+                    foreach ($data['family_members'] as $member) {
+                        $family_query = "INSERT INTO family_members (employee_id, name, relationship, date_of_birth, 
+                                        occupation, is_dependent) 
+                                        VALUES (?, ?, ?, ?, ?, ?)";
+                        $stmt = $this->conn->prepare($family_query);
+                        $stmt->execute([
+                            $employee_id,
+                            $member['name'],
+                            $member['relationship'],
+                            $member['birthday'] ?? null,
+                            $member['occupation'] ?? null,
+                            $member['is_dependent'] ? 1 : 0
+                        ]);
+                    }
+                }
+
+                // Commit transaction
+                $this->conn->commit();
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Thêm nhân viên thành công',
+                    'data' => [
+                        'id' => $employee_id,
+                        'employee_code' => $data['employee_code']
+                    ]
+                ]);
+
+            } catch (Exception $e) {
+                // Rollback transaction nếu có lỗi
+                $this->conn->rollBack();
+                throw $e;
+            }
+
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
     // Xóa nhân viên
     public function deleteEmployee($id) {
         try {
@@ -157,6 +325,9 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case 'GET':
         $api->getEmployees();
+        break;
+    case 'POST':
+        $api->addEmployee();
         break;
     case 'DELETE':
         $id = isset($_GET['id']) ? $_GET['id'] : null;

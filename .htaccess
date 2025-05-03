@@ -5,7 +5,9 @@ RewriteBase /qlnhansu_V2/
 RewriteRule ^backend/src/public/api/.*\.php$ - [L]
 
 # Handle API requests
-RewriteRule ^api/(.*)$ backend/src/public/api/$1 [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ backend/src/public/api/$1.php [L]
 
 # Redirect /admin to dashboard_admin_V1.php
 RewriteRule ^admin/?$ backend/src/public/admin/dashboard_admin_V1.php [L]
