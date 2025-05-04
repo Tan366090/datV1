@@ -179,9 +179,18 @@ class EmployeeForm {
         try {
             const formData = new FormData(this.form);
             
+            // Convert FormData to JSON
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+
             const response = await fetch('/api/employees', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
             });
 
             if (!response.ok) {

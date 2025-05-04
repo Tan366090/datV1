@@ -2294,13 +2294,14 @@
                             <span style="color:rgb(137, 21, 8);">Chấm công</span>
                         </a>
                     </li>
-                    <!--
+                    
                     <li class="nav-item" data-menu-id="payroll">
                         <a href="pages/payroll.php" class="nav-link">
                             <i class="fas fa-money-bill-wave"></i>
-                            <span>Lương thưởng</span>
+                            <span style="color:rgb(11, 30, 85);">Lương thưởng</span>
                         </a>
                     </li>
+                    <!--
                     <li class="nav-item" data-menu-id="departments">
                         <a href="pages/departments.php" class="nav-link">
                             <i class="fas fa-building"></i>

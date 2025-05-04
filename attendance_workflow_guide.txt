@@ -1,0 +1,215 @@
+HƯỚNG DẪN PHÁT TRIỂN MODULE CHẤM CÔNG (ATTENDANCE)
+============================================
+
+I. THIẾT LẬP MÔI TRƯỜNG LẦN ĐẦU
+--------------------------------
+
+1. Clone repository:
+   ```bash
+   git clone https://github.com/Tan366090/dat.git
+   cd dat
+   ```
+
+2. Chuyển sang nhánh attendance-menu:
+   ```bash
+   git checkout feature/attendance-menu
+   ```
+
+3. Cài đặt các công cụ cần thiết:
+   - XAMPP (PHP, MySQL)
+   - Visual Studio Code
+   - Git
+
+II. CẤU TRÚC FOLDER ATTENDANCE
+-----------------------------
+
+1. Các file chính cần phát triển:
+   ```
+   attendance/
+   ├── list.html (Danh sách chấm công)
+   ├── check.html (Form chấm công)
+   ├── history.html (Lịch sử chấm công)
+   ├── attendance.html (Trang chính chấm công)
+   └── attendance_History.html (Lịch sử chi tiết)
+   ```
+
+2. Cấu trúc tổ chức code:
+   ```
+   attendance/
+   ├── js/
+   │   ├── attendance.js (Xử lý logic chính)
+   │   ├── attendance-form.js (Xử lý form)
+   │   └── attendance-report.js (Xử lý báo cáo)
+   ├── css/
+   │   └── attendance.css (Style cho module)
+   └── components/ (Các component tái sử dụng)
+   ```
+
+III. QUY TRÌNH LÀM VIỆC HÀNG NGÀY
+--------------------------------
+
+1. Cập nhật code mới nhất:
+   ```bash
+   git pull origin main
+   ```
+
+2. Tạo branch mới cho tính năng:
+   ```bash
+   git checkout -b feature/attendance-menu/[tên-tính-năng]
+   ```
+
+3. Phát triển tính năng:
+   - Chỉ sửa các file trong folder attendance
+   - Không sửa file ngoài folder attendance
+   - Test kỹ trước khi commit
+
+4. Commit code:
+   ```bash
+   git add backend/src/public/admin/attendance/
+   git commit -m "feat: [Mô tả tính năng]"
+   ```
+
+5. Push code:
+   ```bash
+   git push origin feature/attendance-menu/[tên-tính-năng]
+   ```
+
+IV. CÁC TÍNH NĂNG CẦN PHÁT TRIỂN
+--------------------------------
+
+1. Chấm công hàng ngày:
+   - Form chấm công
+   - Xử lý check-in/check-out
+   - Tính giờ làm việc
+
+2. Xem lịch sử chấm công:
+   - Danh sách chấm công
+   - Lọc theo ngày/tháng
+   - Xuất báo cáo
+
+3. Quản lý nghỉ phép:
+   - Form xin nghỉ
+   - Duyệt nghỉ phép
+   - Tính ngày nghỉ còn lại
+
+4. Thống kê chấm công:
+   - Báo cáo theo tháng
+   - Thống kê giờ làm
+   - Biểu đồ chấm công
+
+V. QUY TẮC LÀM VIỆC
+------------------
+
+1. Quy tắc code:
+   - Tuân thủ coding convention
+   - Viết comment rõ ràng
+   - Tách code thành các module nhỏ
+   - Test kỹ trước khi commit
+
+2. Quy tắc Git:
+   - Commit thường xuyên
+   - Message commit rõ ràng
+   - Không commit file log
+   - Không commit file cấu hình local
+
+3. Quy tắc làm việc nhóm:
+   - Chỉ sửa file trong folder attendance
+   - Thông báo khi cần thay đổi file chung
+   - Review code của nhau
+   - Thảo luận khi có vấn đề
+
+VI. XỬ LÝ TÌNH HUỐNG
+-------------------
+
+1. Khi có xung đột:
+   ```bash
+   git pull origin main
+   # Giải quyết xung đột
+   git add .
+   git commit -m "fix: Resolve conflicts"
+   git push origin feature/attendance-menu/[tên-tính-năng]
+   ```
+
+2. Khi cần thay đổi file chung:
+   - Tạo issue trên GitHub
+   - Thảo luận với team
+   - Đợi sự đồng ý
+   - Thực hiện thay đổi
+
+3. Khi hoàn thành tính năng:
+   - Tạo Pull Request
+   - Mô tả rõ ràng các thay đổi
+   - Đợi review
+   - Merge sau khi được approve
+
+VII. TÀI LIỆU THAM KHẢO
+---------------------
+
+1. Tài liệu hệ thống:
+   - API Documentation
+   - Database Schema
+   - Coding Convention
+
+2. Công cụ hỗ trợ:
+   - Postman (Test API)
+   - MySQL Workbench
+   - Chrome DevTools
+
+3. Liên hệ hỗ trợ:
+   - Team Leader
+   - Technical Support
+   - Documentation Team
+
+VIII. LƯU Ý QUAN TRỌNG
+--------------------
+
+1. Bảo mật:
+   - Không commit thông tin nhạy cảm
+   - Sử dụng biến môi trường
+   - Kiểm tra quyền truy cập
+
+2. Hiệu suất:
+   - Tối ưu code
+   - Giảm thiểu request
+   - Cache khi cần thiết
+
+3. Bảo trì:
+   - Code dễ đọc
+   - Dễ mở rộng
+   - Dễ debug
+
+IX. CHECKLIST HÀNG NGÀY
+---------------------
+
+1. Trước khi bắt đầu:
+   - Pull code mới nhất
+   - Kiểm tra task trong ngày
+   - Cập nhật status
+
+2. Trong khi làm việc:
+   - Commit thường xuyên
+   - Test kỹ lưỡng
+   - Ghi chú vấn đề
+
+3. Kết thúc ngày:
+   - Push code
+   - Cập nhật status
+   - Báo cáo tiến độ
+
+X. TROUBLESHOOTING
+----------------
+
+1. Lỗi thường gặp:
+   - Xung đột code
+   - Lỗi database
+   - Lỗi API
+
+2. Cách xử lý:
+   - Kiểm tra log
+   - Debug code
+   - Hỏi team
+
+3. Phòng ngừa:
+   - Test kỹ
+   - Backup code
+   - Document đầy đủ 

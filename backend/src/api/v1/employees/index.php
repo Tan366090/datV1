@@ -133,32 +133,27 @@ try {
                 http_response_code(400);
                 echo json_encode([
                     'success' => false,
-                    'error' => 'Invalid JSON data'
+                    'error' => 'Invalid JSON data',
+                    'details' => json_last_error_msg()
                 ]);
                 exit;
             }
             
+            // Log received data for debugging
+            error_log('Received data: ' . print_r($data, true));
+            
             // Validate input
             $rules = [
-                'username' => 'required|min:3|max:50|unique:users',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:6',
-                'full_name' => 'required|min:2|max:100',
-                'phone_number' => 'required|min:10|max:15',
-                'date_of_birth' => 'required|date',
+                'fullName' => 'required|min:2|max:100',
+                'phone' => 'required|min:10|max:15',
+                'department' => 'required|integer|exists:departments,id',
+                'position' => 'required|integer|exists:positions,id',
+                'birthDate' => 'required|date',
                 'gender' => 'required|in:male,female,other',
-                'permanent_address' => 'required|min:5|max:255',
-                'current_address' => 'required|min:5|max:255',
-                'bank_account_number' => 'required|min:10|max:20',
-                'bank_name' => 'required|min:2|max:100',
-                'tax_code' => 'required|min:10|max:20',
-                'department_id' => 'required|integer|exists:departments,id',
-                'position_id' => 'required|integer|exists:positions,id',
-                'employment_type' => 'required|in:full_time,part_time,contract,intern',
-                'join_date' => 'required|date',
-                'contract_start_date' => 'required|date',
-                'contract_end_date' => 'date',
-                'status' => 'required|in:active,inactive,terminated,on_leave'
+                'address' => 'required|min:5|max:255',
+                'idNumber' => 'required|min:9|max:12',
+                'startDate' => 'required|date',
+                'password' => 'required|min:6'
             ];
             
             $validator = new ValidationMiddleware($rules);
@@ -176,9 +171,16 @@ try {
                 // Start transaction
                 $dataStore->beginTransaction();
 
+                // Generate default email if not provided
+                if (empty($data['email'])) {
+                    $fullName = strtolower(str_replace(' ', '', $data['fullName']));
+                    $phoneLast5 = substr($data['phone'], -5);
+                    $data['email'] = $fullName . $phoneLast5 . '@gmail.com';
+                }
+
                 // 1. Create user record
                 $userData = [
-                    'username' => $data['username'],
+                    'username' => strtolower(str_replace(' ', '.', $data['fullName'])) . '_' . uniqid(),
                     'email' => $data['email'],
                     'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
                     'role_id' => 4, // Default employee role
@@ -190,16 +192,13 @@ try {
                 // 2. Create user profile
                 $profileData = [
                     'user_id' => $userId,
-                    'full_name' => $data['full_name'],
-                    'phone_number' => $data['phone_number'],
+                    'full_name' => $data['fullName'],
+                    'phone_number' => $data['phone'],
                     'email' => $data['email'],
-                    'date_of_birth' => $data['date_of_birth'],
+                    'date_of_birth' => $data['birthDate'],
                     'gender' => $data['gender'],
-                    'permanent_address' => $data['permanent_address'],
-                    'current_address' => $data['current_address'],
-                    'bank_account_number' => $data['bank_account_number'],
-                    'bank_name' => $data['bank_name'],
-                    'tax_code' => $data['tax_code'],
+                    'permanent_address' => $data['address'],
+                    'identity_card' => $data['idNumber'],
                     'status' => 'active',
                     'created_at' => date('Y-m-d H:i:s')
                 ];
@@ -212,14 +211,13 @@ try {
                 $employeeData = [
                     'user_id' => $userId,
                     'employee_code' => $employeeCode,
-                    'department_id' => $data['department_id'],
-                    'position_id' => $data['position_id'],
-                    'employment_type' => $data['employment_type'],
-                    'hire_date' => $data['join_date'],
-                    'contract_type' => $data['employment_type'],
-                    'contract_start_date' => $data['contract_start_date'],
-                    'contract_end_date' => $data['contract_end_date'] ?? null,
-                    'status' => $data['status'],
+                    'department_id' => $data['department'],
+                    'position_id' => $data['position'],
+                    'employment_type' => 'full_time', // Default to full time
+                    'hire_date' => $data['startDate'],
+                    'contract_type' => 'permanent', // Default to permanent
+                    'contract_start_date' => $data['startDate'],
+                    'status' => 'active',
                     'created_at' => date('Y-m-d H:i:s')
                 ];
                 $employeeId = $dataStore->insertData('employees', $employeeData);
@@ -229,18 +227,26 @@ try {
 
                 // Get the created employee with details
                 $employee = $dataStore->getData('employees', ['id' => $employeeId]);
+                if (!$employee) {
+                    throw new Exception('Failed to retrieve created employee');
+                }
+                
                 http_response_code(201);
                 echo json_encode([
                     'success' => true,
-                    'data' => $employee[0]
+                    'message' => 'Employee created successfully',
+                    'data' => $employee[0],
+                    'generated_email' => $data['email']
                 ]);
             } catch (Exception $e) {
                 // Rollback transaction on error
                 $dataStore->rollback();
+                error_log('Error creating employee: ' . $e->getMessage());
                 http_response_code(500);
                 echo json_encode([
                     'success' => false,
-                    'error' => $e->getMessage()
+                    'error' => 'Failed to create employee',
+                    'details' => $e->getMessage()
                 ]);
             }
             break;

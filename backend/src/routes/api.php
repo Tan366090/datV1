@@ -197,16 +197,6 @@ $router->get('/api/positions', function($request, $response) {
     return $response->withJson($result);
 });
 
-// API để lấy danh sách loại hợp đồng
-$router->get('/api/contract-types', function($request, $response) {
-    $contractTypeController = new ContractTypeController();
-    $contractTypes = $contractTypeController->getContractTypes();
-    return $response->withJson([
-        'success' => true,
-        'data' => $contractTypes
-    ]);
-});
-
 // API để lấy mã nhân viên mới
 $router->get('/api/employee-code', function($request, $response) {
     $employeeController = new EmployeeController();

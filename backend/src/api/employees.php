@@ -147,7 +147,7 @@ class EmployeeAPI {
             }
 
             // Validate dữ liệu
-            $required_fields = ['email', 'phone', 'employee_code', 'department_id', 'hire_date', 'contract_type', 'base_salary', 'contract_start_date'];
+            $required_fields = ['fullName', 'phone', 'department', 'position', 'startDate', 'email'];
             foreach ($required_fields as $field) {
                 if (empty($data[$field])) {
                     throw new Exception("Trường {$field} là bắt buộc");
@@ -155,7 +155,7 @@ class EmployeeAPI {
             }
 
             // Validate email
-            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 throw new Exception('Email không hợp lệ');
             }
 
@@ -164,33 +164,21 @@ class EmployeeAPI {
                 throw new Exception('Số điện thoại không hợp lệ');
             }
 
-            // Kiểm tra email đã tồn tại chưa
-            $check_email = "SELECT user_id FROM users WHERE email = ?";
-            $stmt = $this->conn->prepare($check_email);
-            $stmt->execute([$data['email']]);
-            if ($stmt->rowCount() > 0) {
-                throw new Exception('Email đã tồn tại');
-            }
-
-            // Kiểm tra mã nhân viên đã tồn tại chưa
-            $check_code = "SELECT id FROM employees WHERE employee_code = ?";
-            $stmt = $this->conn->prepare($check_code);
-            $stmt->execute([$data['employee_code']]);
-            if ($stmt->rowCount() > 0) {
-                throw new Exception('Mã nhân viên đã tồn tại');
-            }
-
             // Bắt đầu transaction
             $this->conn->beginTransaction();
 
             try {
+                // Tạo mã nhân viên tự động nếu không có
+                $employee_code = $data['employee_code'] ?? $this->generateEmployeeCode();
+
                 // Thêm user
-                $user_query = "INSERT INTO users (email, username, password, role) VALUES (?, ?, ?, 'employee')";
+                $user_query = "INSERT INTO users (email, username, password_hash, role_id) VALUES (?, ?, ?, ?)";
                 $stmt = $this->conn->prepare($user_query);
                 $stmt->execute([
                     $data['email'],
-                    $data['email'],
-                    password_hash('123456', PASSWORD_DEFAULT) // Mật khẩu mặc định
+                    $data['email'], // Using email as username
+                    password_hash('123456', PASSWORD_DEFAULT), // Mật khẩu mặc định
+                    2 // role_id = 2 cho nhân viên
                 ]);
                 $user_id = $this->conn->lastInsertId();
 
@@ -200,59 +188,29 @@ class EmployeeAPI {
                 $stmt = $this->conn->prepare($profile_query);
                 $stmt->execute([
                     $user_id,
-                    $data['name'],
+                    $data['fullName'],
                     $data['phone'],
-                    $data['birthday'] ?? null,
-                    $data['gender'] ?? null,
+                    $data['birthDate'] ?? null,
+                    $data['gender'] ?? 'other',
                     $data['address'] ?? null
                 ]);
 
-                // Xử lý chức vụ mới nếu có
-                $position_id = null;
-                if (isset($data['position_name']) && isset($data['department_id'])) {
-                    // Thêm chức vụ mới
-                    $position_query = "INSERT INTO positions (name, department_id) VALUES (?, ?)";
-                    $stmt = $this->conn->prepare($position_query);
-                    $stmt->execute([$data['position_name'], $data['department_id']]);
-                    $position_id = $this->conn->lastInsertId();
-                } else if (isset($data['position_id'])) {
-                    $position_id = $data['position_id'];
-                }
-
                 // Thêm employee
-                $employee_query = "INSERT INTO employees (user_id, employee_code, department_id, position_id, hire_date, 
-                                contract_type, base_salary, contract_start_date, status) 
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')";
+                $employee_query = "INSERT INTO employees (user_id, employee_code, department_id, position_id, hire_date, status, contract_type, base_salary, contract_start_date, contract_end_date) 
+                                VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)";
                 $stmt = $this->conn->prepare($employee_query);
                 $stmt->execute([
                     $user_id,
-                    $data['employee_code'],
-                    $data['department_id'],
-                    $position_id,
-                    $data['hire_date'],
-                    $data['contract_type'],
-                    $data['base_salary'],
-                    $data['contract_start_date']
+                    $employee_code,
+                    $data['department'],
+                    $data['position'],
+                    $data['startDate'],
+                    $data['contract_type'] ?? 'Permanent',
+                    $data['base_salary'] ?? 0,
+                    $data['contract_start_date'] ?? $data['startDate'],
+                    $data['contract_end_date'] ?? null
                 ]);
                 $employee_id = $this->conn->lastInsertId();
-
-                // Nếu có thông tin gia đình
-                if (!empty($data['family_members'])) {
-                    foreach ($data['family_members'] as $member) {
-                        $family_query = "INSERT INTO family_members (employee_id, name, relationship, date_of_birth, 
-                                        occupation, is_dependent) 
-                                        VALUES (?, ?, ?, ?, ?, ?)";
-                        $stmt = $this->conn->prepare($family_query);
-                        $stmt->execute([
-                            $employee_id,
-                            $member['name'],
-                            $member['relationship'],
-                            $member['birthday'] ?? null,
-                            $member['occupation'] ?? null,
-                            $member['is_dependent'] ? 1 : 0
-                        ]);
-                    }
-                }
 
                 // Commit transaction
                 $this->conn->commit();
@@ -262,7 +220,7 @@ class EmployeeAPI {
                     'message' => 'Thêm nhân viên thành công',
                     'data' => [
                         'id' => $employee_id,
-                        'employee_code' => $data['employee_code']
+                        'employee_code' => $employee_code
                     ]
                 ]);
 
@@ -279,6 +237,40 @@ class EmployeeAPI {
                 'message' => $e->getMessage()
             ]);
         }
+    }
+
+    // Hàm tạo mã nhân viên tự động
+    private function generateEmployeeCode() {
+        $prefix = 'NV';
+        $random = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+        $date = date('ym');
+        return $prefix . $date . $random;
+    }
+
+    // Hàm tạo email tự động
+    private function generateEmail($fullName) {
+        $name = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $this->removeAccents($fullName)));
+        $random = str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+        return $name . $random . '@company.com';
+    }
+
+    // Hàm xóa dấu tiếng Việt
+    private function removeAccents($str) {
+        $str = preg_replace("/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/", 'a', $str);
+        $str = preg_replace("/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/", 'e', $str);
+        $str = preg_replace("/(ì|í|ị|ỉ|ĩ)/", 'i', $str);
+        $str = preg_replace("/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/", 'o', $str);
+        $str = preg_replace("/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/", 'u', $str);
+        $str = preg_replace("/(ỳ|ý|ỵ|ỷ|ỹ)/", 'y', $str);
+        $str = preg_replace("/(đ)/", 'd', $str);
+        $str = preg_replace("/(À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ)/", 'A', $str);
+        $str = preg_replace("/(È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ)/", 'E', $str);
+        $str = preg_replace("/(Ì|Í|Ị|Ỉ|Ĩ)/", 'I', $str);
+        $str = preg_replace("/(Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ)/", 'O', $str);
+        $str = preg_replace("/(Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ)/", 'U', $str);
+        $str = preg_replace("/(Ỳ|Ý|Ỵ|Ỷ|Ỹ)/", 'Y', $str);
+        $str = preg_replace("/(Đ)/", 'D', $str);
+        return $str;
     }
 
     // Xóa nhân viên
@@ -327,6 +319,29 @@ switch ($method) {
         $api->getEmployees();
         break;
     case 'POST':
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Log the received data for debugging
+        error_log("Received data: " . print_r($data, true));
+
+        if (empty($data['name'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Tên nhân viên không được để trống.']);
+            exit;
+        }
+
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Email không hợp lệ.']);
+            exit;
+        }
+
+        if (!preg_match('/^\d{10,15}$/', $data['phone'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Số điện thoại không hợp lệ.']);
+            exit;
+        }
+
         $api->addEmployee();
         break;
     case 'DELETE':
@@ -348,4 +363,4 @@ switch ($method) {
             'message' => 'Phương thức không được hỗ trợ'
         ]);
         break;
-} 
+}
