@@ -6,21 +6,421 @@ class EmployeeFormHandler {
         this.contractTypeSelect = document.getElementById('contractType');
         this.addEmployeeForm = document.getElementById('addEmployeeForm');
         this.saveButton = document.getElementById('saveEmployeeBtn');
+        this.formInteracted = false;
+        this.retryCount = 0;
+        this.maxRetries = 3;
+        this.autoSaveTimeout = null;
+        this.lastSavedData = null;
+        this.modalService = ModalService;
         
+        if (!this.addEmployeeForm) {
+            console.warn('Employee form not found');
+            return;
+        }
+
+        this.initializeForm();
         this.initializeEventListeners();
         this.loadInitialData();
+        this.setupAutoSave();
+    }
+
+    initializeForm() {
+        // Ngăn chặn submit form mặc định
+        this.addEmployeeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+        });
+
+        // Thêm event listener cho nút save
+        if (this.saveButton) {
+            this.saveButton.addEventListener('click', () => this.validateAndSaveEmployee());
+        }
+
+        // Thêm event listener cho toàn bộ form
+        this.addEmployeeForm.addEventListener('input', () => {
+            this.formInteracted = true;
+            this.handleAutoSave();
+        });
+
+        // Thêm validation real-time
+        this.addEmployeeForm.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.classList.remove('invalid', 'valid', 'pending');
+            });
+            input.addEventListener('blur', () => {
+                if (input.value.trim() !== '') {
+                    this.validateField(input);
+                }
+            });
+            input.addEventListener('input', () => {
+                if (input.value.trim() !== '') {
+                    this.validateField(input);
+                    this.syncNameFields(input);
+                }
+            });
+        });
+    }
+
+    setupAutoSave() {
+        // Thiết lập auto-save mỗi 30 giây nếu có thay đổi
+        setInterval(() => {
+            if (this.formInteracted) {
+                this.handleAutoSave();
+            }
+        }, 30000);
+    }
+
+    handleAutoSave() {
+        if (this.autoSaveTimeout) {
+            clearTimeout(this.autoSaveTimeout);
+        }
+
+        this.autoSaveTimeout = setTimeout(async () => {
+            try {
+                const formData = this.getFormData();
+                if (this.hasFormDataChanged(formData)) {
+                    await this.autoSaveDraft(formData);
+                }
+            } catch (error) {
+                console.warn('Auto-save failed:', error);
+            }
+        }, 5000); // Đợi 5 giây sau khi người dùng dừng nhập
+    }
+
+    hasFormDataChanged(newData) {
+        return JSON.stringify(newData) !== JSON.stringify(this.lastSavedData);
+    }
+
+    async autoSaveDraft(formData) {
+        try {
+            const response = await fetch('/qlnhansu_V2/backend/src/api/drafts.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    type: 'employee_form',
+                    data: formData
+                })
+            });
+
+            if (response.ok) {
+                this.lastSavedData = formData;
+                this.showNotification('Đã tự động lưu bản nháp', 'info');
+            }
+        } catch (error) {
+            console.warn('Failed to auto-save draft:', error);
+        }
+    }
+
+    async validateAndSaveEmployee() {
+        this.formInteracted = true;
+        
+        try {
+            // Validate dữ liệu
+            const validationResult = await this.validateFormData();
+            if (!validationResult.isValid) {
+                this.showValidationErrors(validationResult.errors);
+                return;
+            }
+
+            // Xử lý dữ liệu thông minh
+            const processedData = await this.processFormData(validationResult.data);
+            
+            // Thử lưu với retry
+            const result = await this.saveWithRetry(processedData);
+            
+            if (result.success) {
+                this.handleSuccess(result);
+            } else {
+                this.handleError(result);
+            }
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async validateFormData() {
+        const formData = this.getFormData();
+        const errors = [];
+        let isValid = true;
+
+        // Validate các trường bắt buộc
+        const requiredFields = ['employeeName', 'employeeEmail', 'employeePhone', 'departmentId', 'positionId'];
+        requiredFields.forEach(field => {
+            if (!formData[field]?.trim()) {
+                errors.push(`${this.getFieldLabel(field)} không được để trống`);
+                isValid = false;
+            }
+        });
+
+        // Kiểm tra riêng cho positionId
+        if (formData.positionId === 'new') {
+            const newPositionInput = document.getElementById('newPosition');
+            const newPositionName = newPositionInput ? newPositionInput.value.trim() : '';
+            if (!newPositionName) {
+                errors.push('Vui lòng nhập tên chức vụ mới');
+                isValid = false;
+            }
+        }
+
+        // Validate định dạng
+        if (formData.employeeEmail && !this.validateEmail(formData.employeeEmail)) {
+            errors.push('Email không hợp lệ');
+            isValid = false;
+        }
+
+        if (formData.employeePhone && !this.validatePhone(formData.employeePhone)) {
+            errors.push('Số điện thoại không hợp lệ');
+            isValid = false;
+        }
+
+        // Validate ngày tháng
+        if (formData.employeeBirthday && !this.validateDate(formData.employeeBirthday)) {
+            errors.push('Ngày sinh không hợp lệ');
+            isValid = false;
+        }
+
+        return { isValid, errors, data: formData };
+    }
+
+    async processFormData(formData) {
+        // Nếu chọn thêm chức vụ mới, tạo chức vụ mới trước khi gửi
+        let positionId = formData.positionId;
+        if (positionId === 'new') {
+            const newPositionInput = document.getElementById('newPosition');
+            const newPositionName = newPositionInput ? newPositionInput.value.trim() : '';
+            const departmentId = formData.departmentId;
+            if (newPositionName && departmentId) {
+                // Gọi API tạo chức vụ mới
+                try {
+                    const response = await fetch('/qlnhansu_V2/backend/src/api/positions.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: newPositionName, department_id: departmentId })
+                    });
+                    const data = await response.json();
+                    if (data.success && data.data && data.data.id) {
+                        positionId = data.data.id;
+                    } else {
+                        throw new Error('Không thể tạo chức vụ mới: ' + (data.message || 'Lỗi không xác định'));
+                    }
+                } catch (err) {
+                    throw new Error('Lỗi khi tạo chức vụ mới: ' + err.message);
+                }
+            } else {
+                throw new Error('Vui lòng nhập tên chức vụ mới và chọn phòng ban');
+            }
+        }
+        if (!positionId || positionId === 'new') {
+            throw new Error('Chức vụ không được để trống hoặc chưa hợp lệ');
+        }
+
+        // Xử lý tên thông minh
+        const nameData = this.processName(formData.employeeName, formData.employeeFullName);
+        // Xử lý email thông minh
+        const email = this.processEmail(formData.employeeEmail, nameData.name);
+        // Xử lý số điện thoại thông minh
+        const phone = this.processPhone(formData.employeePhone);
+        // Xử lý ngày tháng thông minh
+        const dates = this.processDates(formData);
+        // Xử lý lương thông minh
+        const salary = this.processSalary(formData.baseSalary, positionId);
+
+        return {
+            ...formData,
+            ...nameData,
+            email,
+            phone,
+            ...dates,
+            base_salary: salary,
+            positionId: positionId // Đảm bảo luôn là id hợp lệ
+        };
+    }
+
+    processName(name, fullName) {
+        if (!name && fullName) {
+            const nameParts = fullName.split(' ');
+            return {
+                name: nameParts[nameParts.length - 1],
+                full_name: fullName
+            };
+        } else if (!name) {
+            const defaultName = `Nhân viên ${new Date().getTime()}`;
+            return {
+                name: defaultName,
+                full_name: defaultName
+            };
+        }
+        return {
+            name: name,
+            full_name: fullName || name
+        };
+    }
+
+    processEmail(email, name) {
+        if (!email) {
+            const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            return `${cleanName}@company.com`;
+        }
+        return email;
+    }
+
+    processPhone(phone) {
+        if (!phone) return '';
+        const cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.length === 9 && !cleanPhone.startsWith('0')) {
+            return `0${cleanPhone}`;
+        }
+        return cleanPhone;
+    }
+
+    processDates(formData) {
+        const today = new Date();
+        const oneYearLater = new Date(today);
+        oneYearLater.setFullYear(today.getFullYear() + 1);
+
+        return {
+            contract_start_date: formData.contractStartDate || this.formatDate(today),
+            contract_end_date: formData.contractEndDate || this.formatDate(oneYearLater),
+            date_of_birth: formData.employeeBirthday || null
+        };
+    }
+
+    processSalary(baseSalary, positionId) {
+        if (!baseSalary || isNaN(parseFloat(baseSalary))) {
+            const position = positions.find(p => p.id === positionId);
+            return position?.base_salary || 0;
+        }
+        return parseFloat(baseSalary);
+    }
+
+    async saveWithRetry(employeeData, maxRetries = 3) {
+        let retryCount = 0;
+        let lastError = null;
+
+        while (retryCount < maxRetries) {
+            try {
+                console.log(`Attempt ${retryCount + 1} to save employee data`);
+                
+                const response = await fetch('/qlnhansu_V2/backend/src/api/employees.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(employeeData)
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'Lỗi khi lưu nhân viên');
+                }
+
+                return result;
+            } catch (error) {
+                console.error(`Save attempt ${retryCount + 1} failed:`, error);
+                lastError = error;
+                retryCount++;
+                
+                if (retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                    continue;
+                }
+                
+                throw lastError;
+            }
+        }
+    }
+
+    handleSuccess(result) {
+        this.showNotification('Thêm nhân viên thành công', 'success');
+        this.closeModal();
+        if (typeof loadEmployees === 'function') {
+            loadEmployees();
+        }
+    }
+
+    handleError(error) {
+        console.error('Error saving employee:', error);
+        this.showNotification(error.message || 'Có lỗi xảy ra khi thêm nhân viên', 'error');
+    }
+
+    showValidationErrors(errors) {
+        errors.forEach(error => {
+            this.showNotification(error, 'error');
+        });
+    }
+
+    getFormData() {
+        const formData = new FormData(this.addEmployeeForm);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+        return data;
+    }
+
+    getFieldLabel(fieldId) {
+        const labels = {
+            employeeName: 'Tên nhân viên',
+            employeeEmail: 'Email',
+            employeePhone: 'Số điện thoại',
+            departmentId: 'Phòng ban',
+            positionId: 'Chức vụ'
+        };
+        return labels[fieldId] || fieldId;
+    }
+
+    validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    validatePhone(phone) {
+        const phoneRegex = /^\d{10,15}$/;
+        return phoneRegex.test(phone.replace(/\D/g, ''));
+    }
+
+    validateDate(date) {
+        if (!date) return true;
+        const parsedDate = new Date(date);
+        return !isNaN(parsedDate.getTime());
+    }
+
+    formatDate(date) {
+        if (!date) return null;
+        const d = new Date(date);
+        return d.toISOString().split('T')[0];
+    }
+
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    showModal() {
+        this.modalService.show('addEmployeeModal');
+        this.modalService.handleCloseButton('addEmployeeModal', 'closeModalBtn');
+    }
+
+    closeModal() {
+        this.modalService.hide('addEmployeeModal');
+        this.modalService.resetForm('addEmployeeForm');
     }
 
     initializeEventListeners() {
         // Khi phòng ban thay đổi, load lại chức vụ tương ứng
         this.departmentSelect.addEventListener('change', () => this.loadPositionsByDepartment());
         
-        // Xử lý khi click nút Lưu
-        this.saveButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.validateAndSaveEmployee();
-        });
-
         // Thêm validation cho các trường input
         this.addEmployeeForm.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('input', () => {
@@ -29,6 +429,46 @@ class EmployeeFormHandler {
             });
             input.addEventListener('blur', () => this.validateField(input));
         });
+
+        // Gán sự kiện cho nút Hủy và icon X
+        const closeBtn = document.getElementById('closeModalBtn');
+        if (closeBtn) {
+            closeBtn.onclick = null; // Remove any existing click handlers
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeModal();
+            });
+        }
+
+        // Gán sự kiện cho nút mở modal
+        const addEmployeeFormBtn = document.getElementById('addEmployeeFormBtn');
+        if (addEmployeeFormBtn) {
+            addEmployeeFormBtn.addEventListener('click', () => this.showModal());
+        }
+
+        // Add event listener for cancel button
+        const cancelBtn = document.getElementById('cancelEmployeeBtn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                this.closeModal();
+            });
+        }
+
+        // Add event listeners for file upload modal
+        const closeFileModalBtn = document.getElementById('closeFileModalBtn');
+        if (closeFileModalBtn) {
+            closeFileModalBtn.addEventListener('click', () => {
+                this.modalService.hide('addEmployeeByFileModal');
+            });
+        }
+
+        const cancelFileBtn = document.getElementById('cancelFileBtn');
+        if (cancelFileBtn) {
+            cancelFileBtn.addEventListener('click', () => {
+                this.modalService.hide('addEmployeeByFileModal');
+            });
+        }
     }
 
     // Hàm đồng bộ giữa trường name và full_name
@@ -62,6 +502,11 @@ class EmployeeFormHandler {
     }
 
     validateField(input) {
+        // Chỉ validate khi form đã được tương tác
+        if (!this.formInteracted) {
+            return;
+        }
+
         const value = input.value.trim();
         const fieldName = input.getAttribute('id');
         let isValid = true;
@@ -276,79 +721,6 @@ class EmployeeFormHandler {
         messageElement.className = 'validation-message ' + (value === '' && !input.hasAttribute('required') ? 'pending' : (isValid ? 'valid' : 'invalid'));
     }
 
-    validateAndSaveEmployee() {
-        let isValid = true;
-        const invalidFields = [];
-
-        // Validate tất cả các trường bắt buộc
-        this.addEmployeeForm.querySelectorAll('input[required], select[required]').forEach(input => {
-            this.validateField(input);
-            if (!input.value.trim()) {
-                isValid = false;
-                invalidFields.push(input.getAttribute('id'));
-            }
-        });
-
-        // Validate thông tin gia đình
-        const familyMembers = document.querySelectorAll('.family-member');
-        familyMembers.forEach(member => {
-            const nameInput = member.querySelector('.member-name');
-            const relationshipInput = member.querySelector('.relationship');
-            
-            // Validate tên thành viên
-            if (nameInput.value.trim()) {
-                this.validateField(nameInput);
-                if (!nameInput.classList.contains('valid')) {
-                    isValid = false;
-                    invalidFields.push('member-name');
-                }
-            }
-            
-            // Validate mối quan hệ
-            if (relationshipInput.value.trim()) {
-                this.validateField(relationshipInput);
-                if (!relationshipInput.classList.contains('valid')) {
-                    isValid = false;
-                    invalidFields.push('relationship');
-                }
-            }
-            
-            // Validate ngày sinh nếu có
-            const birthdayInput = member.querySelector('.member-birthday');
-            if (birthdayInput.value.trim()) {
-                this.validateField(birthdayInput);
-                if (!birthdayInput.classList.contains('valid')) {
-                    isValid = false;
-                    invalidFields.push('member-birthday');
-                }
-            }
-            
-            // Validate nghề nghiệp nếu có
-            const occupationInput = member.querySelector('.member-occupation');
-            if (occupationInput.value.trim()) {
-                this.validateField(occupationInput);
-                if (!occupationInput.classList.contains('valid')) {
-                    isValid = false;
-                    invalidFields.push('member-occupation');
-                }
-            }
-        });
-
-        if (!isValid) {
-            this.showNotification('Vui lòng kiểm tra lại thông tin đã nhập', 'error');
-            invalidFields.forEach(fieldId => {
-                const input = document.getElementById(fieldId);
-                if (input) {
-                    input.classList.add('invalid');
-                    input.focus();
-                }
-            });
-            return;
-        }
-
-        this.saveEmployee();
-    }
-
     async loadInitialData() {
         try {
             // Load danh sách phòng ban
@@ -364,26 +736,22 @@ class EmployeeFormHandler {
 
     async loadDepartments() {
         try {
-            const response = await fetch('/api/departments/list');
+            const response = await fetch('/qlnhansu_V2/backend/src/api/departments.php');
+            if (!response.ok) throw new Error('Failed to load departments');
             const data = await response.json();
-            
             if (data.success) {
-                // Xóa các option cũ (giữ lại option mặc định)
-                while (this.departmentSelect.options.length > 1) {
-                    this.departmentSelect.remove(1);
-                }
-                
-                // Thêm các phòng ban mới
+                const departmentSelect = document.getElementById('departmentId');
+                departmentSelect.innerHTML = '<option value="">Chọn phòng ban</option>';
                 data.data.forEach(dept => {
                     const option = document.createElement('option');
                     option.value = dept.id;
                     option.textContent = dept.name;
-                    this.departmentSelect.appendChild(option);
+                    departmentSelect.appendChild(option);
                 });
             }
         } catch (error) {
             console.error('Error loading departments:', error);
-            // this.showNotification('Không thể tải danh sách phòng ban', 'error');
+            this.showNotification('Không thể tải danh sách phòng ban', 'error');
         }
     }
 
@@ -444,9 +812,9 @@ class EmployeeFormHandler {
                 // Thêm các chức vụ hiện có
                 positions.forEach(position => {
                     if (position && position.id && position.name) {
-                    const option = document.createElement('option');
-                    option.value = position.id;
-                    option.textContent = position.name;
+                        const option = document.createElement('option');
+                        option.value = position.id;
+                        option.textContent = position.name;
                         positionSelect.appendChild(option);
                     }
                 });
@@ -469,26 +837,26 @@ class EmployeeFormHandler {
 
     async loadContractTypes() {
         try {
-            const response = await fetch('/api/contract-types');
+            const response = await fetch('/qlnhansu_V2/backend/src/api/contract_types.php');
+            if (!response.ok) throw new Error('Failed to load contract types');
             const data = await response.json();
-            
+    
             if (data.success) {
                 // Xóa các option cũ (giữ lại option mặc định)
                 while (this.contractTypeSelect.options.length > 1) {
                     this.contractTypeSelect.remove(1);
                 }
-                
                 // Thêm các loại hợp đồng mới
                 data.data.forEach(contractType => {
                     const option = document.createElement('option');
-                    option.value = contractType.id;
+                    option.value = contractType.name;
                     option.textContent = contractType.name;
                     this.contractTypeSelect.appendChild(option);
                 });
             }
         } catch (error) {
             console.error('Error loading contract types:', error);
-            // this.showNotification('Không thể tải danh sách loại hợp đồng', 'error');
+            this.showNotification('Không thể tải danh sách loại hợp đồng', 'error');
         }
     }
 
@@ -497,125 +865,15 @@ class EmployeeFormHandler {
             this.positionSelect.remove(1);
         }
     }
-
-    async saveEmployee() {
-        try {
-            this.showLoading(true);
-
-            const formData = new FormData(this.addEmployeeForm);
-            const name = formData.get('employeeName');
-            const fullName = formData.get('employeeFullName');
-
-            // Xử lý name và full_name
-            let finalName = '';
-            let finalFullName = '';
-
-            if (name && !fullName) {
-                // Nếu có name nhưng không có full_name, dùng name cho cả hai
-                finalName = name;
-                finalFullName = name;
-            } else if (!name && fullName) {
-                // Nếu có full_name nhưng không có name, dùng full_name cho cả hai
-                finalName = fullName;
-                finalFullName = fullName;
-            } else if (name && fullName) {
-                // Nếu có cả hai, ưu tiên dùng full_name
-                finalName = fullName;
-                finalFullName = fullName;
-            }
-
-        const employeeData = {
-                name: finalName,
-                full_name: finalFullName,
-            email: formData.get('employeeEmail'),
-            phone: formData.get('employeePhone'),
-            birthday: formData.get('employeeBirthday'),
-            address: formData.get('employeeAddress'),
-                employee_code: formData.get('employeeCode'),
-                department_id: formData.get('departmentId'),
-                position_id: formData.get('positionId'),
-                hire_date: formData.get('hireDate'),
-                contract_type: formData.get('contractType'),
-                base_salary: formData.get('baseSalary'),
-                contract_start_date: formData.get('contractStartDate'),
-                family_members: this.getFamilyMembersData()
-        };
-
-            const response = await fetch('/qlnhansu_V2/backend/src/api/employees.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(employeeData)
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                this.showNotification('Thêm nhân viên thành công', 'success');
-                this.closeModal();
-                // Có thể thêm code để refresh danh sách nhân viên ở đây
-            } else {
-                throw new Error(result.message || 'Có lỗi xảy ra khi thêm nhân viên');
-            }
-        } catch (error) {
-            console.error('Error saving employee:', error);
-            this.showNotification(error.message, 'error');
-        } finally {
-            this.showLoading(false);
-        }
-    }
-
-    getFamilyMembersData() {
-        const members = [];
-        const memberElements = document.querySelectorAll('.family-member');
-        
-        memberElements.forEach(member => {
-            members.push({
-                name: member.querySelector('.member-name').value,
-                relationship: member.querySelector('.relationship').value,
-                birthday: member.querySelector('.member-birthday').value,
-                occupation: member.querySelector('.member-occupation').value,
-                isDependent: member.querySelector('.member-dependent').checked
-            });
-        });
-
-        return members;
-    }
-
-    showLoading(show) {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        if (loadingOverlay) {
-            loadingOverlay.style.display = show ? 'flex' : 'none';
-        }
-    }
-
-    closeModal() {
-        const modal = document.getElementById('addEmployeeModal');
-        if (modal) {
-            modal.classList.remove('active');
-            this.addEmployeeForm.reset();
-        }
-    }
-
-    showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-
-        // Xóa thông báo sau 5 giây
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 5000);
-    }
 }
 
 // Khởi tạo khi DOM đã load xong
 document.addEventListener('DOMContentLoaded', () => {
     new EmployeeFormHandler();
 }); 
+document.addEventListener('DOMContentLoaded', function() {
+    var positionSelect = document.getElementById('positionId');
+    if (positionSelect) {
+        positionSelect.addEventListener('change', handlePositionChange);
+    }
+});
