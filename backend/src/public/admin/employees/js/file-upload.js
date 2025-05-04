@@ -305,6 +305,8 @@ async function autoRetryWithFix(employeeData, maxRetries = 3) {
     let retryCount = 0;
     let lastError = null;
 
+    console.log("data: ")
+
     while (retryCount < maxRetries) {
         try {
             console.log(`Debug - Thử lưu dữ liệu lần ${retryCount + 1}`);

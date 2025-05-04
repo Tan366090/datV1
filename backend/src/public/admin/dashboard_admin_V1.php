@@ -2296,7 +2296,7 @@
                     </li>
                     
                     <li class="nav-item" data-menu-id="payroll">
-                        <a href="pages/payroll.php" class="nav-link">
+                        <a href="payroll.php" class="nav-link">
                             <i class="fas fa-money-bill-wave"></i>
                             <span style="color:rgb(11, 30, 85);">Lương thưởng</span>
                         </a>

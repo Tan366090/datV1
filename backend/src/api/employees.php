@@ -142,25 +142,27 @@ class EmployeeAPI {
             // Lấy dữ liệu từ request body
             $data = json_decode(file_get_contents('php://input'), true);
             
-            if (!$data) {
+            $employee = $data['employees'][0];
+            
+            if (!$employee) {
                 throw new Exception('Dữ liệu không hợp lệ');
             }
 
             // Validate dữ liệu
             $required_fields = ['fullName', 'phone', 'department', 'position', 'startDate', 'email'];
             foreach ($required_fields as $field) {
-                if (empty($data[$field])) {
+                if (empty($employee[$field])) {
                     throw new Exception("Trường {$field} là bắt buộc");
                 }
             }
 
             // Validate email
-            if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            if (!empty($employee['email']) && !filter_var($employee['email'], FILTER_VALIDATE_EMAIL)) {
                 throw new Exception('Email không hợp lệ');
             }
 
             // Validate phone
-            if (!preg_match('/^[0-9]{10,11}$/', $data['phone'])) {
+            if (!preg_match('/^[0-9]{10,11}$/', $employee['phone'])) {
                 throw new Exception('Số điện thoại không hợp lệ');
             }
 
@@ -169,17 +171,20 @@ class EmployeeAPI {
 
             try {
                 // Tạo mã nhân viên tự động nếu không có
-                $employee_code = $data['employee_code'] ?? $this->generateEmployeeCode();
+                $employee_code = $employee['employee_code'] ?? $this->generateEmployeeCode();
+
+                file_put_contents('log.txt', print_r($employee['email'], true));
 
                 // Thêm user
                 $user_query = "INSERT INTO users (email, username, password_hash, role_id) VALUES (?, ?, ?, ?)";
                 $stmt = $this->conn->prepare($user_query);
                 $stmt->execute([
-                    $data['email'],
-                    $data['email'], // Using email as username
+                    $employee['email'],
+                    $employee['email'], // Using email as username
                     password_hash('123456', PASSWORD_DEFAULT), // Mật khẩu mặc định
                     2 // role_id = 2 cho nhân viên
                 ]);
+                
                 $user_id = $this->conn->lastInsertId();
 
                 // Thêm user profile
@@ -188,27 +193,28 @@ class EmployeeAPI {
                 $stmt = $this->conn->prepare($profile_query);
                 $stmt->execute([
                     $user_id,
-                    $data['fullName'],
-                    $data['phone'],
-                    $data['birthDate'] ?? null,
-                    $data['gender'] ?? 'other',
-                    $data['address'] ?? null
+                    $employee['fullName'],
+                    $employee['phone'],
+                    $employee['birthDate'] ?? null,
+                    $employee['gender'] ?? 'other',
+                    $employee['address'] ?? null
                 ]);
 
                 // Thêm employee
-                $employee_query = "INSERT INTO employees (user_id, employee_code, department_id, position_id, hire_date, status, contract_type, base_salary, contract_start_date, contract_end_date) 
-                                VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)";
+                $employee_query = "INSERT INTO employees (user_id, email, employee_code, department_id, position_id, hire_date, status, contract_type, base_salary, contract_start_date, contract_end_date) 
+                                VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)";
                 $stmt = $this->conn->prepare($employee_query);
                 $stmt->execute([
                     $user_id,
+                    $employee['email'],
                     $employee_code,
-                    $data['department'],
-                    $data['position'],
-                    $data['startDate'],
-                    $data['contract_type'] ?? 'Permanent',
-                    $data['base_salary'] ?? 0,
-                    $data['contract_start_date'] ?? $data['startDate'],
-                    $data['contract_end_date'] ?? null
+                    $employee['department'],
+                    $employee['position'],
+                    $employee['startDate'],
+                    $employee['contract_type'] ?? 'Permanent',
+                    $employee['base_salary'] ?? 0,
+                    $employee['contract_start_date'] ?? $employee['startDate'],
+                    $employee['contract_end_date'] ?? null
                 ]);
                 $employee_id = $this->conn->lastInsertId();
 
@@ -234,7 +240,8 @@ class EmployeeAPI {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'line' => $e->getLine()
             ]);
         }
     }
@@ -320,23 +327,26 @@ switch ($method) {
         break;
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
+        file_put_contents('log.txt', print_r($data, true));
+
+        $employee = $data['employees'][0];
 
         // Log the received data for debugging
         error_log("Received data: " . print_r($data, true));
 
-        if (empty($data['name'])) {
+        if (empty($employee['name'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Tên nhân viên không được để trống.']);
             exit;
         }
 
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($employee['email'], FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Email không hợp lệ.']);
             exit;
         }
 
-        if (!preg_match('/^\d{10,15}$/', $data['phone'])) {
+        if (!preg_match('/^\d{10,15}$/', $employee['phone'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Số điện thoại không hợp lệ.']);
             exit;
